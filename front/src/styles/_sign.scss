@@ -1,0 +1,75 @@
+@use "variables" as *;
+
+@mixin _form__display() {
+  width: 100%;
+  border-radius: 6px;
+}
+
+@mixin _form__font {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+@mixin _form__container ($max_w, $margin) {
+  @include _form__font();
+  max-width: $max_w;
+  margin: $margin;
+  > h1 {
+    font-weight: 400;
+  }
+}
+
+.signin {
+  @include _form__container(340px, 0 auto);
+  > p {
+    margin: 1.5rem 0rem;
+    background-color: getColor(bg);
+    padding: 16px 16px;
+    border: 1px solid getColor(border-color);
+    border-radius: 6px;
+  }
+  a {
+    color: $bluelink;
+  }
+}
+
+.password_reset, .signup {
+  @include _form__container(512px, 0 auto);
+}
+
+.sign__form {
+  border: 1px solid getColor(border-color);
+  border-radius: $radius-3;
+  padding: 16px;
+  margin: .8rem 0rem;
+  background-color: getColor(bg-3);
+  label, input {
+    text-align: left;
+    display: block;
+    @include _form__display();
+    @include _form__font();
+  }
+  input {
+    margin-bottom: 1rem;
+    padding: 5px 12px;
+    border: 1px solid getColor(border-color);
+    background-color: getColor(bg);
+  }
+  button {
+    @include _form__display();
+    @include _form__font();
+    background-color: $greenbtn;
+    border: 1px solid getColor(border-color);
+    padding: 5px 16px;
+    cursor: pointer;
+  }
+  > div {
+    position: relative;
+  }
+  > div > a {
+    font-size: 12px;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+}

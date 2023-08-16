@@ -1,0 +1,25 @@
+{
+  "type": "module",
+  "name": "camagru",
+  "version": "1.0.0",
+  "description": "CRUD & REST API for camagru",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webapp",
+    "nodejs",
+    "ecmascript"
+  ],
+  "author": "jle-corr",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "pg": "^8.11.0"
+  }
+}

@@ -1,0 +1,55 @@
+$ff-primary: "Roboto", "Helvetica", "Arial", sans-serif;
+$transition: all 0.3s linear;
+$transition-2: all 0.12s ease-out 0s;
+$spacing: 0.09rem;
+$spacing-2: 0.08rem;
+$radius: 0.5rem;
+$radius-2: 0.7rem;
+$radius-3: 0.4rem;
+$radius-4: 2rem;
+$radius-5: 1rem;
+$shadow-3: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+$shadow-4: 0 0 0 3px rgba(66, 153, 225, 0.6);
+$space-1: 1.5rem;
+$greenbtn: #238636;
+$bluelink: #2f81f7;
+
+$colors: (
+  bg-nav: rgba(255, 255, 255, 0.8),
+  bg: #f7fafc,
+  bg-2: #edf2f7,
+  bg-3: #ffffff,
+  bg-4: #edf2f7,
+  bg-5: #edf2f7,
+  bg-hover-light: #e2e8f0,
+  bg-hover-dark: #243a52,
+  bg-hover-2: #e2e8f0,
+  fg: #2d3748,
+  fg-2: #1a202c,
+  fg-3: #4a5568,
+  fg-4: #718096,
+  border-color: #e2e8f0,
+  highlight-bg-color: #c6f6d5,
+);
+
+$colors-dark: (
+  bg-nav: rgba(2, 21, 41, 0.8),
+  bg: #001021,
+  bg-2: rgba(255, 255, 255, 0.08),
+  bg-3: #04172b,
+  bg-4: rgba(226, 232, 240, 0.1),
+  bg-5: #0d1d2e,
+  bg-hover-light: #2d3748,
+  bg-hover-dark: rgba(255, 255, 255, 0.78),
+  bg-hover-2: rgba(255, 255, 255, 0.16),
+  fg: #eceded,
+  fg-2: #e2e8f0,
+  fg-3: #718096,
+  fg-4: #e2e8f0,
+  border-color: rgba(255, 255, 255, 0.16),
+  highlight-bg-color: #276749,
+);
+
+@function getColor($color-name){
+    @return var(--color-#{$color-name});
+}

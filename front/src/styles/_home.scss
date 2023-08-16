@@ -1,0 +1,207 @@
+@use "variables" as *;
+
+@mixin _profile_picture($size) {
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  overflow: hidden;
+  > img {
+    width: 100%;
+  }
+}
+
+.home {
+  display: flex;
+  flex-direction: column;
+  .post {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 3rem;
+    background-color: getColor(bg-3);
+    border-radius: $radius-3;
+    box-shadow: $shadow-3;
+    &__author {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: getColor(bg-5);;
+      min-height: 30px;
+      border-top-left-radius: $radius-3;
+      border-top-right-radius: $radius-3;
+      padding: .3rem .8rem;
+      &__id {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        > div {
+          @include _profile_picture(calc(2.6rem + .5vw));
+        }
+        > p {
+          font-size: calc(1rem + .1vw);
+          margin-left: .5rem;
+        }
+      }
+      > p {
+        color: getColor(fg-3);
+        font-size: calc(.8rem + .1vw);
+      }
+    }
+    &__image {
+      min-height: 60px;
+      max-height: 70vh;
+      > img {
+        background-color: lightgray;
+        cursor: pointer;
+        max-width: 100%;
+        height: 100%;
+      }
+    }
+    &__reaction {
+      background-color: getColor(bg-5);
+      border-bottom-left-radius: $radius-3;
+      border-bottom-right-radius: $radius-3;
+      padding: .3rem .8rem;
+      &__count {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        &__likes, &__comments {
+          display: flex;
+          align-items: center;
+          > p {
+            font-size: calc(.9rem + .1vw);
+            margin-right: .3rem;
+          }
+          > button {
+            background: transparent;
+            border-color: transparent;
+            border-radius: $radius;
+            cursor: pointer;
+            font-size: calc(1rem + .2vw);
+            padding: .1rem .3rem;
+            transition: $transition-2;
+          }
+          > button:hover {
+            background-color: getColor(bg-hover-2);
+          }
+        }
+      }
+      &__comments {
+        margin: 5px 0px;
+        &__all {
+          max-height: 50vh;
+          overflow: scroll;
+          &__com {
+            display: flex;
+            margin-top: .6rem;
+            &__pp {
+              @include _profile_picture(calc(1.8rem + .5vw));
+              flex: 0 0 auto;
+            }
+            &__text {
+              background-color: getColor(bg-4);
+              font-size: calc(.82rem + 0.1vw);
+              margin: 0rem .4rem;
+              padding: .4rem .8rem;
+              line-height: 1.2rem;
+              border-radius: $radius-5;
+              &-author {
+                text-align: left;
+                font-weight: 400;
+              }
+              &-comment {
+                text-align: left;
+              }
+            }
+          }
+        }
+        &__write {
+          margin-top: .6rem;
+          display: flex;
+          &__pp {
+            @include _profile_picture(calc(2rem + .5vw));
+          }
+          &__form {
+            display: flex;
+            flex-direction: column;
+            background-color: getColor(bg-4);
+            font-size: calc(.82rem + 0.1vw);
+            margin: 0rem .4rem;
+            padding: .4rem .8rem;
+            line-height: 1.2rem;
+            border-radius: $radius-5;
+            width: 100%;
+            > div {
+              display: flex;
+              justify-content: space-between;
+            }
+            input, button {
+              background-color: transparent;
+              border: none;
+            }
+            input {
+              font-size: calc(.82rem + 0.1vw);
+              font-weight: 300;
+              padding: .3rem 0rem;
+            }
+            input:focus-visible {
+              outline: none;
+            }
+            button {
+              font-size: calc(1.1rem + .1vw);
+              cursor: pointer;
+              padding: .2rem .4rem;
+              border-radius: $radius;
+            }
+            button:hover {
+              background-color: getColor(bg-hover-2);
+            }
+          }
+        }
+      }
+      .like_color {
+        color: $bluelink;
+      }
+    }
+  }
+  .hide_this {
+    height: 0px;
+    margin: 0px;
+    padding: 0px;
+    visibility: hidden;
+  }
+  .enlarge_img {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(12, 12, 12, 0.9);
+    height: 100vh;
+    max-height: 100vh;
+    visibility: visible;
+    z-index: 30;
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3.5rem;
+  > button {
+    background-color: transparent;
+    border: 1px solid getColor(border-color);
+    font-size: calc(1rem + .2vw);
+    cursor: pointer;
+    padding: .4rem;
+    margin: .4rem;
+    border-radius: $radius-4;
+    min-width: 30px;
+  }
+  > button:hover {
+    background-color: getColor(bg-hover-2);
+  }
+  > .active-btn {
+    background-color: getColor(bg-4);
+  }
+}

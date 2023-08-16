@@ -1,0 +1,70 @@
+name: camagru
+
+services:
+  frontend:
+    image: node:18-alpine
+    container_name: frontend
+    ports:
+      - 5173:5173
+    working_dir: /app
+    depends_on:
+      - backend
+    volumes:
+      - ./front/:/app
+      - /app/node_modules #Excludes node_modules dir from the host
+    command: sh -c "npm install && npm run dev"
+
+  backend:
+    image: node:18-alpine
+    container_name: backend
+    ports:
+      - 4000:4000
+    working_dir: /app
+    depends_on:
+      - postgresql_db
+    secrets:
+      - db-password
+      - db-name
+      - db-user
+    volumes:
+      - ./back/:/app
+      - /app/node_modules #Excludes node_modules dir from the host
+    command: sh -c "npm install && npm run dev"
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    ports:
+      - 8080:8080
+    restart: always
+    depends_on:
+      - postgresql_db
+
+  postgresql_db:
+    image: postgres:15.3-alpine
+    container_name: postgresql
+    expose:
+      - 5432
+    restart: always
+    user: postgres
+    secrets:
+      - db-password
+      - db-name
+      - db-user
+    environment:
+      - POSTGRES_USER_FILE=/run/secrets/db-user
+      - POSTGRES_DB_FILE=/run/secrets/db-name
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+
+secrets:
+  db-password:
+    file: secret/postgres-password.txt
+  db-name:
+    file: secret/postgres-db-name.txt
+  db-user:
+    file: secret/postgres-user.txt

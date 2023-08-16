@@ -1,0 +1,70 @@
+@use "variables" as *;
+
+:root {
+  /* light colors (default) */
+  @each $name, $color in $colors{
+    --color-#{$name} : #{$color};
+  }
+  --theme: 'light';
+}
+
+:root.dark-theme {
+  /* dark colors */
+  @each $name, $color in $colors-dark{
+    --color-#{$name} : #{$color};
+  }
+  --theme: 'dark';
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* dark colors (default) */
+    @each $name, $color in $colors-dark{
+      --color-#{$name} : #{$color};
+    }
+    --theme: 'dark';
+  }
+
+  :root.light-theme {
+    /* light colors */
+    @each $name, $color in $colors{
+      --color-#{$name} : #{$color};
+    }
+    --theme: 'light';
+  }
+}
+
+*,
+::after,
+::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $ff-primary;
+  font-size: calc(1.05rem + 0.1vw);
+  font-weight: 200;
+  line-height: 1.5;
+  color: getColor(fg);
+  background: getColor(bg);
+  transition: $transition-2;
+}
+
+::selection {
+  background: getColor(highlight-bg-color);
+}
+
+ul {
+  list-style-type: none;
+}
+
+a {
+  text-decoration: none;
+  color: getColor(fg);
+}
+
+.div_hide {
+  display: none;
+}

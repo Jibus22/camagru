@@ -1,0 +1,56 @@
+@use "variables" as *;
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 20;
+  background-color: getColor(bg-nav);
+  backdrop-filter: saturate(180%) blur(5px);
+  box-shadow: $shadow-3;
+}
+
+.navbar {
+  display: flex;
+  padding: .3rem 1.2rem;
+  justify-content: space-between;
+  > div {
+    display: flex;
+    align-items: center;
+    .navtxt {
+      padding: .3rem .8rem;
+      margin: .1rem 1rem;
+      border-radius: $radius;
+      transition: $transition-2;
+    }
+    .navtxt:hover {
+      background-color: getColor(bg-hover-light);
+    }
+    >.homelogo {
+      display: inline-flex;
+      width: calc(.8% + 29px);
+      > img {
+        width: 100%;
+      }
+    }
+    > button {
+      background: transparent;
+      border-color: transparent;
+      font-size: calc(1.1rem + .3vw);
+      cursor: pointer;
+      padding: .3rem;
+    }
+  }
+  .user_id {
+    width: calc(1.8rem + .5vw);
+    height: calc(1.8rem + .5vw);
+    border-radius: 50%;
+    background-color: grey;
+    overflow: hidden;
+    margin-left: 1rem;
+    > img {
+      width: 100%;
+    }
+  }
+}
