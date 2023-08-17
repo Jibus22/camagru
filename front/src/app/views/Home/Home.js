@@ -9,67 +9,79 @@ export default class extends AbstractView {
   constructor(params) {
     super(params);
     this.setTitle("Home");
-    this.index = 0;
+    this.pageIndex = 0;
+    this.itemPerPage = 5;
     this.pages = [];
   }
 
-  // paginate(data) {
-  //   const items_per_page = 5;
-  //   const number_of_pages = Math.ceil(data.length / items_per_page);
+  displayPagination(home, pageContent) {
+    const pagination = createElement("div", ["pagination"]);
 
-  //   const new_data = Array.from({ length: number_of_pages }, (_, index) => {
-  //     const start = index * items_per_page;
-  //     return data.slice(start, start + items_per_page);
-  //   });
-  //   return new_data;
-  // }
+    for (let i = 0; i < data_post.length / this.itemPerPage; i++) {
+      const btn = createElement("button", [
+        "pagination-btn",
+        this.pageIndex == i ? "active-btn" : "null",
+      ]);
+      btn.dataset.index = i;
+      btn.innerText = i + 1;
 
-  // display_pagination() {
-  //   let page_btn =
-  //     this.index == 0
-  //       ? ""
-  //       : '<button class="pagination__prev"><span class="icon-navigate_before"></span></button>';
-  //   page_btn += this.pages
-  //     .map((_, idx) => {
-  //       return `
-  //       <button class="pagination-btn ${
-  //         this.index == idx ? "active-btn" : "null"
-  //       }" data-index=${idx}>${idx + 1}</button>
-  //     `;
-  //     })
-  //     .join("");
+      btn.addEventListener("click", () => {
+        const btnId = parseInt(btn.dataset.index);
 
-  //   page_btn +=
-  //     this.index == this.pages.length - 1
-  //       ? ""
-  //       : '<button class="pagination__next"><span class="icon-navigate_next"></span></button>';
+        if (btnId == this.pageIndex) return;
+        const activeBtn = pagination.querySelector(".active-btn");
+        activeBtn.classList.remove("active-btn");
+        btn.classList.add("active-btn");
+        btn.classList.remove("null-btn");
 
-  //   return '<div class="pagination">' + page_btn + "</div>";
-  // }
+        window.scrollTo({
+          top: 0,
+          left: 0,
+        });
+        this.pageIndex = btnId;
+        this.displayHome(home, pageContent);
+      });
 
-  async render(id) {
-    // this.pages = this.paginate(data_post);
-    // const posts = data_post //this.pages[this.index].map (...)
-
-    let divs = [];
-    for (let item of ["page-container", "page-content", "home"]) {
-      divs.push(createElement("div", [item]));
+      pagination.append(btn);
     }
+    return pagination;
+  }
 
-    for (let i = 0; i < divs.length; i++) {
-      if (i + 1 < divs.length) divs[i].append(divs[i + 1]);
-    }
-
-    for (let item of data_post) {
+  displayHome(home, pageContent) {
+    home.innerHTML = "";
+    for (
+      let i = this.pageIndex * this.itemPerPage;
+      i < this.pageIndex * this.itemPerPage + this.itemPerPage;
+      i++
+    ) {
+      if (i == data_post.length) break;
+      const item = data_post[i];
       const post = createElement("div", ["post"]);
       post.dataset.postId = item.id;
       post.append(post__author(item));
       post.append(post__image(item, post));
       post.append(post__reaction(item, post));
-      divs[divs.length - 1].append(post);
+      home.append(post);
+    }
+
+    const pagination = pageContent.querySelector(".pagination");
+    // render pagination only once
+    if (!pagination)
+      pageContent.append(this.displayPagination(home, pageContent));
+  }
+
+  async render(id) {
+    let divs = [];
+    for (let item of ["page-container", "page-content", "home"]) {
+      divs.push(createElement("div", [item]));
+    }
+    for (let i = 0; i < divs.length; i++) {
+      if (i + 1 < divs.length) divs[i].append(divs[i + 1]);
     }
 
     document.querySelector(id).innerHTML = "";
     document.querySelector(id).append(divs[0]);
+
+    this.displayHome(divs[divs.length - 1], divs[1]);
   }
 }
