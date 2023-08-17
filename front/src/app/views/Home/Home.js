@@ -11,7 +11,6 @@ export default class extends AbstractView {
     this.setTitle("Home");
     this.pageIndex = 0;
     this.itemPerPage = 5;
-    this.pages = [];
   }
 
   displayPagination(home, pageContent) {
