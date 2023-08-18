@@ -1,0 +1,94 @@
+@use "variables" as *;
+
+.edit {
+  display: flex;
+  min-height: 300px;
+  height: 80vh;
+  line-height: 0;
+
+  &__main {
+    display: flex;
+    width: 80%;
+    .superposable {
+      width: 25%;
+      overflow: scroll;
+      background-color: getColor(bg-4);
+      &__img-ctnr {
+        position: relative;
+        > img {
+          height: 100%;
+          width: 100%;
+          object-fit: contain;
+        }
+      }
+    }
+    .camera {
+      width: 75%;
+      &__preview {
+        height: 90%;
+        background-color: lightblue;
+      }
+      &__options {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 10%;
+        background-color: getColor(bg-4);
+        > button {
+          background-color: transparent;
+          color: getColor(fg-3);
+          border: 1px solid getColor(border-color);
+          font-size: calc(.8rem + .2vw);
+          cursor: pointer;
+          padding: .4rem;
+          margin: .4rem;
+          border-radius: $radius-4;
+          min-width: 30px;
+        }
+        > button:hover {
+          background-color: getColor(bg-hover-2);
+        }
+      }
+    }
+  }
+
+  &__side {
+    width: 20%;
+    overflow: scroll;
+    background-color: getColor(bg-4);
+    .thumbnail-ctnr {
+      &__underlayer {
+        position: relative;
+        .remove-btn {
+          position: absolute;
+          top: 0;
+          right: 0;
+        }
+        .share-btn {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+        }
+        > button {
+          background-color: transparent;
+          color: getColor(fg-3);
+          border: 1px solid getColor(border-color);
+          font-size: calc(.8rem + .2vw);
+          cursor: pointer;
+          padding: .4rem;
+          margin: .4rem;
+          border-radius: $radius-4;
+          min-width: 30px;
+        }
+        > button:hover {
+          background-color: getColor(bg-hover-2);
+        }
+        > img {
+          height: 100%;
+          width: 100%;
+          object-fit: contain;
+        }
+      }
+    }
+  }
+}
