@@ -74,7 +74,7 @@ export const displayFooter = (id) => {
   const date = new Date().getFullYear();
   const footer = `
     <footer class="footer">
-      <p><span>&#169;</span> ${date} Jean-Baptiste Le Corre</p>
+      <p><span>&#169;</span> ${date} Camagru</p>
     </footer>
   `;
 

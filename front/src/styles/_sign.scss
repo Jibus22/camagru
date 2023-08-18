@@ -54,6 +54,7 @@
     padding: 5px 12px;
     border: 1px solid getColor(border-color);
     background-color: getColor(bg);
+    color: getColor(fg-1);
   }
   button {
     @include _form__display();
