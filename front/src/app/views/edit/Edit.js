@@ -1,7 +1,6 @@
 import { createElement } from "../../utils.js";
 import AbstractView from "../AbstractView.js";
 import { edit__main } from "./edit__main.js";
-import { edit__side } from "./edit__side.js";
 
 export default class extends AbstractView {
   constructor(params) {
@@ -21,7 +20,9 @@ export default class extends AbstractView {
     document.querySelector(id).innerHTML = "";
     document.querySelector(id).append(divs[0]);
 
-    divs[divs.length - 1].append(edit__side());
-    divs[divs.length - 1].prepend(edit__main());
+    const edit__side = createElement("div", ["edit__side"]);
+    divs[divs.length - 1].append(edit__side);
+
+    divs[divs.length - 1].prepend(edit__main(divs[divs.length - 1]));
   }
 }
