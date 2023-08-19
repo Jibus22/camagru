@@ -27,6 +27,14 @@
       &__preview {
         height: 90%;
         background-color: lightblue;
+        > video {
+          border: 1px solid black;
+          width: 100%;
+          height: 100%;
+        }
+      }
+      > canvas {
+        display: none;
       }
       &__options {
         display: flex;
@@ -36,7 +44,7 @@
         background-color: getColor(bg-4);
         > button {
           background-color: transparent;
-          color: getColor(fg-3);
+          color: getColor(fg);
           border: 1px solid getColor(border-color);
           font-size: calc(.8rem + .2vw);
           cursor: pointer;
@@ -73,12 +81,12 @@
           background-color: transparent;
           color: getColor(fg-3);
           border: 1px solid getColor(border-color);
-          font-size: calc(.8rem + .2vw);
+          font-size: calc(0.6rem + 0.7vw);
           cursor: pointer;
-          padding: .4rem;
-          margin: .4rem;
+          padding: calc(.1px + .3vw);
+          margin: calc(.1px + .3vw);
           border-radius: $radius-4;
-          min-width: 30px;
+          min-width: calc(1.4rem + 0.8vw);
         }
         > button:hover {
           background-color: getColor(bg-hover-2);
