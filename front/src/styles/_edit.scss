@@ -5,6 +5,7 @@
   min-height: 300px;
   height: 80vh;
   line-height: 0;
+  background-color: getColor(bg-3);
 
   &__main {
     display: flex;
@@ -12,7 +13,6 @@
     .superposable {
       width: 25%;
       overflow: scroll;
-      background-color: getColor(bg-4);
       &__img-ctnr {
         position: relative;
         > img {
@@ -26,11 +26,12 @@
       width: 75%;
       &__preview {
         height: 90%;
-        background-color: lightblue;
-        > video {
-          border: 1px solid black;
+        > video, &__upload {
           width: 100%;
           height: 100%;
+        }
+        &__upload {
+          object-fit: contain;
         }
       }
       > canvas {
@@ -41,8 +42,7 @@
         justify-content: center;
         align-items: center;
         height: 10%;
-        background-color: getColor(bg-4);
-        > button {
+        > button, .camera__options__upload {
           background-color: transparent;
           color: getColor(fg);
           border: 1px solid getColor(border-color);
@@ -53,8 +53,11 @@
           border-radius: $radius-4;
           min-width: 30px;
         }
-        > button:hover {
+        > button:hover, .camera__options__upload:hover {
           background-color: getColor(bg-hover-2);
+        }
+        input[type=file] {
+          display: none;
         }
       }
     }
@@ -63,7 +66,6 @@
   &__side {
     width: 20%;
     overflow: scroll;
-    background-color: getColor(bg-4);
     .thumbnail-ctnr {
       &__underlayer {
         position: relative;
@@ -79,8 +81,8 @@
         }
         > button {
           background-color: transparent;
-          color: getColor(fg-3);
-          border: 1px solid getColor(border-color);
+          color: $fg-transparent;
+          border: 1px solid getColor(fg-transparent);
           font-size: calc(0.6rem + 0.7vw);
           cursor: pointer;
           padding: calc(.1px + .3vw);
@@ -90,6 +92,7 @@
         }
         > button:hover {
           background-color: getColor(bg-hover-2);
+          color: $fg-white;
         }
         > img {
           height: 100%;
