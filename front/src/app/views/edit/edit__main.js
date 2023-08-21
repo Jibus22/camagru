@@ -1,46 +1,54 @@
 import { createElement } from "../../utils";
+import { data_superposable } from "../data/edit_superposable";
 
-export const edit__main = (parent) => {
-  const edit__main = createElement("div", ["edit__main"]);
+// Returns new dimension of userImg so it can fit in containerImg (like
+// object-fit: contain would do in css), and returns the offsets to position it
+const imageFit = (userImg, containerImg) => {
+  let w = userImg.w;
+  let h = userImg.h;
+  let topOffset = 0;
+  let leftOffset = 0;
+  const imgRatio = w / h;
+  const ctnrRatio = containerImg.w / containerImg.h;
 
-  edit__main.innerHTML = `
-    <div class="superposable">
-      <!-- This part must be automatically generated -->
+  if (imgRatio >= ctnrRatio) {
+    w = containerImg.w;
+    h = (containerImg.w / userImg.w) * userImg.h;
+    topOffset = (containerImg.h - h) / 2;
+  } else {
+    h = containerImg.h;
+    w = (containerImg.h / userImg.h) * userImg.w;
+    leftOffset = (containerImg.w - w) / 2;
+  }
 
-      <div class="superposable__img-ctnr">
-        <img src="/images/img2.jpg" />
-      </div>
-      <div class="superposable__img-ctnr">
-        <img src="/images/img10.jpg" />
-      </div>
-      <div class="superposable__img-ctnr">
-        <img src="/images/img7.jpg" />
-      </div>
+  return { w: w, h: h, lOff: leftOffset, tOff: topOffset };
+};
 
+const camera = (parent) => {
+  const camera = createElement("div", ["camera"]);
+
+  camera.innerHTML = `
+    <div class="camera__preview">
+      <video autoplay>Video stream is unavailable.</video>
+      <img class="camera__preview__upload div_hide"/>
+      <div class="camera__preview__sup div_hide"><img/></div>
     </div>
-    <div class="camera">
-      <div class="camera__preview">
-        <video autoplay>Video stream is unavailable.</video>
-        <img class="camera__preview__upload div_hide"/>
-      </div>
-      <canvas></canvas>
-      <div class="camera__options">
-        <button class="camera__options__capture"><span class="icon-circle-o"></span></button>
-        <label for="file-upload" class="camera__options__upload">
-          <span class="icon-file_upload"></span>
-        </label>
-        <input id="file-upload" type="file" accept="image/*"/>
-      </div>
+    <canvas></canvas>
+    <div class="camera__options">
+      <button class="camera__options__capture div_hide"><span class="icon-circle-o"></span></button>
+      <label for="file-upload" class="camera__options__upload">
+        <span class="icon-file_upload"></span>
+      </label>
+      <input id="file-upload" type="file" accept="image/*"/>
     </div>
   `;
 
-  //<button class="camera__options__upload"><span class="icon-file_upload"></span></button>
   const edit__side = parent.querySelector(".edit__side");
-  const video = edit__main.querySelector("video");
-  const uploadImg = edit__main.querySelector(".camera__preview__upload");
-  const fileInput = edit__main.querySelector("input");
-  const captureBtn = edit__main.querySelector(".camera__options__capture");
-  const canvas = edit__main.querySelector("canvas");
+  const video = camera.querySelector("video");
+  const uploadImg = camera.querySelector(".camera__preview__upload");
+  const fileInput = camera.querySelector("input");
+  const captureBtn = camera.querySelector(".camera__options__capture");
+  const canvas = camera.querySelector("canvas");
   const context = canvas.getContext("2d");
 
   // Require the user's webcam video stream, then append it to the video element
@@ -52,6 +60,7 @@ export const edit__main = (parent) => {
     })
     .catch((err) => {
       console.error(`Une erreur est survenue : ${err}`);
+      video.classList.add("div_hide");
     });
 
   let streaming = false;
@@ -98,6 +107,8 @@ export const edit__main = (parent) => {
 
       uploadImg.addEventListener("load", () => {
         URL.revokeObjectURL(uploadImg.src); // no longer needed, free memory
+        canvas.setAttribute("width", uploadImg.naturalWidth);
+        canvas.setAttribute("height", uploadImg.naturalHeight);
       });
       uploadImg.src = URL.createObjectURL(file);
     }
@@ -111,7 +122,10 @@ export const edit__main = (parent) => {
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       data = canvas.toDataURL("image/png");
     } else {
-      data = uploadImg.src;
+      if (uploadImg.src !== "") {
+        context.drawImage(uploadImg, 0, 0, canvas.width, canvas.height);
+        data = canvas.toDataURL("image/png");
+      }
     }
 
     if (data) {
@@ -133,6 +147,80 @@ export const edit__main = (parent) => {
       edit__side.prepend(thumbnail);
     }
     e.preventDefault();
+  });
+
+  return camera;
+};
+
+export const edit__main = (parent) => {
+  const edit__main = createElement("div", ["edit__main"]);
+
+  edit__main.append(camera(parent));
+
+  const superposable = createElement("div", ["superposable"]);
+  edit__main.prepend(superposable);
+  superposable.innerHTML = data_superposable
+    .map((item) => {
+      return `
+        <div class="superposable__img-ctnr">
+          <img src=${item.img} />
+        </div>
+      `;
+    })
+    .join("");
+
+  const supImages = superposable.querySelectorAll(".superposable__img-ctnr");
+  const captureBtn = edit__main.querySelector(".camera__options__capture");
+  const cameraPreview = edit__main.querySelector(".camera__preview");
+  const previewVideo = cameraPreview.querySelector("video");
+  const previewUpload = cameraPreview.querySelector(".camera__preview__upload");
+  const previewSup = cameraPreview.querySelector(".camera__preview__sup");
+
+  supImages.forEach((item) => {
+    item.addEventListener("click", () => {
+      if (item.classList.contains("superposable-selected")) return;
+
+      supImages.forEach((item2) => {
+        if (item2.classList.contains("superposable-selected"))
+          item2.classList.remove("superposable-selected");
+      });
+      item.classList.add("superposable-selected");
+
+      if (captureBtn.classList.contains("div_hide"))
+        captureBtn.classList.remove("div_hide");
+
+      let imgFit;
+
+      // Whether uploaded image or video stream is selected, get calculated
+      // dimensions and offset of the current superposable image so it is
+      // contained in.
+      if (!previewUpload.classList.contains("div_hide")) {
+        imgFit = imageFit(
+          { w: previewUpload.naturalWidth, h: previewUpload.naturalHeight },
+          { w: cameraPreview.clientWidth, h: cameraPreview.clientHeight }
+        );
+      } else if (!previewVideo.classList.contains("div_hide")) {
+        imgFit = imageFit(
+          { w: previewVideo.videoWidth, h: previewVideo.videoHeight },
+          { w: cameraPreview.clientWidth, h: cameraPreview.clientHeight }
+        );
+      } else {
+        return;
+      }
+
+      // fit and position the preview superposable container onto the
+      // upload or video preview.
+      previewSup.setAttribute(
+        "style",
+        `width:${imgFit.w}px;height:${imgFit.h}px;top:${imgFit.tOff}px;left:${imgFit.lOff}px;`
+      );
+
+      previewSup.classList.remove("div_hide");
+      const previewSupImg = previewSup.querySelector("img");
+      const supImg = item.querySelector("img");
+
+      previewSupImg.src = supImg.src;
+    });
   });
 
   return edit__main;

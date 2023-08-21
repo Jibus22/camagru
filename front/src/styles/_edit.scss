@@ -21,17 +21,30 @@
           object-fit: contain;
         }
       }
+      &__img-ctnr:hover {
+        cursor: pointer;
+      }
     }
     .camera {
       width: 75%;
       &__preview {
+        position: relative;
         height: 90%;
-        > video, &__upload {
+        > video, &__upload, &__sup {
           width: 100%;
           height: 100%;
         }
-        &__upload {
+        &__upload, &__sup > img {
           object-fit: contain;
+        }
+        &__sup > img {
+          width: 100%;
+          height: 100%;
+        }
+        &__sup {
+          position: absolute;
+          top: 0;
+          left: 0;
         }
       }
       > canvas {
@@ -52,6 +65,7 @@
           margin: .4rem;
           border-radius: $radius-4;
           min-width: 30px;
+          min-height: 30px;
         }
         > button:hover, .camera__options__upload:hover {
           background-color: getColor(bg-hover-2);
@@ -102,4 +116,8 @@
       }
     }
   }
+}
+
+.superposable-selected {
+  border: 1px solid red;
 }
