@@ -1,0 +1,123 @@
+@use "variables" as *;
+
+.edit {
+  display: flex;
+  min-height: 300px;
+  height: 80vh;
+  line-height: 0;
+  background-color: getColor(bg-3);
+
+  &__main {
+    display: flex;
+    width: 80%;
+    .superposable {
+      width: 25%;
+      overflow: scroll;
+      &__img-ctnr {
+        position: relative;
+        > img {
+          height: 100%;
+          width: 100%;
+          object-fit: contain;
+        }
+      }
+      &__img-ctnr:hover {
+        cursor: pointer;
+      }
+    }
+    .camera {
+      width: 75%;
+      &__preview {
+        position: relative;
+        height: 90%;
+        > video, &__upload, &__sup {
+          width: 100%;
+          height: 100%;
+        }
+        &__upload, &__sup > img {
+          object-fit: contain;
+        }
+        &__sup > img {
+          width: 100%;
+          height: 100%;
+        }
+        &__sup {
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+      }
+      > canvas {
+        display: none;
+      }
+      &__options {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 10%;
+        > button, .camera__options__upload {
+          background-color: transparent;
+          color: getColor(fg);
+          border: 1px solid getColor(border-color);
+          font-size: calc(.8rem + .2vw);
+          cursor: pointer;
+          padding: .4rem;
+          margin: .4rem;
+          border-radius: $radius-4;
+          min-width: 30px;
+          min-height: 30px;
+        }
+        > button:hover, .camera__options__upload:hover {
+          background-color: getColor(bg-hover-2);
+        }
+        input[type=file] {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &__side {
+    width: 20%;
+    overflow: scroll;
+    .thumbnail-ctnr {
+      &__underlayer {
+        position: relative;
+        .remove-btn {
+          position: absolute;
+          top: 0;
+          right: 0;
+        }
+        .share-btn {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+        }
+        > button {
+          background-color: transparent;
+          color: $fg-transparent;
+          border: 1px solid getColor(fg-transparent);
+          font-size: calc(0.6rem + 0.7vw);
+          cursor: pointer;
+          padding: calc(.1px + .3vw);
+          margin: calc(.1px + .3vw);
+          border-radius: $radius-4;
+          min-width: calc(1.4rem + 0.8vw);
+        }
+        > button:hover {
+          background-color: getColor(bg-hover-2);
+          color: $fg-white;
+        }
+        > img {
+          height: 100%;
+          width: 100%;
+          object-fit: contain;
+        }
+      }
+    }
+  }
+}
+
+.superposable-selected {
+  border: 1px solid red;
+}

@@ -397,7 +397,7 @@ export const data_post = [
     com_id: null,
   },
   {
-    id: "10",
+    id: "11",
     user_id: "3",
     date: "12/07/23",
     img: "/images/img11.jpg",
@@ -405,7 +405,7 @@ export const data_post = [
     com_id: null,
   },
   {
-    id: "10",
+    id: "12",
     user_id: "1",
     date: "12/07/23",
     img: "/images/img12.jpg",
@@ -413,7 +413,7 @@ export const data_post = [
     com_id: null,
   },
   {
-    id: "10",
+    id: "13",
     user_id: "0",
     date: "12/07/23",
     img: "/images/img13.jpg",

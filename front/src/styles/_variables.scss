@@ -13,22 +13,24 @@ $shadow-4: 0 0 0 3px rgba(66, 153, 225, 0.6);
 $space-1: 1.5rem;
 $greenbtn: #238636;
 $bluelink: #2f81f7;
+$fg-transparent: rgba(255, 255, 255, 0.40);
+$fg-white: #eceded;
 
 $colors: (
   bg-nav: rgba(255, 255, 255, 0.8),
   bg: #f7fafc,
   bg-2: #edf2f7,
   bg-3: #ffffff,
-  bg-4: #edf2f7,
-  bg-5: #edf2f7,
+  bg-4: #e1eaf2,
+  bg-5: #f2f6fa,
   bg-hover-light: #e2e8f0,
   bg-hover-dark: #243a52,
-  bg-hover-2: #e2e8f0,
+  bg-hover-2: rgba(155, 155, 155, 0.16),
   fg: #2d3748,
   fg-2: #1a202c,
   fg-3: #4a5568,
   fg-4: #718096,
-  border-color: #e2e8f0,
+  border-color: rgba(155, 155, 155, 0.26),
   highlight-bg-color: #c6f6d5,
 );
 

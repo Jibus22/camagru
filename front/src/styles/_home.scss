@@ -47,13 +47,12 @@
       }
     }
     &__image {
-      min-height: 60px;
-      max-height: 70vh;
+      height: 70vh;
       > img {
-        background-color: lightgray;
         cursor: pointer;
-        max-width: 100%;
+        width: 100%;
         height: 100%;
+        object-fit: contain;
       }
     }
     &__reaction {
@@ -80,6 +79,7 @@
             font-size: calc(1rem + .2vw);
             padding: .1rem .3rem;
             transition: $transition-2;
+            color: getColor(fg-3);
           }
           > button:hover {
             background-color: getColor(bg-hover-2);
@@ -136,6 +136,7 @@
               justify-content: space-between;
             }
             input, button {
+              color: getColor(fg-3);
               background-color: transparent;
               border: none;
             }
@@ -184,12 +185,10 @@
 }
 
 .pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin-top: 3.5rem;
   > button {
     background-color: transparent;
+    color: getColor(fg-3);
     border: 1px solid getColor(border-color);
     font-size: calc(1rem + .2vw);
     cursor: pointer;

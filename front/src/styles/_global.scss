@@ -16,6 +16,16 @@
   --theme: 'dark';
 }
 
+.icon-theme:before {
+  /* code light */
+  content: "\ea80";
+}
+
+.icon-theme.dark-theme:before {
+  /* code moon */
+  content: "\f186";
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     /* dark colors (default) */
@@ -31,6 +41,16 @@
       --color-#{$name} : #{$color};
     }
     --theme: 'light';
+  }
+
+  .icon-theme:before {
+    /* code moon */
+    content: "\f186";
+  }
+
+  .icon-theme.light-theme:before {
+    /* code light */
+    content: "\ea80";
   }
 }
 

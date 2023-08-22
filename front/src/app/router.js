@@ -1,5 +1,5 @@
-import Edit from "./views/Edit";
-import Home from "./views/Home";
+import Edit from "./views/edit/Edit";
+import Home from "./views/home/Home";
 import PasswordReset from "./views/PasswordReset";
 import Signin from "./views/Signin";
 import Signup from "./views/Signup";
@@ -23,6 +23,11 @@ const getParams = (match) => {
 
 export const navigateTo = (url) => {
   if (url !== location.pathname) {
+    // When navigating from Edit view to another one, disable webcam stream.
+    if (window.localStream) {
+      window.localStream.getVideoTracks().forEach((track) => track.stop());
+      delete window.localStream;
+    }
     history.pushState(null, null, url);
     router();
   }
