@@ -4,6 +4,10 @@ import PasswordReset from "./views/PasswordReset";
 import Signin from "./views/Signin";
 import Signup from "./views/Signup";
 
+// To deploy static front version on page, as a demo.
+const PROJECT_TITLE = "camagru";
+const u = (url) => `/${PROJECT_TITLE}${url}`;
+
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
@@ -35,11 +39,11 @@ export const navigateTo = (url) => {
 
 export const router = async () => {
   const routes = [
-    { path: "/", view: Home },
-    { path: "/signin", view: Signin },
-    { path: "/signup", view: Signup },
-    { path: "/password_reset", view: PasswordReset },
-    { path: "/edit", view: Edit },
+    { path: u("/"), view: Home },
+    { path: u("/signin"), view: Signin },
+    { path: u("/signup"), view: Signup },
+    { path: u("/password_reset"), view: PasswordReset },
+    { path: u("/edit"), view: Edit },
   ];
 
   // Test each route for a potential match.
