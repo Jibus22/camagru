@@ -1,5 +1,5 @@
-import Edit from "./views/edit/Edit";
-import Home from "./views/home/Home";
+import { Edit } from "./views/edit/Edit";
+import { Home } from "./views/home/Home";
 import PasswordReset from "./views/PasswordReset";
 import Signin from "./views/Signin";
 import Signup from "./views/Signup";

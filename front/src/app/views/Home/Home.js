@@ -5,7 +5,7 @@ import { post__author } from "./post__author.js";
 import { post__image } from "./post__image.js";
 import { post__reaction } from "./reaction/post__reaction.js";
 
-export default class extends AbstractView {
+export class Home extends AbstractView {
   constructor(params) {
     super(params);
     this.setTitle("Home");

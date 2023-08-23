@@ -3,7 +3,7 @@ import { createElement } from "../../utils.js";
 import { camera } from "./camera";
 import { superposable } from "./superposable";
 
-export default class extends AbstractView {
+export class Edit extends AbstractView {
   constructor(params) {
     super(params);
     this.setTitle("Edit");
