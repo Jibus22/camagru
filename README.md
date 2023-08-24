@@ -1,6 +1,9 @@
-# Camagru
+<p align="center">
+  <h1 align="center">Camagru</h1>
+  <h4 align="center">instagram-like web application</h4>
+  <p align="center"><img align=center alt="state badge" src="https://github.com/Jibus22/camagru/actions/workflows/deployment.yml/badge.svg?branch=page" /></p>
+</p>
 
-instagram-like web application
 
 ### stack
 
