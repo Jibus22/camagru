@@ -24,7 +24,6 @@ const getParams = (match) => {
 
 export const navigateTo = (url) => {
   url = basename(url);
-  console.log(`navigating to: ${url}`);
   if (url !== location.pathname) {
     // When navigating from Edit view to another one, disable webcam stream.
     if (window.localStream) {

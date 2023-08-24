@@ -1,6 +1,8 @@
 // To deploy static front version on page, as a demo.
 const PROJECT_TITLE = "camagru";
 // If vite is ran in dev mode, don't add basename else add it to url router.
+// NOTE: I could also have used this meta env variable: import.meta.env.BASE_URL
+// which will be the public base path.
 export const basename = (url) =>
   `${import.meta.env.DEV ? url : `/${PROJECT_TITLE}${url}`}`;
 
