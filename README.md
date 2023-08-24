@@ -1,9 +1,12 @@
 <p align="center">
   <h1 align="center">Camagru</h1>
   <h4 align="center">instagram-like web application</h4>
-  <p align="center"><img align=center alt="state badge" src="https://github.com/Jibus22/camagru/actions/workflows/deployment.yml/badge.svg?branch=page" /></p>
+  <p align="center"><img align=center alt="state badge" src="https://github.com/Jibus22/camagru/actions/workflows/deployment.yml/badge.svg?branch=gh-pages" /></p>
 </p>
+<br />
+<br />
 
+A static demo version is available here: [camagru](https://jibus22.github.io/camagru)
 
 ### stack
 
