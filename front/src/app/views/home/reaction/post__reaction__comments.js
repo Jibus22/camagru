@@ -1,4 +1,4 @@
-import { createElement } from "../../../utils";
+import { basename, createElement } from "../../../utils";
 import { data_comments, data_post, data_user } from "../../data/home";
 
 export const post__reaction__comments = (reaction, post) => {
@@ -11,7 +11,7 @@ export const post__reaction__comments = (reaction, post) => {
           </div>
           <div class="post__reaction__comments__write">
             <div class="post__reaction__comments__write__pp">
-              <img src="/images/pp/monica.jpg"/>
+              <img src=${basename("/images/pp/monica.jpg")}/>
             </div>
             <form class="post__reaction__comments__write__form" method="post" action="/comment_post">
               <input id="comment_field" type="text" name="comment" placeholder="Write a public comment..."/>
@@ -44,7 +44,7 @@ export const post__reaction__comments = (reaction, post) => {
             return `
                 <div class="post__reaction__comments__all__com">
                   <div class="post__reaction__comments__all__com__pp">
-                    <img src=${data_user[parseInt(item.user_id)].pp}/>
+                    <img src=${basename(data_user[parseInt(item.user_id)].pp)}/>
                   </div>
                   <div class="post__reaction__comments__all__com__text">
                     <p class="post__reaction__comments__all__com__text-author">

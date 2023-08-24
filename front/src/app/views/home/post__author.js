@@ -1,4 +1,4 @@
-import { createElement } from "../../utils";
+import { basename, createElement } from "../../utils";
 import { data_user } from "../data/home";
 
 export const post__author = (item) => {
@@ -6,7 +6,7 @@ export const post__author = (item) => {
   author.innerHTML = `
     <div class="post__author__id">
       <div>
-        <img src=${data_user[parseInt(item.user_id)].pp} />
+        <img src=${basename(data_user[parseInt(item.user_id)].pp)} />
       </div>
       <p>${data_user[parseInt(item.user_id)].name}</p>
     </div>

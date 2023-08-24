@@ -1,5 +1,5 @@
 import { data_superposable } from "../data/edit_superposable";
-import { createElement, imageFit } from "../../utils";
+import { basename, createElement, imageFit } from "../../utils";
 
 export const superposable = (edit__main) => {
   const superposable = createElement("div", ["superposable"]);
@@ -7,7 +7,7 @@ export const superposable = (edit__main) => {
     .map((item) => {
       return `
         <div class="superposable__img-ctnr">
-          <img src=${item.img} />
+          <img src=${basename(item.img)} />
         </div>
       `;
     })

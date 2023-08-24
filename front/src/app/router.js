@@ -1,14 +1,9 @@
+import { basename } from "./utils";
 import Edit from "./views/edit/Edit";
 import Home from "./views/home/Home";
 import PasswordReset from "./views/PasswordReset";
 import Signin from "./views/Signin";
 import Signup from "./views/Signup";
-
-// To deploy static front version on page, as a demo.
-const PROJECT_TITLE = "camagru";
-// If vite is ran in dev mode, don't add basename else add it to url router.
-const basename = (url) =>
-  `${import.meta.env.DEV ? url : `/${PROJECT_TITLE}${url}`}`;
 
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
@@ -28,6 +23,8 @@ const getParams = (match) => {
 };
 
 export const navigateTo = (url) => {
+  url = basename(url);
+  console.log(`navigating to: ${url}`);
   if (url !== location.pathname) {
     // When navigating from Edit view to another one, disable webcam stream.
     if (window.localStream) {

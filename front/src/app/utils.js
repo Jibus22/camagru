@@ -1,3 +1,9 @@
+// To deploy static front version on page, as a demo.
+const PROJECT_TITLE = "camagru";
+// If vite is ran in dev mode, don't add basename else add it to url router.
+export const basename = (url) =>
+  `${import.meta.env.DEV ? url : `/${PROJECT_TITLE}${url}`}`;
+
 export const createElement = (elem, arr = []) => {
   const newElem = document.createElement(elem);
   for (let className of arr) newElem.classList.add(className);
