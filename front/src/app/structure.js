@@ -1,4 +1,4 @@
-import { navigateTo } from "./router.js";
+import { navigateTo } from "./router";
 
 const themeEvent = () => {
   const currentTheme = localStorage.getItem("theme");

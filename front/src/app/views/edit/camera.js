@@ -1,4 +1,4 @@
-import { createElement, imageFit } from "../../utils.js";
+import { createElement, imageFit } from "../../utils";
 
 export const camera = (parent) => {
   const camera = createElement("div", ["camera"]);

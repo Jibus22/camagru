@@ -1,7 +1,7 @@
 import AbstractView from "../AbstractView.js";
 import { createElement } from "../../utils.js";
-import { camera } from "./camera.js";
-import { superposable } from "./superposable.js";
+import { camera } from "./camera";
+import { superposable } from "./superposable";
 
 export default class extends AbstractView {
   constructor(params) {

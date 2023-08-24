@@ -1,5 +1,5 @@
-import { data_superposable } from "../data/edit_superposable.js";
-import { createElement, imageFit } from "../../utils.js";
+import { data_superposable } from "../data/edit_superposable";
+import { createElement, imageFit } from "../../utils";
 
 export const superposable = (edit__main) => {
   const superposable = createElement("div", ["superposable"]);

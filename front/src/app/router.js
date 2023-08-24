@@ -1,8 +1,8 @@
-import Edit from "./views/edit/Edit.js";
-import Home from "./views/home/Home.js";
-import PasswordReset from "./views/PasswordReset.js";
-import Signin from "./views/Signin.js";
-import Signup from "./views/Signup.js";
+import Edit from "./views/edit/Edit";
+import Home from "./views/home/Home";
+import PasswordReset from "./views/PasswordReset";
+import Signin from "./views/Signin";
+import Signup from "./views/Signup";
 
 // To deploy static front version on page, as a demo.
 const PROJECT_TITLE = "camagru";
