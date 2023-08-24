@@ -1,6 +1,6 @@
-import { displayFooter, displayNavbar } from "./structure";
+import { displayFooter, displayNavbar } from "./structure.js";
 import "../styles/style.scss";
-import { router } from "./router";
+import { router } from "./router.js";
 
 // update the content of the route according to the navigator back/forward button
 window.addEventListener("popstate", router);
