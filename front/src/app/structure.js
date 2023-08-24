@@ -1,4 +1,5 @@
 import { navigateTo } from "./router";
+import { basename } from "./utils";
 
 const themeEvent = () => {
   const currentTheme = localStorage.getItem("theme");
@@ -48,7 +49,7 @@ export const displayNavbar = (id) => {
       <nav class="navbar">
         <div>
           <a class="header__nav homelogo" href="/">
-            <img src="/favicon.svg" alt="home logo" />
+            <img src=${basename("/favicon.svg")} alt="home logo" />
           </a>
           <a class="navtxt header__nav" href="/edit">Edit</a>
         </div>
@@ -58,7 +59,7 @@ export const displayNavbar = (id) => {
             <i class="icon-theme"></i>
           </button>
           <div class="div_hide user_id">
-            <img src="/images/pp/robert.jpg"/>
+            <img src=${basename("/images/pp/robert.jpg")} />
           </div>
         </div>
       </nav>

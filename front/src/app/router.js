@@ -45,8 +45,6 @@ export const router = async () => {
     { path: basename("/edit"), view: Edit },
   ];
 
-  console.table(routes);
-
   // Test each route for a potential match.
   const potentialMatches = routes.map((route) => {
     return {
