@@ -6,7 +6,9 @@ import Signup from "./views/Signup";
 
 // To deploy static front version on page, as a demo.
 const PROJECT_TITLE = "camagru";
-const u = (url) => `/${PROJECT_TITLE}${url}`;
+// If vite is ran in dev mode, don't add basename else add it to url router.
+const basename = (url) =>
+  `${import.meta.env.DEV ? url : `/${PROJECT_TITLE}${url}`}`;
 
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
@@ -39,12 +41,14 @@ export const navigateTo = (url) => {
 
 export const router = async () => {
   const routes = [
-    { path: u("/"), view: Home },
-    { path: u("/signin"), view: Signin },
-    { path: u("/signup"), view: Signup },
-    { path: u("/password_reset"), view: PasswordReset },
-    { path: u("/edit"), view: Edit },
+    { path: basename("/"), view: Home },
+    { path: basename("/signin"), view: Signin },
+    { path: basename("/signup"), view: Signup },
+    { path: basename("/password_reset"), view: PasswordReset },
+    { path: basename("/edit"), view: Edit },
   ];
+
+  console.table(routes);
 
   // Test each route for a potential match.
   const potentialMatches = routes.map((route) => {
