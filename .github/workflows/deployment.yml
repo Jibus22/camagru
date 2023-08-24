@@ -34,7 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: page
+          ref: gh-pages
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
