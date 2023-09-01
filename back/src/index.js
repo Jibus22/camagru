@@ -2,6 +2,14 @@
 
 import http from "http";
 import * as db from "./db/index.js";
+import { migrate } from "./db/migration.js";
+
+try {
+  await migrate();
+} catch (err) {
+  console.log("____ oopsie:");
+  console.log(err);
+}
 
 const server = http.createServer(async (req, res) => {
   const urlPath = req.url;
