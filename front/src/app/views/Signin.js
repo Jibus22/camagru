@@ -1,4 +1,5 @@
 import { navigateTo } from "../router.js";
+import { createElement } from "../utils.js";
 import AbstractView from "./AbstractView.js";
 
 export default class extends AbstractView {
@@ -7,8 +8,23 @@ export default class extends AbstractView {
     this.setTitle("Signin");
   }
 
-  async addEvents(id) {
-    const links = document.querySelector(id).querySelectorAll("a");
+  renderSignin(signin) {
+    signin.innerHTML = `
+      <h1>Sign in to Camagru</h1>
+      <form class="sign__form" method="post" action="http://localhost:4000/session">
+        <label for="login_field">Username</label>
+        <input id="login_field" type="text" name="username" />
+        <div>
+          <label for="password_field">Password</label>
+          <input id="password_field" type="password" name="password" />
+          <button type="submit">Sign in</button>
+          <a href="/password_reset">Forgot password ?</a>
+        </div>
+      </form>
+      <p>No user account ? <a href="/signup">Sign up</a>.</p>
+    `;
+
+    const links = signin.querySelectorAll("a");
     for (let link of links.values()) {
       link.addEventListener("click", (e) => {
         e.preventDefault();
@@ -18,28 +34,15 @@ export default class extends AbstractView {
   }
 
   async render(id) {
-    const view = `
-      <div class="page-container">
-        <div class="page-content">
-          <div class="signin">
-            <h1>Sign in to Camagru</h1>
-            <form class="sign__form" method="post" action="/session">
-              <label for="login_field">Username</label>
-              <input id="login_field" type="text" name="username" />
-              <div>
-                <label for="password_field">Password</label>
-                <input id="password_field" type="password" name="password" />
-                <button type="submit">Sign in</button>
-                <a href="/password_reset">Forgot password ?</a>
-              </div>
-            </form>
-            <p>No user account ? <a href="/signup">Sign up</a>.</p>
-          </div>
-        </div>
-      </div>
-  `;
-    document.querySelector(id).innerHTML = view;
+    const pageContainer = createElement("div", ["page-container"]);
+    const pageContent = createElement("div", ["page-content"]);
+    const signin = createElement("div", ["signin"]);
 
-    this.addEvents(".signin");
+    pageContainer.append(pageContent);
+    pageContent.append(signin);
+    this.renderSignin(signin);
+
+    document.querySelector(id).innerHTML = "";
+    document.querySelector(id).append(pageContainer);
   }
 }
