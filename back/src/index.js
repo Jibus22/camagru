@@ -3,6 +3,7 @@
 import http from "http";
 import * as db from "./db/index.js";
 import { migrate } from "./db/migration.js";
+import { HttpRouter } from "./HttpRouter.js";
 import { getBody } from "./utils.js";
 
 try {
@@ -42,81 +43,76 @@ try {
 //   }
 // });
 
-const bla = {
-  GET: {
-    "/": () => console.log("get /"),
-    "/caca": () => console.log("get caca"),
-  },
-  POST: {
-    "/": () => console.log("post /"),
-    "/caca": () => console.log("post caca"),
-  },
-};
-
-class HttpRouter {
-  constructor() {
-    this.routes = {
-      HEAD: {},
-      GET: {},
-      POST: {},
-      PUT: {},
-      DELETE: {},
-      PATCH: {},
-      OPTION: {},
-      TRACE: {},
-      CONNECT: {},
-    };
-  }
-
-  head(route, callback) {
-    this.routes.POST[route] = callback;
-  }
-
-  get(route, callback) {
-    this.routes.GET[route] = callback;
-  }
-
-  post(route, callback) {
-    this.routes.POST[route] = callback;
-  }
-
-  put(route, callback) {
-    this.routes.POST[route] = callback;
-  }
-
-  delete(route, callback) {
-    this.routes.POST[route] = callback;
-  }
-
-  patch(route, callback) {
-    this.routes.POST[route] = callback;
-  }
-
-  option(route, callback) {
-    this.routes.POST[route] = callback;
-  }
-
-  processIncomingHttpMessage(req, res) {
-    const fn = this.routes[req.method][req.url];
-    if (fn == undefined) return;
-    fn(req, res);
-  }
-}
-
 const router = new HttpRouter();
 
 router.get("/", (req, res) => {
-  console.log("yo");
+  console.log("ya");
   res
     .writeHead(200, { "Content-Type": "application/json" })
-    .end(JSON.stringify({ message: "caca", url: req.url, method: req.method }));
+    .end(
+      JSON.stringify({ message: "ouech", url: req.url, method: req.method })
+    );
 });
+
+router.get(
+  "/caca",
+  (req, res, next) => {
+    console.log("1 YOUHPLAAAA 2EMMMMEMEYOUHPLAAAA 2EMMMMEMEMM");
+    console.log(req.url);
+    next();
+    console.log("oueche heeinn");
+  },
+  (req, res, next) => {
+    console.log("2 YOUHPLAAAA 2EMMMMEMEYOUHPLAAAA 2EMMMMEMEMM");
+    console.log(req.url);
+    next();
+    console.log("oueche OUououuh");
+  },
+  (req, res) => {
+    console.log("yo");
+    res
+      .writeHead(200, { "Content-Type": "application/json" })
+      .end(
+        JSON.stringify({ message: "caca", url: req.url, method: req.method })
+      );
+  }
+);
 
 router.post("/", (req, res) => {
   console.log("yo");
   res
     .writeHead(200, { "Content-Type": "application/json" })
     .end(JSON.stringify({ message: "caca", url: req.url, method: req.method }));
+});
+
+router
+  .route("/pouet")
+  .get((req, res) => {
+    console.log("pouet pouet get");
+    res.writeHead(200, { "Content-Type": "application/json" }).end(
+      JSON.stringify({
+        message: "get pouet",
+        url: req.url,
+        method: req.method,
+      })
+    );
+  })
+  .post((req, res) => {
+    console.log("pouet pouet post");
+    res.writeHead(200, { "Content-Type": "application/json" }).end(
+      JSON.stringify({
+        message: "post pouet",
+        url: req.url,
+        method: req.method,
+      })
+    );
+  });
+
+router.all("/all", (req, res) => {
+  console.log("all");
+  res
+    .writeHead(200, { "Content-Type": "application/json" })
+    .end(JSON.stringify({ message: "all", url: req.url, method: req.method }));
 });
 
 console.log(router.routes);
