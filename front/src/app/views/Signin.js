@@ -1,5 +1,5 @@
 import { navigateTo } from "../router.js";
-import { createElement } from "../utils.js";
+import { createElement, postHttpRequest } from "../utils.js";
 import AbstractView from "./AbstractView.js";
 
 export default class extends AbstractView {
@@ -8,10 +8,46 @@ export default class extends AbstractView {
     this.setTitle("Signin");
   }
 
-  renderSignin(signin) {
+  buildJsonFormData(form) {
+    const jsonFormData = {};
+    const formData = new FormData(form);
+    for (const pair of formData) jsonFormData[pair[0]] = pair[1];
+    return jsonFormData;
+  }
+
+  async submitForm(e, form) {
+    e.preventDefault();
+
+    const btnSubmit = form.querySelector("button");
+    btnSubmit.disabled = true;
+    const style = document.createElement("style");
+    style.appendChild(
+      document.createTextNode("button:hover{cursor: not-allowed}")
+    );
+    btnSubmit.append(style);
+    setTimeout(() => {
+      btnSubmit.disabled = false;
+      style.remove();
+    }, 2000);
+
+    const jsonFormData = this.buildJsonFormData(form);
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    const response = await postHttpRequest(
+      "http://localhost:4000/session",
+      headers,
+      jsonFormData
+    );
+
+    console.log(response);
+  }
+
+  async renderSignin(signin) {
     signin.innerHTML = `
       <h1>Sign in to Camagru</h1>
-      <form class="sign__form" method="post" action="http://localhost:4000/session">
+      <form class="sign__form" action="">
         <label for="login_field">Username</label>
         <input id="login_field" type="text" name="username" />
         <div>
@@ -31,6 +67,11 @@ export default class extends AbstractView {
         navigateTo(link.pathname);
       });
     }
+
+    const form = signin.querySelector(".sign__form");
+    form.addEventListener("submit", (e) => {
+      this.submitForm(e, form);
+    });
   }
 
   async render(id) {
