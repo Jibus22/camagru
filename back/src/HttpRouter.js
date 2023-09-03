@@ -34,29 +34,22 @@ export class HttpRouter {
       route = this.url;
     }
 
-    const callbackArray = [];
+    const callbackArray = [callbacks[callbacks.length - 1]];
 
-    for (let i = callbacks.length - 1; i >= 0; i--) {
+    for (let i = callbacks.length - 2; i >= 0; i--) {
       const currentCb = callbacks[i];
-      if (i + 1 == callbacks.length) {
-        callbackArray.unshift(currentCb);
-      } else {
-        // if many callback are given, that means they are middleware with the
-        // 3 parameters signature ending with 'next'. So we wrap them up to
-        // make them call each other in order
-        const nextCb = callbackArray[0];
-        const middlewareCb = (req, res) => {
-          const next = () => nextCb(req, res);
-          currentCb(req, res, next);
-        };
-        callbackArray.unshift(middlewareCb);
-      }
+      const nextCb = callbackArray[0];
+      const middlewareCb = (req, res) => {
+        const next = () => nextCb(req, res);
+        currentCb(req, res, next);
+      };
+      callbackArray.unshift(middlewareCb);
     }
 
     console.log(typeof method);
     if (typeof method == "object") {
       // record standard methods with route.
-      method[route] = callbackArray;
+      method[route] = callbackArray[0];
     } else if (typeof method == "string" && method === "use") {
       // record middlewares with or without route.
       if (typeof route == "string") {
@@ -120,6 +113,6 @@ export class HttpRouter {
     const fn = this.routes[req.method][req.url];
 
     if (fn == undefined) return;
-    fn[0](req, res);
+    fn(req, res);
   }
 }

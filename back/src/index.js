@@ -45,14 +45,14 @@ try {
 
 const router = new HttpRouter();
 
-router.get("/", (req, res) => {
-  console.log("ya");
-  res
-    .writeHead(200, { "Content-Type": "application/json" })
-    .end(
-      JSON.stringify({ message: "ouech", url: req.url, method: req.method })
-    );
-});
+// router.get("/", (req, res) => {
+//   console.log("ya");
+//   res
+//     .writeHead(200, { "Content-Type": "application/json" })
+//     .end(
+//       JSON.stringify({ message: "ouech", url: req.url, method: req.method })
+//     );
+// });
 
 router.get(
   "/caca",
@@ -78,64 +78,64 @@ router.get(
   }
 );
 
-router.post("/", (req, res) => {
-  console.log("yo");
-  res
-    .writeHead(200, { "Content-Type": "application/json" })
-    .end(JSON.stringify({ message: "caca", url: req.url, method: req.method }));
-});
+// router.post("/", (req, res) => {
+//   console.log("yo");
+//   res
+//     .writeHead(200, { "Content-Type": "application/json" })
+//     .end(JSON.stringify({ message: "caca", url: req.url, method: req.method }));
+// });
 
-router
-  .route("/pouet")
-  .get((req, res) => {
-    console.log("pouet pouet get");
-    res.writeHead(200, { "Content-Type": "application/json" }).end(
-      JSON.stringify({
-        message: "get pouet",
-        url: req.url,
-        method: req.method,
-      })
-    );
-  })
-  .post((req, res) => {
-    console.log("pouet pouet post");
-    res.writeHead(200, { "Content-Type": "application/json" }).end(
-      JSON.stringify({
-        message: "post pouet",
-        url: req.url,
-        method: req.method,
-      })
-    );
-  });
+// router
+//   .route("/pouet")
+//   .get((req, res) => {
+//     console.log("pouet pouet get");
+//     res.writeHead(200, { "Content-Type": "application/json" }).end(
+//       JSON.stringify({
+//         message: "get pouet",
+//         url: req.url,
+//         method: req.method,
+//       })
+//     );
+//   })
+//   .post((req, res) => {
+//     console.log("pouet pouet post");
+//     res.writeHead(200, { "Content-Type": "application/json" }).end(
+//       JSON.stringify({
+//         message: "post pouet",
+//         url: req.url,
+//         method: req.method,
+//       })
+//     );
+//   });
 
-router.all("/all", (req, res) => {
-  console.log("all");
-  res
-    .writeHead(200, { "Content-Type": "application/json" })
-    .end(JSON.stringify({ message: "all", url: req.url, method: req.method }));
-});
+// router.all("/all", (req, res) => {
+//   console.log("all");
+//   res
+//     .writeHead(200, { "Content-Type": "application/json" })
+//     .end(JSON.stringify({ message: "all", url: req.url, method: req.method }));
+// });
 
-router.use(
-  (req, res, next) => {
-    console.log("1 Request Type:", req.method);
-    next();
-  },
-  (req, res, next) => {
-    console.log("2 Request url:", req.url);
-    next();
-  }
-);
+// router.use(
+//   (req, res, next) => {
+//     console.log("1 Request Type:", req.method);
+//     next();
+//   },
+//   (req, res, next) => {
+//     console.log("2 Request url:", req.url);
+//     next();
+//   }
+// );
 
-router.use(
-  (req, res, next) => {
-    console.log("3 Request Type:", req.method);
-    next();
-  },
-  (req, res, next) => {
-    console.log("4 Request url:", req.url);
-    next();
-  }
-);
+// router.use(
+//   (req, res, next) => {
+//     console.log("3 Request Type:", req.method);
+//     next();
+//   },
+//   (req, res, next) => {
+//     console.log("4 Request url:", req.url);
+//     next();
+//   }
+// );
 
 console.log(router.routes);
 
