@@ -115,6 +115,28 @@ router.all("/all", (req, res) => {
     .end(JSON.stringify({ message: "all", url: req.url, method: req.method }));
 });
 
+router.use(
+  (req, res, next) => {
+    console.log("1 Request Type:", req.method);
+    next();
+  },
+  (req, res, next) => {
+    console.log("2 Request url:", req.url);
+    next();
+  }
+);
+
+router.use(
+  (req, res, next) => {
+    console.log("3 Request Type:", req.method);
+    next();
+  },
+  (req, res, next) => {
+    console.log("4 Request url:", req.url);
+    next();
+  }
+);
+
 console.log(router.routes);
 
 const server = http.createServer(async (req, res) => {

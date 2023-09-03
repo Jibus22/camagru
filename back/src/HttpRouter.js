@@ -1,5 +1,6 @@
 export class HttpRouter {
   constructor() {
+    this.middlewares = [];
     this.routes = {
       HEAD: {},
       GET: {},
@@ -12,6 +13,18 @@ export class HttpRouter {
       CONNECT: {},
     };
     this.url = "/";
+  }
+
+  _mergeMiddlewares(middlewares, callbackArray) {
+    if (!middlewares.length || !callbackArray.length) return;
+
+    const currentCb = middlewares.pop();
+    const nextCb = callbackArray[0];
+    const middlewareCb = (req, res) => {
+      const next = () => nextCb(req, res);
+      currentCb(req, res, next);
+    };
+    middlewares.push(middlewareCb);
   }
 
   // record a new key-value ["route" - [cb]] according to the given method.
@@ -40,8 +53,32 @@ export class HttpRouter {
       }
     }
 
-    method[route] = callbackArray;
+    console.log(typeof method);
+    if (typeof method == "object") {
+      // record standard methods with route.
+      method[route] = callbackArray;
+    } else if (typeof method == "string" && method === "use") {
+      // record middlewares with or without route.
+      if (typeof route == "string") {
+        // Pour toutes les méthodes, trouver ou rajouter la route en question.
+        // Si la route existe il faut merge les middleware avec les route handler
+        // Sinon on la crée. Mais ce qui veut dire que si on rajoute une route
+        // handler après il faut merge l'array et merge les cb.
+      } else {
+        // On rajoute ces middleware à toutes les méthodes et à toutes les routes.
+        // == On merge les arrays + merge les cb.
+        // DO WE REALLY NEED ARRAYS ? COULD WE INSTEAD JUST MERGE CB ?
+        this._mergeMiddlewares(this.middlewares, callbackArray);
+        this.middlewares = [...this.middlewares, ...callbackArray];
+        console.log("MIDDLEWARES:");
+        console.log(this.middlewares);
+      }
+    }
     return this;
+  }
+
+  use(route, ...callback) {
+    return this._routeRecord("use", route, ...callback);
   }
 
   route(url) {
