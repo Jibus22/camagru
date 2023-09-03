@@ -54,30 +54,6 @@ const router = new HttpRouter();
 //     );
 // });
 
-router.get(
-  "/caca",
-  (req, res, next) => {
-    console.log("1 YOUHPLAAAA 2EMMMMEMEYOUHPLAAAA 2EMMMMEMEMM");
-    console.log(req.url);
-    next();
-    console.log("oueche heeinn");
-  },
-  (req, res, next) => {
-    console.log("2 YOUHPLAAAA 2EMMMMEMEYOUHPLAAAA 2EMMMMEMEMM");
-    console.log(req.url);
-    next();
-    console.log("oueche OUououuh");
-  },
-  (req, res) => {
-    console.log("yo");
-    res
-      .writeHead(200, { "Content-Type": "application/json" })
-      .end(
-        JSON.stringify({ message: "caca", url: req.url, method: req.method })
-      );
-  }
-);
-
 // router.post("/", (req, res) => {
 //   console.log("yo");
 //   res
@@ -115,27 +91,51 @@ router.get(
 //     .end(JSON.stringify({ message: "all", url: req.url, method: req.method }));
 // });
 
-// router.use(
-//   (req, res, next) => {
-//     console.log("1 Request Type:", req.method);
-//     next();
-//   },
-//   (req, res, next) => {
-//     console.log("2 Request url:", req.url);
-//     next();
-//   }
-// );
+router.use(
+  (req, res, next) => {
+    console.log("1 Request Type:", req.method);
+    next();
+  },
+  (req, res, next) => {
+    console.log("2 Request url:", req.url);
+    next();
+  }
+);
 
-// router.use(
-//   (req, res, next) => {
-//     console.log("3 Request Type:", req.method);
-//     next();
-//   },
-//   (req, res, next) => {
-//     console.log("4 Request url:", req.url);
-//     next();
-//   }
-// );
+router.get(
+  "/caca",
+  (req, res, next) => {
+    console.log("1 YOUHPLAAAA 2EMMMMEMEYOUHPLAAAA 2EMMMMEMEMM");
+    console.log(req.url);
+    next();
+    console.log("oueche heeinn");
+  },
+  (req, res, next) => {
+    console.log("2 YOUHPLAAAA 2EMMMMEMEYOUHPLAAAA 2EMMMMEMEMM");
+    console.log(req.url);
+    next();
+    console.log("oueche OUououuh");
+  },
+  (req, res) => {
+    console.log("yo");
+    res
+      .writeHead(200, { "Content-Type": "application/json" })
+      .end(
+        JSON.stringify({ message: "caca", url: req.url, method: req.method })
+      );
+  }
+);
+
+router.use(
+  (req, res, next) => {
+    console.log("3 Request Type:", req.method);
+    next();
+  },
+  (req, res, next) => {
+    console.log("4 Request url:", req.url);
+    next();
+  }
+);
 
 console.log(router.routes);
 

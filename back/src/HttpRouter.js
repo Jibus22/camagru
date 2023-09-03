@@ -1,6 +1,5 @@
 export class HttpRouter {
   constructor() {
-    this.middlewares = [];
     this.routes = {
       HEAD: {},
       GET: {},
@@ -15,41 +14,44 @@ export class HttpRouter {
     this.url = "/";
   }
 
-  _mergeMiddlewares(middlewares, callbackArray) {
-    if (!middlewares.length || !callbackArray.length) return;
+  // Wrap middlewares passed as parameters to router method so they call each
+  // other with next()
+  _mergeMiddlewares(middlewares) {
+    const middlewareArray = [middlewares[middlewares.length - 1]];
 
-    const currentCb = middlewares.pop();
-    const nextCb = callbackArray[0];
-    const middlewareCb = (req, res) => {
-      const next = () => nextCb(req, res);
-      currentCb(req, res, next);
-    };
-    middlewares.push(middlewareCb);
-  }
-
-  // record a new key-value ["route" - [cb]] according to the given method.
-  _routeRecord(method, route, ...callbacks) {
-    if (typeof route == "function") {
-      callbacks = [route, ...callbacks];
-      route = this.url;
-    }
-
-    const callbackArray = [callbacks[callbacks.length - 1]];
-
-    for (let i = callbacks.length - 2; i >= 0; i--) {
-      const currentCb = callbacks[i];
-      const nextCb = callbackArray[0];
+    for (let i = middlewares.length - 2; i >= 0; i--) {
+      const currentCb = middlewares[i];
+      const nextCb = middlewareArray[0];
       const middlewareCb = (req, res) => {
         const next = () => nextCb(req, res);
         currentCb(req, res, next);
       };
-      callbackArray.unshift(middlewareCb);
+      middlewareArray.unshift(middlewareCb);
     }
 
-    console.log(typeof method);
+    return middlewareArray;
+  }
+
+  // record a new key-value ["route" - [cb]] according to the given method.
+  _routeRecord(method, route, ...callbacks) {
+    let middlewares;
+    let url;
+    if (typeof route == "function") {
+      middlewares = [route, ...callbacks];
+      url = this.url;
+    } else {
+      middlewares = callbacks;
+      url = route;
+    }
+
     if (typeof method == "object") {
-      // record standard methods with route.
-      method[route] = callbackArray[0];
+      // Add middlewares after any existing one to a specific method and route.
+      // if (method[url] != undefined) {
+      //   console.log(method[url]);
+      //   middlewares.unshift(method[url]);
+      // }
+      const middlewareArray = this._mergeMiddlewares(middlewares);
+      method[url] = middlewareArray[0];
     } else if (typeof method == "string" && method === "use") {
       // record middlewares with or without route.
       if (typeof route == "string") {
@@ -58,13 +60,11 @@ export class HttpRouter {
         // Sinon on la crée. Mais ce qui veut dire que si on rajoute une route
         // handler après il faut merge l'array et merge les cb.
       } else {
-        // On rajoute ces middleware à toutes les méthodes et à toutes les routes.
-        // == On merge les arrays + merge les cb.
-        // DO WE REALLY NEED ARRAYS ? COULD WE INSTEAD JUST MERGE CB ?
-        this._mergeMiddlewares(this.middlewares, callbackArray);
-        this.middlewares = [...this.middlewares, ...callbackArray];
-        console.log("MIDDLEWARES:");
-        console.log(this.middlewares);
+        // Add middlewares before any existing one in every methods and routes
+        middlewares.push(this.routes.GET["/caca"]);
+        const middlewareArray = this._mergeMiddlewares(middlewares);
+
+        this.routes.GET["/caca"] = middlewareArray[0];
       }
     }
     return this;
