@@ -3,7 +3,7 @@
 import http from "http";
 import * as db from "./db/index.js";
 import { migrate } from "./db/migration.js";
-import { HttpRouter } from "./HttpRouter.js";
+import { HttpRouter, Jibuxpress } from "./HttpRouter.js";
 import { getBody } from "./utils.js";
 
 try {
@@ -43,9 +43,10 @@ try {
 //   }
 // });
 
-const router = new HttpRouter();
+// const router = new HttpRouter();
+const app = new Jibuxpress();
 
-router.get("/", (req, res) => {
+app.get("/", (req, res) => {
   console.log("ya");
   res
     .writeHead(200, { "Content-Type": "application/json" })
@@ -54,14 +55,14 @@ router.get("/", (req, res) => {
     );
 });
 
-router.post("/", (req, res) => {
+app.post("/", (req, res) => {
   console.log("yo");
   res
     .writeHead(200, { "Content-Type": "application/json" })
     .end(JSON.stringify({ message: "caca", url: req.url, method: req.method }));
 });
 
-router
+app
   .route("/pouet")
   .get((req, res) => {
     console.log("pouet pouet get");
@@ -91,7 +92,7 @@ router
 //     .end(JSON.stringify({ message: "all", url: req.url, method: req.method }));
 // });
 
-router.use(
+app.use(
   "/pouet",
   (req, res, next) => {
     console.log("1 Request Type:", req.method);
@@ -103,7 +104,7 @@ router.use(
   }
 );
 
-router.get(
+app.get(
   "/caca",
   (req, res, next) => {
     console.log("1 YOUHPLAAAA 2EMMMMEMEYOUHPLAAAA 2EMMMMEMEMM");
@@ -127,7 +128,7 @@ router.get(
   }
 );
 
-router.use(
+app.use(
   (req, res, next) => {
     console.log("3 Request Type:", req.method);
     next();
@@ -138,17 +139,21 @@ router.use(
   }
 );
 
-console.dir(router.routes, { depth: null });
+// console.dir(router.routes, { depth: null });
 
-router.start();
+// router.start();
 
-console.log("!!!!!!!");
-console.dir(router.routeHandler, { depth: null });
+// console.log("!!!!!!!");
+// console.dir(router.routeHandler, { depth: null });
 
-const server = http.createServer(async (req, res) => {
-  router.processIncomingHttpMessage(req, res);
-});
+// const server = http.createServer(async (req, res) => {
+//   router.processIncomingHttpMessage(req, res);
+// });
 
-server.listen(4000, () => {
+// server.listen(4000, () => {
+//   console.log("Listening for request");
+// });
+
+app.listen(4000, () => {
   console.log("Listening for request");
 });

@@ -1,3 +1,5 @@
+import http from "http";
+
 export class HttpRouter {
   constructor() {
     this.routes = {
@@ -49,17 +51,6 @@ export class HttpRouter {
     };
     this.middlewares = [];
     this.url = "/";
-    this.routeHandler = {
-      HEAD: {},
-      GET: {},
-      POST: {},
-      PUT: {},
-      DELETE: {},
-      PATCH: {},
-      OPTION: {},
-      TRACE: {},
-      CONNECT: {},
-    };
   }
 
   // Wrap middlewares passed as parameters to router method so they call each
@@ -139,8 +130,8 @@ export class HttpRouter {
     return this._middlewareRecord(this.routes.HEAD, route, ...callback);
   }
 
-  get(route, ...callbacks) {
-    return this._middlewareRecord(this.routes.GET, route, ...callbacks);
+  get(route, ...callback) {
+    return this._middlewareRecord(this.routes.GET, route, ...callback);
   }
 
   post(route, ...callback) {
@@ -165,8 +156,8 @@ export class HttpRouter {
 
   // Create a middleware stack for each route then merge them to create a unique
   // function per route, then delete this.routes now useless.
-  start() {
-    if (!this.routes) return;
+  start(routeHandler) {
+    if (!this.routes) return null;
     for (let [routeMethod, routeObj] of Object.entries(this.routes)) {
       for (let [routeUrl, routeHandlers] of Object.entries(routeObj.routes)) {
         const middlewareStack = [
@@ -175,17 +166,80 @@ export class HttpRouter {
           ...routeHandlers.middlewares,
           ...routeHandlers.handlers,
         ];
-        this.routeHandler[routeMethod][routeUrl] =
+        routeHandler[routeMethod][routeUrl] =
           this._mergeMiddlewares(middlewareStack)[0];
       }
     }
     this.routes = null;
+    return this;
+  }
+}
+
+// Main api of my nodejs framework
+export class Jibuxpress {
+  constructor() {
+    this.router = new HttpRouter();
+    this.routeHandler = {
+      HEAD: {},
+      GET: {},
+      POST: {},
+      PUT: {},
+      DELETE: {},
+      PATCH: {},
+      OPTION: {},
+      TRACE: {},
+      CONNECT: {},
+    };
   }
 
-  processIncomingHttpMessage(req, res) {
+  use(route, ...callback) {
+    return this.router.use(route, ...callback);
+  }
+
+  route(url) {
+    return this.router.route(url);
+  }
+
+  all(route, callback) {}
+
+  head(route, ...callback) {
+    return this.router.head(route, ...callback);
+  }
+
+  get(route, ...callback) {
+    return this.router.get(route, ...callback);
+  }
+
+  post(route, ...callback) {
+    return this.router.post(route, ...callback);
+  }
+
+  put(route, ...callback) {
+    return this.router.put(route, ...callback);
+  }
+
+  delete(route, ...callback) {
+    return this.router.delete(route, ...callback);
+  }
+
+  patch(route, ...callback) {
+    return this.router.patch(route, ...callback);
+  }
+
+  option(route, ...callback) {
+    return this.router.option(route, ...callback);
+  }
+
+  _processIncomingHttpMessage(req, res) {
     const fn = this.routeHandler[req.method][req.url];
 
-    if (fn == undefined) return;
+    if (fn == undefined) {
+      console.log("App fn undefined");
+      res
+        .writeHead(501, { "Content-Type": "application/json" })
+        .end(JSON.stringify({ message: "not implemented" }));
+      return;
+    }
     try {
       fn(req, res);
     } catch (err) {
@@ -194,5 +248,14 @@ export class HttpRouter {
         .writeHead(501, { "Content-Type": "application/json" })
         .end(JSON.stringify({ message: "not implemented" }));
     }
+  }
+
+  listen(port, cb) {
+    const server = http.createServer(async (req, res) => {
+      this._processIncomingHttpMessage(req, res);
+    });
+
+    this.router.start(this.routeHandler);
+    server.listen(port, cb);
   }
 }
