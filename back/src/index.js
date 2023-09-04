@@ -3,7 +3,7 @@
 import http from "http";
 import * as db from "./db/index.js";
 import { migrate } from "./db/migration.js";
-import { HttpRouter, Jibuxpress } from "./HttpRouter.js";
+import { Jibuxpress } from "./lib/Jibuxpress.js";
 import { getBody } from "./utils.js";
 
 try {
