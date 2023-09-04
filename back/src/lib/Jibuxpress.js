@@ -18,10 +18,12 @@ export class Jibuxpress {
     };
   }
 
+  // Add callback middlewares at route level or app level if no route is given
   use(route, ...callback) {
     return this.router.use(route, ...callback);
   }
 
+  // Utility to declare all method handlers chained to one route.
   route(url) {
     return this.router.route(url);
   }
