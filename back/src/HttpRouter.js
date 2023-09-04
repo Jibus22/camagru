@@ -1,6 +1,55 @@
 export class HttpRouter {
   constructor() {
     this.routes = {
+      HEAD: {
+        middlewares: [],
+        routes: {
+          // "/": {
+          //   middlewares: [mw1, mw2, mw3...],
+          //   handlers: [mw1, mw2, mw3... handler],
+          // },
+          // "/path": {
+          //   middlewares: [mw1, mw2, mw3...],
+          //   handlers: [mw1, mw2, mw3... handler],
+          // },
+        },
+      },
+      GET: {
+        middlewares: [],
+        routes: {},
+      },
+      POST: {
+        middlewares: [],
+        routes: {},
+      },
+      PUT: {
+        middlewares: [],
+        routes: {},
+      },
+      DELETE: {
+        middlewares: [],
+        routes: {},
+      },
+      PATCH: {
+        middlewares: [],
+        routes: {},
+      },
+      OPTION: {
+        middlewares: [],
+        routes: {},
+      },
+      TRACE: {
+        middlewares: [],
+        routes: {},
+      },
+      CONNECT: {
+        middlewares: [],
+        routes: {},
+      },
+    };
+    this.middlewares = [];
+    this.url = "/";
+    this.routeHandler = {
       HEAD: {},
       GET: {},
       POST: {},
@@ -11,7 +60,6 @@ export class HttpRouter {
       TRACE: {},
       CONNECT: {},
     };
-    this.url = "/";
   }
 
   // Wrap middlewares passed as parameters to router method so they call each
@@ -32,8 +80,7 @@ export class HttpRouter {
     return middlewareArray;
   }
 
-  // record a new key-value ["route" - [cb]] according to the given method.
-  _routeRecord(method, route, ...callbacks) {
+  _middlewareRecord(method, route, ...callbacks) {
     let middlewares;
     let url;
     if (typeof route == "function") {
@@ -46,32 +93,39 @@ export class HttpRouter {
 
     if (typeof method == "object") {
       // Add middlewares after any existing one to a specific method and route.
-      // if (method[url] != undefined) {
-      //   console.log(method[url]);
-      //   middlewares.unshift(method[url]);
-      // }
-      const middlewareArray = this._mergeMiddlewares(middlewares);
-      method[url] = middlewareArray[0];
+      if (method.routes[url] == undefined)
+        method.routes[url] = {
+          middlewares: [],
+          handlers: [],
+        };
+      method.routes[url].handlers = [
+        ...method.routes[url].handlers,
+        ...middlewares,
+      ];
     } else if (typeof method == "string" && method === "use") {
-      // record middlewares with or without route.
       if (typeof route == "string") {
-        // Pour toutes les méthodes, trouver ou rajouter la route en question.
-        // Si la route existe il faut merge les middleware avec les route handler
-        // Sinon on la crée. Mais ce qui veut dire que si on rajoute une route
-        // handler après il faut merge l'array et merge les cb.
+        // Record middlewares in every methods and a specific route
+        for (const _method of Object.values(this.routes)) {
+          if (_method.routes[url] == undefined)
+            _method.routes[url] = {
+              middlewares: [],
+              handlers: [],
+            };
+          _method.routes[url].middlewares = [
+            ..._method.routes[url].middlewares,
+            ...middlewares,
+          ];
+        }
       } else {
-        // Add middlewares before any existing one in every methods and routes
-        middlewares.push(this.routes.GET["/caca"]);
-        const middlewareArray = this._mergeMiddlewares(middlewares);
-
-        this.routes.GET["/caca"] = middlewareArray[0];
+        // Record middlewares in every methods and routes
+        this.middlewares = [...this.middlewares, ...middlewares];
       }
     }
     return this;
   }
 
   use(route, ...callback) {
-    return this._routeRecord("use", route, ...callback);
+    return this._middlewareRecord("use", route, ...callback);
   }
 
   route(url) {
@@ -82,37 +136,63 @@ export class HttpRouter {
   all(route, callback) {}
 
   head(route, ...callback) {
-    return this._routeRecord(this.routes.HEAD, route, ...callback);
+    return this._middlewareRecord(this.routes.HEAD, route, ...callback);
   }
 
   get(route, ...callbacks) {
-    return this._routeRecord(this.routes.GET, route, ...callbacks);
+    return this._middlewareRecord(this.routes.GET, route, ...callbacks);
   }
 
   post(route, ...callback) {
-    return this._routeRecord(this.routes.POST, route, ...callback);
+    return this._middlewareRecord(this.routes.POST, route, ...callback);
   }
 
   put(route, ...callback) {
-    return this._routeRecord(this.routes.PUT, route, ...callback);
+    return this._middlewareRecord(this.routes.PUT, route, ...callback);
   }
 
   delete(route, ...callback) {
-    return this._routeRecord(this.routes.DELETE, route, ...callback);
+    return this._middlewareRecord(this.routes.DELETE, route, ...callback);
   }
 
   patch(route, ...callback) {
-    return this._routeRecord(this.routes.PATCH, route, ...callback);
+    return this._middlewareRecord(this.routes.PATCH, route, ...callback);
   }
 
   option(route, ...callback) {
-    return this._routeRecord(this.routes.OPTION, route, ...callback);
+    return this._middlewareRecord(this.routes.OPTION, route, ...callback);
+  }
+
+  // Create a middleware stack for each route then merge them to create a unique
+  // function per route, then delete this.routes now useless.
+  start() {
+    if (!this.routes) return;
+    for (let [routeMethod, routeObj] of Object.entries(this.routes)) {
+      for (let [routeUrl, routeHandlers] of Object.entries(routeObj.routes)) {
+        const middlewareStack = [
+          ...this.middlewares,
+          ...routeObj.middlewares,
+          ...routeHandlers.middlewares,
+          ...routeHandlers.handlers,
+        ];
+        this.routeHandler[routeMethod][routeUrl] =
+          this._mergeMiddlewares(middlewareStack)[0];
+      }
+    }
+    this.routes = null;
   }
 
   processIncomingHttpMessage(req, res) {
-    const fn = this.routes[req.method][req.url];
+    const fn = this.routeHandler[req.method][req.url];
 
     if (fn == undefined) return;
-    fn(req, res);
+    try {
+      fn(req, res);
+    } catch (err) {
+      console.log("App err catch:\n" + err);
+      res
+        .writeHead(501, { "Content-Type": "application/json" })
+        .end(JSON.stringify({ message: "not implemented" }));
+    }
   }
 }
