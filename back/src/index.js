@@ -14,6 +14,23 @@ try {
 
 const app = new Jibuxpress();
 
+// response interceptor middleware to filter outgoing data
+app.use("/users", (req, res, next) => {
+  const end = res.end;
+  res.end = (data) => {
+    let filter = data.map((elem) => {
+      const { id, username } = elem;
+      return { id, username };
+    });
+
+    data = JSON.stringify(filter);
+
+    res.end = end;
+    end.call(res, data);
+  };
+  next();
+});
+
 app.route("/users").get((req, res) => {
   getUsers(req, res);
 });
