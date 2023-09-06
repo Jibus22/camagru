@@ -12,7 +12,7 @@ export class Jibuxpress {
       PUT: {},
       DELETE: {},
       PATCH: {},
-      OPTION: {},
+      OPTIONS: {},
       TRACE: {},
       CONNECT: {},
     };
@@ -54,27 +54,38 @@ export class Jibuxpress {
     return this.router.patch(route, ...callback);
   }
 
-  option(route, ...callback) {
-    return this.router.option(route, ...callback);
+  options(route, ...callback) {
+    return this.router.options(route, ...callback);
+  }
+
+  _notImplementedError(res, errMsg) {
+    console.log(errMsg);
+    res
+      .writeHead(501, { "Content-Type": "application/json" })
+      .end(JSON.stringify({ message: "not implemented" }));
+    return;
   }
 
   _processIncomingHttpMessage(req, res) {
-    const fn = this.routeHandler[req.method][req.url];
+    const method = this.routeHandler[req.method];
 
-    if (fn == undefined) {
-      console.log("App fn undefined");
-      res
-        .writeHead(501, { "Content-Type": "application/json" })
-        .end(JSON.stringify({ message: "not implemented" }));
-      return;
-    }
+    if (method == undefined)
+      return this._notImplementedError(
+        res,
+        `App fn for ${req.method} undefined`
+      );
+
+    const fn = method[req.url];
+    if (fn == undefined)
+      return this._notImplementedError(
+        res,
+        `App fn for ${req.method} ${req.url} undefined`
+      );
+
     try {
       fn(req, res);
     } catch (err) {
-      console.log("App err catch:\n" + err);
-      res
-        .writeHead(501, { "Content-Type": "application/json" })
-        .end(JSON.stringify({ message: "not implemented" }));
+      this._notImplementedError(res, "App err catch:\n" + err);
     }
   }
 

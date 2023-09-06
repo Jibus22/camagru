@@ -34,7 +34,7 @@ export class HttpRouter {
         middlewares: [],
         routes: {},
       },
-      OPTION: {
+      OPTIONS: {
         middlewares: [],
         routes: {},
       },
@@ -148,8 +148,8 @@ export class HttpRouter {
     return this._middlewareRecord(this.routes.PATCH, route, ...callback);
   }
 
-  option(route, ...callback) {
-    return this._middlewareRecord(this.routes.OPTION, route, ...callback);
+  options(route, ...callback) {
+    return this._middlewareRecord(this.routes.OPTIONS, route, ...callback);
   }
 
   // Create a middleware stack for each route then merge them to create a unique

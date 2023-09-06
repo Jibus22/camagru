@@ -14,7 +14,16 @@ try {
 
 const app = new Jibuxpress();
 
-// response interceptor middleware to filter outgoing data
+// Authorize for the whole server any request from my front (CORS).
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  next();
+});
+
+// response interceptor middleware to filter outgoing data (exclude password)
 app.use("/users", (req, res, next) => {
   const end = res.end;
   res.end = (data) => {
@@ -34,6 +43,20 @@ app.use("/users", (req, res, next) => {
 app.route("/users").get((req, res) => {
   getUsers(req, res);
 });
+
+app
+  .route("/session")
+  .post(async (req, res) => {
+    console.log("caca post");
+    res.statusCode = 200;
+    let body = await getBody(req);
+
+    res.end(JSON.stringify(body));
+  })
+  .options((req, res) => {
+    res.statusCode = 200;
+    res.end();
+  });
 
 // const server = http.createServer(async (req, res) => {
 //   if (req.url === "/session") {

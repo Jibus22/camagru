@@ -35,13 +35,16 @@ export default class extends AbstractView {
       "Content-Type": "application/json",
     };
 
-    const response = await postHttpRequest(
-      "http://localhost:4000/session",
-      headers,
-      jsonFormData
-    );
-
-    console.log(response);
+    try {
+      const response = await postHttpRequest(
+        "http://localhost:4000/session",
+        headers,
+        jsonFormData
+      );
+      console.log(response);
+    } catch (err) {
+      console.error("Signin error: " + err);
+    }
   }
 
   async renderSignin(signin) {
