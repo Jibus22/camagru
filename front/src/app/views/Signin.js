@@ -42,8 +42,17 @@ export default class extends AbstractView {
         jsonFormData
       );
       console.log(response);
+      // processer la réponse:
+      // si le serveur me dit ok je te reconnais bébé, je prend le token de
+      // connexion qu'il me donne et je me fais rediriger vers la page d'accueil
+      // avec la possibilté de voir la barre de nav en mode connecté et de faire
+      // les trucs de gens connectés (pouvoir commenter etc)
+      //
+      // sinon je reste sur la page mais j'affiche une petite fenêtre qui dit
+      // "identifiants incorrects, rééssayez"
     } catch (err) {
       console.error("Signin error: " + err);
+      // display something to say it din't worked, try again.
     }
   }
 

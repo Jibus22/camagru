@@ -3,7 +3,7 @@
 import { migrate } from "./db/migration.js";
 import { Jibuxpress } from "./lib/Jibuxpress.js";
 import { getUsers } from "./controllers/userController.js";
-import { getBody } from "./utils.js";
+import { signIn } from "./controllers/authController.js";
 
 try {
   await migrate();
@@ -16,6 +16,7 @@ const app = new Jibuxpress();
 
 // Authorize for the whole server any request from my front (CORS).
 app.use((req, res, next) => {
+  res.setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -46,12 +47,9 @@ app.route("/users").get((req, res) => {
 
 app
   .route("/session")
-  .post(async (req, res) => {
-    console.log("caca post");
-    res.statusCode = 200;
-    let body = await getBody(req);
-
-    res.end(JSON.stringify(body));
+  .post((req, res) => {
+    // interdire la route si tu es déjà log
+    signIn(req, res);
   })
   .options((req, res) => {
     res.statusCode = 200;

@@ -36,6 +36,7 @@ export const postHttpRequest = async (fetchLink, headers, body) => {
       method: "POST",
       headers: headers,
       body: JSON.stringify(body),
+      credentials: "include",
     });
     const content = await rawResponse.json();
     return content;
