@@ -8,7 +8,7 @@ export const createSession = async (id) => {
   return !rows.length ? null : rows[0];
 };
 
-export const findSession = async (uid, sid) => {
+export const findOneSession = async (uid, sid) => {
   const { rows } = await db.query(
     "SELECT uid, sid, created_date FROM sessions WHERE uid=$1 AND sid=$2",
     [uid, sid]
@@ -17,10 +17,11 @@ export const findSession = async (uid, sid) => {
   return !rows.length ? null : rows[0];
 };
 
-export const findSessionById = async (id) => {
+// Delete expired sessions of uid.
+export const deleteSessionByDate = async (uid, date) => {
   const { rows } = await db.query(
-    "SELECT uid, sid, created_date FROM sessions WHERE uid=$1",
-    [id]
+    "DELETE FROM sessions WHERE uid=$1 AND created_date < $2 returning *",
+    [uid, date]
   );
 
   return !rows.length ? null : rows;
