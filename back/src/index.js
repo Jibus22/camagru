@@ -4,6 +4,7 @@ import { migrate } from "./db/migration.js";
 import { Jibuxpress } from "./lib/Jibuxpress.js";
 import { getUsers } from "./controllers/userController.js";
 import { signIn } from "./controllers/authController.js";
+import { authGuard } from "./middlewares/authMiddleware.js";
 
 try {
   await migrate();
@@ -24,16 +25,20 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(authGuard);
+
 // response interceptor middleware to filter outgoing data (exclude password)
 app.use("/users", (req, res, next) => {
   const end = res.end;
   res.end = (data) => {
-    let filter = data.map((elem) => {
-      const { id, username } = elem;
-      return { id, username };
-    });
+    if (data && typeof data === "object") {
+      let filter = data.map((elem) => {
+        const { id, username } = elem;
+        return { id, username };
+      });
 
-    data = JSON.stringify(filter);
+      data = JSON.stringify(filter);
+    }
 
     res.end = end;
     end.call(res, data);
@@ -41,20 +46,28 @@ app.use("/users", (req, res, next) => {
   next();
 });
 
-app.route("/users").get((req, res) => {
-  getUsers(req, res);
-});
+app
+  .route("/users")
+  .get((req, res) => {
+    getUsers(req, res);
+  })
+  .post((req, res) => {
+    console.log(`url: ${req.url}, method: ${req.method}`);
+    res.end();
+  });
 
 app
   .route("/session")
   .post((req, res) => {
-    // interdire la route si tu es déjà log
     signIn(req, res);
   })
   .options((req, res) => {
-    res.statusCode = 200;
     res.end();
   });
+
+app.listen(4000, () => {
+  console.log("Listening for request");
+});
 
 // const server = http.createServer(async (req, res) => {
 //   if (req.url === "/session") {
@@ -173,7 +186,3 @@ app
 // );
 
 // console.dir(app.routeHandler, { depth: null });
-
-app.listen(4000, () => {
-  console.log("Listening for request");
-});

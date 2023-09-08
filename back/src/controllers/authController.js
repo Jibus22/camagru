@@ -3,6 +3,13 @@ import * as User from "../models/userModel.js";
 import { getBody } from "../utils.js";
 
 export const signIn = async (req, res) => {
+  if (req.session) {
+    // Maybe rediriger vers '/'
+    return res.end(
+      JSON.stringify({ authenticated: true, msg: "Already authenticated!" })
+    );
+  }
+
   const body = await getBody(req);
   const { username, password } = JSON.parse(body);
   let user = await User.findOne(username);
@@ -16,8 +23,8 @@ export const signIn = async (req, res) => {
   console.log(session);
 
   res.setHeader("Set-Cookie", [
-    `camagru_sid=${session.sid}; samesite=None; secure; path=/; max-age=10000; httpOnly`,
-    `camagru_uid=${session.uid}; samesite=None; secure; path=/; max-age=10000; httpOnly`,
+    `camagru_sid=${session.sid}; samesite=Lax; path=/; max-age=8; httpOnly`,
+    `camagru_uid=${session.uid}; samesite=Lax; path=/; max-age=8; httpOnly`,
   ]);
   return res.end(JSON.stringify({ authenticated: true }));
 };
