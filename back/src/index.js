@@ -3,7 +3,7 @@
 import { migrate } from "./db/migration.js";
 import { Jibuxpress } from "./lib/Jibuxpress.js";
 import { getUsers } from "./controllers/userController.js";
-import { signIn } from "./controllers/authController.js";
+import { signIn, signUp } from "./controllers/authController.js";
 import { authGuard } from "./middlewares/authMiddleware.js";
 
 try {
@@ -60,6 +60,15 @@ app
   .route("/signin")
   .post((req, res) => {
     signIn(req, res);
+  })
+  .options((req, res) => {
+    res.end();
+  });
+
+app
+  .route("/signup")
+  .post((req, res) => {
+    signUp(req, res);
   })
   .options((req, res) => {
     res.end();

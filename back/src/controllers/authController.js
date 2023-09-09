@@ -14,7 +14,6 @@ const cleanUserSessions = async (user) => {
 
 export const signIn = async (req, res) => {
   if (req.session) {
-    // Maybe rediriger vers '/'
     return res.end(
       JSON.stringify({ authenticated: true, msg: "Already authenticated!" })
     );
@@ -22,7 +21,7 @@ export const signIn = async (req, res) => {
 
   const body = await getBody(req);
   const { username, password } = JSON.parse(body);
-  let user = await User.findOne(username);
+  let user = await User.findByUsername(username);
 
   // User not found or wrong password
   if (!user || user?.password != password)
@@ -37,5 +36,51 @@ export const signIn = async (req, res) => {
     `camagru_sid=${session.sid}; samesite=Lax; path=/; max-age=${maxAge}; httpOnly`,
     `camagru_uid=${session.uid}; samesite=Lax; path=/; max-age=${maxAge}; httpOnly`,
   ]);
-  return res.end(JSON.stringify({ authenticated: true }));
+
+  return res.end(JSON.stringify({ authenticated: true, username }));
+};
+
+export const signUp = async (req, res) => {
+  if (req.session) {
+    return res.end(
+      JSON.stringify({ signedUp: false, msg: "Already authenticated!" })
+    );
+  }
+
+  const body = await getBody(req);
+  const { email, username, password } = JSON.parse(body);
+
+  if (password.length < 7)
+    return res.end(
+      JSON.stringify({
+        signedUp: false,
+        msg: "password must be 7 characters minimum",
+      })
+    );
+
+  let user = await User.findByUsername(username);
+
+  if (user?.username)
+    return res.end(
+      JSON.stringify({
+        signedUp: false,
+        msg: "This username is already used. Choose another one !",
+      })
+    );
+
+  user = await User.findByEmail(email);
+
+  if (user?.email) {
+    return res.end(
+      JSON.stringify({
+        signedUp: false,
+        msg: "This email is already used.",
+      })
+    );
+  }
+
+  // hasher le pwd avec bcrypt.
+  // créer une nouvelle table avec username + pwd + email
+
+  res.end(JSON.stringify({}));
 };
