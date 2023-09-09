@@ -6,7 +6,7 @@ const db_tables = [
     query: `id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
   email VARCHAR(128) UNIQUE NOT NULL,
   username VARCHAR(128) UNIQUE NOT NULL,
-  password VARCHAR(128),
+  password VARCHAR(128) NOT NULL,
   photo BYTEA,
   created_date TIMESTAMP DEFAULT current_timestamp
     `,

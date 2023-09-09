@@ -28,8 +28,7 @@ export const signIn = async (req, res) => {
   if (!user || user?.password != password)
     return res.end(JSON.stringify({ authenticated: false }));
 
-  // Take advantage of signin to check wether we store deprecated sessions of
-  // user or not and delete them.
+  // Take advantage of signin to clean expired sessions
   cleanUserSessions(user);
 
   const session = await Auth.createSession(user.id);
