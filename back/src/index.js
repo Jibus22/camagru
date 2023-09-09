@@ -57,7 +57,7 @@ app
   });
 
 app
-  .route("/session")
+  .route("/signin")
   .post((req, res) => {
     signIn(req, res);
   })
