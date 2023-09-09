@@ -1,8 +1,8 @@
 import Edit from "./views/edit/Edit";
 import Home from "./views/home/Home";
 import PasswordReset from "./views/PasswordReset";
-import Signin from "./views/Signin";
-import Signup from "./views/Signup";
+import Signin from "./views/session/Signin";
+import Signup from "./views/session/Signup";
 
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
