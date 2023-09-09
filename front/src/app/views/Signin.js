@@ -1,5 +1,5 @@
 import { navigateTo } from "../router.js";
-import { createElement, postHttpRequest } from "../utils.js";
+import { createElement, newTimeout, postHttpRequest } from "../utils.js";
 import AbstractView from "./AbstractView.js";
 
 export default class extends AbstractView {
@@ -15,41 +15,56 @@ export default class extends AbstractView {
     return jsonFormData;
   }
 
+  displayValidAuth(form) {
+    const msg = createElement("div", ["sign__form__valid-msg"]);
+    const invalid = form.querySelector(".sign__form__invalid-msg");
+    if (invalid) invalid.remove();
+    msg.innerHTML = "You are authenticated ! Welcome.";
+    form.append(msg);
+  }
+
+  displayInvalidAuth(form) {
+    const msg = createElement("div", ["sign__form__invalid-msg"]);
+    msg.innerHTML = "Authentication error. Please try again.";
+    form.append(msg);
+  }
+
   async submitForm(e, form) {
     e.preventDefault();
 
     const btnSubmit = form.querySelector("button");
-    btnSubmit.disabled = true;
     const style = document.createElement("style");
     style.appendChild(
       document.createTextNode("button:hover{cursor: not-allowed}")
     );
-    btnSubmit.append(style);
-    setTimeout(() => {
+
+    const btnTimeout = newTimeout(() => {
       btnSubmit.disabled = false;
       style.remove();
     }, 2000);
 
+    btnSubmit.disabled = true;
+    btnSubmit.append(style);
+
     const jsonFormData = this.buildJsonFormData(form);
-    const headers = {
-      "Content-Type": "application/json",
-    };
 
     try {
       const response = await postHttpRequest(
         "http://localhost:4000/session",
-        headers,
+        { "Content-Type": "application/json" },
         jsonFormData
       );
-      console.log(response);
-      // processer la réponse:
-      // si le serveur me dit ok je te reconnais bébé, je prend le token de
-      // connexion qu'il me donne et je me fais rediriger vers la page d'accueil
-      // avec la possibilté de voir la barre de nav en mode connecté et de faire
-      // les trucs de gens connectés (pouvoir commenter etc)
-      //
-      // sinon je reste sur la page mais j'affiche une petite fenêtre qui dit
-      // "identifiants incorrects, rééssayez"
+
+      if (response.authenticated == true) {
+        this.displayValidAuth(form);
+        setTimeout(() => {
+          navigateTo("/");
+        }, 1000);
+        return;
+      } else {
+        btnTimeout.trigger();
+        this.displayInvalidAuth(form);
+      }
     } catch (err) {
       console.error("Signin error: " + err);
       // display something to say it din't worked, try again.
