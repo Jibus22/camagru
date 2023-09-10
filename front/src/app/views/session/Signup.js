@@ -1,10 +1,6 @@
 import AbstractView from "../AbstractView.js";
 import { createElement } from "../../utils.js";
-import {
-  displayInvalidAuth,
-  displayValidAuth,
-  submitForm,
-} from "./submitForm.js";
+import { displayAuthResponse, submitForm } from "./submitForm.js";
 
 export default class extends AbstractView {
   constructor(params) {
@@ -31,14 +27,14 @@ export default class extends AbstractView {
     form.addEventListener("submit", (e) => {
       submitForm(e, form, "http://localhost:4000/signup", (res, btn) => {
         if (res.signedUp == true) {
-          displayValidAuth(form, "Signed up, check your mail");
+          displayAuthResponse(form, res.msg, "valid-msg");
           setTimeout(() => {
             navigateTo("/");
           }, 1000);
           return;
         } else {
           if (btn) btn.trigger();
-          displayInvalidAuth(form, `sign up error: ${res.msg}`);
+          displayAuthResponse(form, res.msg, "invalid-msg");
         }
       });
     });

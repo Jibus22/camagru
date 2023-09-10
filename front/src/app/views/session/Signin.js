@@ -1,11 +1,7 @@
 import { navigateTo } from "../../router.js";
 import { createElement } from "../../utils.js";
 import AbstractView from "../AbstractView.js";
-import {
-  displayInvalidAuth,
-  displayValidAuth,
-  submitForm,
-} from "./submitForm.js";
+import { displayAuthResponse, submitForm } from "./submitForm.js";
 
 export default class extends AbstractView {
   constructor(params) {
@@ -42,17 +38,14 @@ export default class extends AbstractView {
     form.addEventListener("submit", (e) => {
       submitForm(e, form, "http://localhost:4000/signin", (res, btn) => {
         if (res.authenticated == true) {
-          displayValidAuth(
-            form,
-            `Welcome <strong>${res.username}</strong>, you are authenticated !`
-          );
+          displayAuthResponse(form, res.msg, "valid-msg");
           setTimeout(() => {
             navigateTo("/");
           }, 1000);
           return;
         } else {
           if (btn) btn.trigger();
-          displayInvalidAuth(form, "Authentication error. Please try again.");
+          displayAuthResponse(form, res.msg, "invalid-msg");
         }
       });
     });

@@ -7,16 +7,10 @@ const buildJsonFormData = (form) => {
   return jsonFormData;
 };
 
-export const displayValidAuth = (form, message) => {
-  const msg = createElement("div", ["sign__form__valid-msg"]);
-  const invalid = form.querySelector(".sign__form__invalid-msg");
+export const displayAuthResponse = (form, message, classname) => {
+  const msg = createElement("div", [`sign__form__${classname}`]);
+  const invalid = form.querySelector(`.sign__form__invalid-msg`);
   if (invalid) invalid.remove();
-  msg.innerHTML = message;
-  form.append(msg);
-};
-
-export const displayInvalidAuth = (form, message) => {
-  const msg = createElement("div", ["sign__form__invalid-msg"]);
   msg.innerHTML = message;
   form.append(msg);
 };
