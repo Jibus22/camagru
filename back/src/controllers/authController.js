@@ -13,11 +13,8 @@ const cleanUserSessions = async (user) => {
 };
 
 export const signIn = async (req, res) => {
-  if (req.session) {
-    return res.end(
-      JSON.stringify({ authenticated: true, msg: "Already authenticated!" })
-    );
-  }
+  if (req.session)
+    return res.json({ authenticated: false, msg: "Already authenticated!" });
 
   const body = await getBody(req);
   const { username, password } = JSON.parse(body);
@@ -25,7 +22,10 @@ export const signIn = async (req, res) => {
 
   // User not found or wrong password
   if (!user || user?.password != password)
-    return res.end(JSON.stringify({ authenticated: false }));
+    return res.json({
+      authenticated: false,
+      msg: "Authentication error, please try again.",
+    });
 
   // Take advantage of signin to clean expired sessions
   cleanUserSessions(user);
@@ -37,50 +37,42 @@ export const signIn = async (req, res) => {
     `camagru_uid=${session.uid}; samesite=Lax; path=/; max-age=${maxAge}; httpOnly`,
   ]);
 
-  return res.end(JSON.stringify({ authenticated: true, username }));
+  return res.json({
+    authenticated: true,
+    msg: `Welcome <strong>${username}</strong>, you are authenticated !`,
+  });
 };
 
 export const signUp = async (req, res) => {
-  if (req.session) {
-    return res.end(
-      JSON.stringify({ signedUp: false, msg: "Already authenticated!" })
-    );
-  }
+  if (req.session)
+    return res.json({ signedUp: false, msg: "Already authenticated!" });
 
   const body = await getBody(req);
   const { email, username, password } = JSON.parse(body);
 
-  if (password.length < 7)
-    return res.end(
-      JSON.stringify({
-        signedUp: false,
-        msg: "password must be 7 characters minimum",
-      })
-    );
+  if (password.length < 7 || username.length < 5)
+    return res.json({
+      signedUp: false,
+      msg: `${password.length < 7 ? "password" : "username"} must be ${
+        password.length < 7 ? "7" : "5"
+      } characters minimum`,
+    });
 
   let user = await User.findByUsername(username);
 
   if (user?.username)
-    return res.end(
-      JSON.stringify({
-        signedUp: false,
-        msg: "This username is already used. Choose another one !",
-      })
-    );
+    return res.json({
+      signedUp: false,
+      msg: "This username is already used.",
+    });
 
   user = await User.findByEmail(email);
 
-  if (user?.email) {
-    return res.end(
-      JSON.stringify({
-        signedUp: false,
-        msg: "This email is already used.",
-      })
-    );
-  }
+  if (user?.email)
+    return res.json({ signedUp: false, msg: "This email is already used." });
 
   // hasher le pwd avec bcrypt.
   // créer une nouvelle table avec username + pwd + email
 
-  res.end(JSON.stringify({}));
+  res.json({ signedUp: false, msg: "CACA" });
 };

@@ -1,6 +1,12 @@
 import http from "http";
 import { HttpRouter } from "./HttpRouter.js";
 
+http.ServerResponse.prototype.json = function (item) {
+  if (typeof item === "object") item = JSON.stringify(item);
+  this.setHeader("Content-Type", "application/json");
+  this.end(item);
+};
+
 // Main api of my nodejs framework
 export class Jibuxpress {
   constructor() {
