@@ -26,3 +26,16 @@ export const findByEmail = async (email) => {
   if (!rows.length) return null;
   return rows[0];
 };
+
+export const createUser = async (email, username, hash) => {
+  try {
+    const { rows } = await db.query(
+      "INSERT INTO users(email, username, password) VALUES($1, $2, $3) returning *",
+      [email, username, hash]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};

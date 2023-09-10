@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
 import { getBody } from "../utils.js";
@@ -71,8 +72,29 @@ export const signUp = async (req, res) => {
   if (user?.email)
     return res.json({ signedUp: false, msg: "This email is already used." });
 
-  // hasher le pwd avec bcrypt.
-  // créer une nouvelle table avec username + pwd + email
+  const saltRounds = 10;
 
-  res.json({ signedUp: false, msg: "CACA" });
+  bcrypt.hash(password, saltRounds, async (err, hash) => {
+    if (err) {
+      console.error(err);
+      return res.json({
+        signedUp: false,
+        msg: "Registration failed, try again.",
+      });
+    }
+
+    const newUser = await User.createUser(email, username, hash);
+    console.log(newUser);
+    if (newUser) {
+      return res.json({
+        signedUp: true,
+        msg: `Welcome to Camagru, <strong>${newUser.username}</strong> please check your email to confirm your registration`,
+      });
+    } else {
+      return res.json({
+        signedUp: false,
+        msg: "Registration failed, try again.",
+      });
+    }
+  });
 };
