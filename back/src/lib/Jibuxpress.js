@@ -1,6 +1,11 @@
 import http from "http";
 import { HttpRouter } from "./HttpRouter.js";
 
+http.ServerResponse.prototype.status = function (code) {
+  this.statusCode = code;
+  return this;
+};
+
 http.ServerResponse.prototype.json = function (item) {
   if (typeof item === "object") item = JSON.stringify(item);
   this.setHeader("Content-Type", "application/json");

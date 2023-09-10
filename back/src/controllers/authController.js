@@ -15,15 +15,18 @@ const cleanUserSessions = async (user) => {
 
 export const signIn = async (req, res) => {
   if (req.session)
-    return res.json({ authenticated: false, msg: "Already authenticated!" });
+    return res
+      .status(401)
+      .json({ authenticated: false, msg: "Already authenticated!" });
 
   const body = await getBody(req);
   const { username, password } = JSON.parse(body);
   let user = await User.findByUsername(username);
 
-  // User not found or wrong password
-  if (!user || user?.password != password)
-    return res.json({
+  const verified = await bcrypt.compare(password, user?.password);
+
+  if (!verified)
+    return res.status(401).json({
       authenticated: false,
       msg: "Authentication error, please try again.",
     });
@@ -46,13 +49,15 @@ export const signIn = async (req, res) => {
 
 export const signUp = async (req, res) => {
   if (req.session)
-    return res.json({ signedUp: false, msg: "Already authenticated!" });
+    return res
+      .status(401)
+      .json({ signedUp: false, msg: "Already authenticated!" });
 
   const body = await getBody(req);
   const { email, username, password } = JSON.parse(body);
 
   if (password.length < 7 || username.length < 5)
-    return res.json({
+    return res.status(401).json({
       signedUp: false,
       msg: `${password.length < 7 ? "password" : "username"} must be ${
         password.length < 7 ? "7" : "5"
@@ -62,7 +67,7 @@ export const signUp = async (req, res) => {
   let user = await User.findByUsername(username);
 
   if (user?.username)
-    return res.json({
+    return res.status(401).json({
       signedUp: false,
       msg: "This username is already used.",
     });
@@ -77,21 +82,21 @@ export const signUp = async (req, res) => {
   bcrypt.hash(password, saltRounds, async (err, hash) => {
     if (err) {
       console.error(err);
-      return res.json({
+      return res.status(401).json({
         signedUp: false,
         msg: "Registration failed, try again.",
       });
     }
 
     const newUser = await User.createUser(email, username, hash);
-    console.log(newUser);
+
     if (newUser) {
-      return res.json({
+      return res.status(201).json({
         signedUp: true,
         msg: `Welcome to Camagru, <strong>${newUser.username}</strong> please check your email to confirm your registration`,
       });
     } else {
-      return res.json({
+      return res.status(401).json({
         signedUp: false,
         msg: "Registration failed, try again.",
       });
