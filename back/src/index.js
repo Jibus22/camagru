@@ -5,6 +5,7 @@ import { Jibuxpress } from "./lib/Jibuxpress.js";
 import { getUsers } from "./controllers/userController.js";
 import { signIn, signUp } from "./controllers/authController.js";
 import { authGuard } from "./middlewares/authMiddleware.js";
+import { getBody } from "./utils.js";
 
 try {
   await migrate();
@@ -51,9 +52,13 @@ app
   .get((req, res) => {
     getUsers(req, res);
   })
-  .post((req, res) => {
+  .post(async (req, res) => {
     console.log(`url: ${req.url}, method: ${req.method}`);
-    res.end();
+    const body = await getBody(req);
+    res.json({
+      msg: "You have requested POST on /users route",
+      body: `you sent ${body}`,
+    });
   });
 
 app

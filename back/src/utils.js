@@ -34,16 +34,36 @@ export const getResponse = (req) => {
   });
 };
 
-export const httpPost = async (opts, data = {}) => {
-  data = JSON.stringify(data);
-  opts = {
-    port: 4000,
+// Send HTTP POST request. config signature must be {url, data, options}
+// ex:  const response = await httpPost({
+//        url: "http://localhost/users",
+//        data: { msg: "coucou depuis test" },
+//        options: { port: 4000 },
+//      });
+export const httpPost = async (config) => {
+  let contentType, contentLength;
+  let { url, data, options, headers } = config;
+  const myURL = new URL(url);
+
+  if (typeof data == "object") {
+    contentType = "application/json";
+    data = JSON.stringify(data);
+  } else {
+    contentType = "application/x-www-form-urlencoded";
+  }
+
+  contentLength = data.length;
+
+  const opts = {
     method: "POST",
+    host: myURL.hostname,
+    path: myURL.pathname,
     headers: {
-      "Content-Type": "application/json",
-      "Content-Length": data.length,
+      "Content-Type": contentType,
+      "Content-Length": contentLength,
+      ...headers,
     },
-    ...opts,
+    ...options,
   };
 
   const req = http.request(opts);

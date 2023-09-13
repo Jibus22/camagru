@@ -28,9 +28,6 @@ export default class extends AbstractView {
       submitForm(e, form, "http://localhost:4000/signup", (res, btn) => {
         if (res.signedUp == true) {
           displayAuthResponse(form, res.msg, "valid-msg");
-          setTimeout(() => {
-            navigateTo("/");
-          }, 1000);
           return;
         } else {
           if (btn) btn.trigger();
