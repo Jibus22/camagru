@@ -1,4 +1,5 @@
 import * as db from "../db/index.js";
+import { DBError } from "../errors/DBError.js";
 
 export const createSession = async (id) => {
   const { rows } = await db.query(
@@ -25,4 +26,16 @@ export const deleteSessionByDate = async (uid, date) => {
   );
 
   return !rows.length ? null : rows;
+};
+
+export const createRegistration = async (id) => {
+  try {
+    const { rows } = await db.query(
+      "INSERT INTO registrations(uid) VALUES($1) returning *",
+      [id]
+    );
+    return rows[0];
+  } catch (err) {
+    throw new DBError("Create error", "Auth", err);
+  }
 };

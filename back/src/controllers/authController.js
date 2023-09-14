@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { DBError } from "../errors/DBError.js";
 import { sendConfirmationMail } from "../mail/sendMail.js";
 import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
@@ -48,34 +49,18 @@ export const signIn = async (req, res) => {
   });
 };
 
-const signUpErr = async (user) => {
+const signUpSanitize = async (user) => {
   if (user.password.length < 7) return "password must be 7 characters minimum";
-
   if (user.username.length < 4) return "username must be 4 characters minimum";
-
   if (user.username.length > 15)
     return "username can't be longer than 15 characters";
 
-  let usr = await User.findByUsername(username);
+  let usr = await User.findByUsername(user.username);
   if (usr?.username) return "This username is already used.";
 
-  usr = await User.findByEmail(email);
+  usr = await User.findByEmail(user.email);
   if (usr?.email) return "This email is already used.";
   return null;
-};
-
-const generateRegistrationLink = () => {
-  // 1
-  // générer un token
-  // le rajouter à une route
-  // ex: http://localhost:4000/register/QJyMTwVhVvm7IBta4p4WCIuJjidM6
-  // On enregistre ce token dans une table avec timestamp
-  // 2
-  // On envoie ce lien.
-  // 3
-  // Quand on reçoit cette requête, on check si il y a une table qui possède
-  // ce token, si non: redirection homepage. Si oui: On check si le timestamp
-  // est trop vieux puis si le user relié est déjà enregistré ou pas.
 };
 
 export const signUp = async (req, res) => {
@@ -87,34 +72,32 @@ export const signUp = async (req, res) => {
   const body = await getBody(req);
   const { email, username, password } = JSON.parse(body);
 
-  const err = await signUpErr({ email, username, password });
+  const err = await signUpSanitize({ email, username, password });
   if (err) return res.status(401).json({ signedUp: false, msg: err });
 
-  const saltRounds = 10;
+  let hash;
 
-  bcrypt.hash(password, saltRounds, async (err, hash) => {
-    if (err) {
-      console.error(err);
-      return res.status(401).json({
-        signedUp: false,
-        msg: "Registration failed, try again.",
-      });
-    }
+  try {
+    const saltRounds = 10;
+    hash = await bcrypt.hash(password, saltRounds);
 
     const newUser = await User.createUser(email, username, hash);
+    const newRegistration = await Auth.createRegistration(newUser.id);
 
-    if (newUser) {
-      // generate link
-      sendConfirmationMail(email, username);
-      return res.status(201).json({
-        signedUp: true,
-        msg: `Welcome to Camagru, <strong>${newUser.username}</strong>. Please check your email to confirm your registration.`,
-      });
-    } else {
-      return res.status(401).json({
-        signedUp: false,
-        msg: "Registration failed, try again.",
-      });
-    }
-  });
+    const link = "http://localhost:4000/registration/" + newRegistration.rid;
+    sendConfirmationMail(email, username, link);
+
+    return res.status(201).json({
+      signedUp: true,
+      msg: `Welcome to Camagru, ${newUser.username}. Please check your email to confirm your registration.`,
+    });
+  } catch (err) {
+    console.error(err);
+    if (newUser) await User.deleteUserById(newUser.id);
+
+    return res.status(401).json({
+      signedUp: false,
+      msg: "Registration failed, try again.",
+    });
+  }
 };

@@ -11,7 +11,7 @@ export const displayAuthResponse = (form, message, classname) => {
   const msg = createElement("div", [`sign__form__${classname}`]);
   const invalid = form.querySelector(`.sign__form__invalid-msg`);
   if (invalid) invalid.remove();
-  msg.innerHTML = message;
+  msg.innerText = message;
   form.append(msg);
 };
 

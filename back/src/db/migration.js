@@ -8,6 +8,7 @@ const db_tables = [
   username VARCHAR(128) UNIQUE NOT NULL,
   password VARCHAR(128) NOT NULL,
   photo BYTEA,
+  registered BOOL DEFAULT FALSE,
   created_date TIMESTAMP DEFAULT current_timestamp
     `,
   },
@@ -43,6 +44,14 @@ const db_tables = [
   {
     name: "sessions",
     query: `sid UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+  uid UUID NOT NULL,
+  created_date TIMESTAMP DEFAULT current_timestamp,
+  FOREIGN KEY (uid) REFERENCES users(id)
+    `,
+  },
+  {
+    name: "registrations",
+    query: `rid UUID DEFAULT gen_random_uuid () PRIMARY KEY,
   uid UUID NOT NULL,
   created_date TIMESTAMP DEFAULT current_timestamp,
   FOREIGN KEY (uid) REFERENCES users(id)

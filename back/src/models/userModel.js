@@ -1,4 +1,5 @@
 import * as db from "../db/index.js";
+import { DBError } from "../errors/DBError.js";
 
 export const findAll = async () => {
   const { rows } = await db.query(
@@ -33,9 +34,20 @@ export const createUser = async (email, username, hash) => {
       "INSERT INTO users(email, username, password) VALUES($1, $2, $3) returning *",
       [email, username, hash]
     );
-    return !rows.length ? null : rows[0];
+    return rows[0];
   } catch (err) {
-    console.log(err);
-    return null;
+    throw new DBError("Create error", "User", err);
+  }
+};
+
+export const deleteUserById = async (id) => {
+  try {
+    const { rows } = await db.query(
+      "DELETE FROM users WHERE id=$1 returning *",
+      [id]
+    );
+    return rows[0];
+  } catch (err) {
+    throw new DBError("Delete error", "User", err);
   }
 };

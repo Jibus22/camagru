@@ -34,10 +34,10 @@ export const sendMail = (payload) => {
   });
 };
 
-export const sendConfirmationMail = (recipient, username) => {
+export const sendConfirmationMail = (recipient, username, link) => {
   sendMail({
     to: recipient,
     subject: "camagru-noreply - registration confirmation",
-    html: `<h2>Hi ${username}</h2><p>Please confirm your registration to camagru by clicking on this link: <a href='google.com' target='blank'>link</a></p>`,
+    html: `<h2>Hi ${username}</h2><p>Please confirm your registration to camagru by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
   });
 };
