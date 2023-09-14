@@ -46,7 +46,7 @@ const db_tables = [
     query: `sid UUID DEFAULT gen_random_uuid () PRIMARY KEY,
   uid UUID NOT NULL,
   created_date TIMESTAMP DEFAULT current_timestamp,
-  FOREIGN KEY (uid) REFERENCES users(id)
+  FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE
     `,
   },
   {
@@ -54,7 +54,7 @@ const db_tables = [
     query: `rid UUID DEFAULT gen_random_uuid () PRIMARY KEY,
   uid UUID NOT NULL,
   created_date TIMESTAMP DEFAULT current_timestamp,
-  FOREIGN KEY (uid) REFERENCES users(id)
+  FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE
     `,
   },
 ];
