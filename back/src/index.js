@@ -3,7 +3,11 @@
 import { migrate } from "./db/migration.js";
 import { Jibuxpress } from "./lib/Jibuxpress.js";
 import { getUsers } from "./controllers/userController.js";
-import { signIn, signUp } from "./controllers/authController.js";
+import {
+  confirmRegistration,
+  signIn,
+  signUp,
+} from "./controllers/authController.js";
 import { authGuard } from "./middlewares/authMiddleware.js";
 import { getBody } from "./utils.js";
 import { allowCors, logRequest } from "./middlewares/appMiddleware.js";
@@ -62,14 +66,7 @@ app
   .post(signUp)
   .options((req, res) => res.end());
 
-app.route("/registration/:token").get((req, res) => {
-  // Quand on reçoit cette requête, on check si il y a une table qui possède
-  // ce token, si non: redirection homepage. Si oui: On check si le timestamp
-  // est trop vieux puis si le user est déjà enregistré ou pas.
-  // Pour confirmer l'enregistrement on met User.registered = true et on delete
-  // la table.
-  res.json(req.params);
-});
+app.route("/registration/:token").get(confirmRegistration);
 
 app.listen(4000, () => {
   console.log("Listening for request");

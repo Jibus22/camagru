@@ -1,15 +1,15 @@
 import bcrypt from "bcrypt";
-import { DBError } from "../errors/DBError.js";
 import { sendConfirmationMail } from "../mail/sendMail.js";
 import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
 import { getBody } from "../utils.js";
 
-const maxAge = 3600 * 24; // 24h sessions
+const maxSessionAge = 3600 * 24; // 24h sessions
+const maxRegistrationAge = 3600 * 1; // 1h registration
 
 const cleanUserSessions = async (user) => {
   let date = new Date();
-  date = new Date(date.getTime() - maxAge * 1000);
+  date = new Date(date.getTime() - maxSessionAge * 1000);
 
   const sessions = await Auth.deleteSessionByDate(user.id, date);
   return sessions;
@@ -17,34 +17,37 @@ const cleanUserSessions = async (user) => {
 
 export const signIn = async (req, res) => {
   if (req.session)
-    return res
-      .status(401)
-      .json({ authenticated: false, msg: "Already authenticated!" });
+    return res.status(401).json({ auth: false, msg: "Already authenticated!" });
 
   const body = await getBody(req);
   const { username, password } = JSON.parse(body);
   let user = await User.findByUsername(username);
 
-  const verified = await bcrypt.compare(password, user?.password);
+  if (!user)
+    return res.status(401).json({ auth: false, msg: "Authentication error" });
+
+  const verified = await bcrypt.compare(password, user.password);
 
   if (!verified)
-    return res.status(401).json({
-      authenticated: false,
-      msg: "Authentication error, please try again.",
-    });
+    return res.status(401).json({ auth: false, msg: "Authentication error" });
 
+  if (!user.registered)
+    return res.status(401).json({
+      auth: false,
+      msg: "Check your mail to confirm your registration",
+    });
   // Take advantage of signin to clean expired sessions
   cleanUserSessions(user);
 
   const session = await Auth.createSession(user.id);
 
   res.setHeader("Set-Cookie", [
-    `camagru_sid=${session.sid}; samesite=Lax; path=/; max-age=${maxAge}; httpOnly`,
-    `camagru_uid=${session.uid}; samesite=Lax; path=/; max-age=${maxAge}; httpOnly`,
+    `camagru_sid=${session.sid}; samesite=Lax; path=/; max-age=${maxSessionAge}; httpOnly`,
+    `camagru_uid=${session.uid}; samesite=Lax; path=/; max-age=${maxSessionAge}; httpOnly`,
   ]);
 
   return res.json({
-    authenticated: true,
+    auth: true,
     msg: `Welcome <strong>${username}</strong>, you are authenticated !`,
   });
 };
@@ -75,13 +78,16 @@ export const signUp = async (req, res) => {
   const err = await signUpSanitize({ email, username, password });
   if (err) return res.status(401).json({ signedUp: false, msg: err });
 
+  // TODO: au lieu de sanitize ici, installer un middleware qui s'en charge et
+  // qui passe également un coup de regex sur les inputs
+
   let hash;
 
   try {
     const saltRounds = 10;
     hash = await bcrypt.hash(password, saltRounds);
 
-    const newUser = await User.createUser(email, username, hash);
+    const newUser = await User.create(email, username, hash);
     const newRegistration = await Auth.createRegistration(newUser.id);
 
     const link = "http://localhost:4000/registration/" + newRegistration.rid;
@@ -89,15 +95,42 @@ export const signUp = async (req, res) => {
 
     return res.status(201).json({
       signedUp: true,
-      msg: `Welcome to Camagru, ${newUser.username}. Please check your email to confirm your registration.`,
+      msg: `Welcome to Camagru, ${
+        newUser.username
+      }. Please check your email to confirm your registration. The link will expires in ${
+        maxRegistrationAge / 60
+      }minutes`,
     });
   } catch (err) {
     console.error(err);
-    if (newUser) await User.deleteUserById(newUser.id);
+    if (newUser) await User.deleteById(newUser.id);
 
     return res.status(401).json({
       signedUp: false,
       msg: "Registration failed, try again.",
     });
   }
+};
+
+export const confirmRegistration = async (req, res) => {
+  let date = new Date();
+  date = new Date(date.getTime() - maxRegistrationAge * 1000);
+  await Auth.deleteOutdatedRegistrations(date);
+
+  const user = await User.findByRegistration();
+
+  console.log(user);
+
+  if (!user) return res.status(301).json({ msg: "User not found" });
+
+  //TODO: create res.redirect() method to be able to redirect where we want
+
+  if (user.registered)
+    return res.status(301).json({ msg: "User already registered" });
+
+  await Auth.deleteRegistrationById(user.rid);
+
+  await User.updateById(user.id, { registered: true });
+
+  res.json({ niquel: "michel" });
 };
