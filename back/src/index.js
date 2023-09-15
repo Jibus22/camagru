@@ -8,9 +8,13 @@ import {
   signIn,
   signUp,
 } from "./controllers/authController.js";
-import { authGuard } from "./middlewares/authMiddleware.js";
+import { authGuard, signUpSanitize } from "./middlewares/authMiddleware.js";
 import { getBody } from "./utils.js";
-import { allowCors, logRequest } from "./middlewares/appMiddleware.js";
+import {
+  allowCors,
+  bodyParser,
+  logRequest,
+} from "./middlewares/appMiddleware.js";
 
 try {
   await migrate();
@@ -21,7 +25,7 @@ try {
 
 const app = new Jibuxpress();
 
-app.use(logRequest, allowCors, authGuard);
+app.use(logRequest, allowCors, authGuard, bodyParser);
 
 // response interceptor middleware to filter outgoing data (exclude password)
 app.use("/users", (req, res, next) => {
@@ -63,7 +67,7 @@ app
 
 app
   .route("/signup")
-  .post(signUp)
+  .post(signUpSanitize, signUp)
   .options((req, res) => res.end());
 
 app.route("/registration/:token").get(confirmRegistration);

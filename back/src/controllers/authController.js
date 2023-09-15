@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import { sendConfirmationMail } from "../mail/sendMail.js";
 import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
-import { getBody } from "../utils.js";
 
 const maxSessionAge = 3600 * 24; // 24h sessions
 const maxRegistrationAge = 3600 * 1; // 1h registration
@@ -19,8 +18,7 @@ export const signIn = async (req, res) => {
   if (req.session)
     return res.status(401).json({ auth: false, msg: "Already authenticated!" });
 
-  const body = await getBody(req);
-  const { username, password } = JSON.parse(body);
+  const { username, password } = req.body;
   let user = await User.findByUsername(username);
 
   if (!user)
@@ -52,45 +50,20 @@ export const signIn = async (req, res) => {
   });
 };
 
-const signUpSanitize = async (user) => {
-  if (user.password.length < 7) return "password must be 7 characters minimum";
-  if (user.username.length < 4) return "username must be 4 characters minimum";
-  if (user.username.length > 15)
-    return "username can't be longer than 15 characters";
-
-  let usr = await User.findByUsername(user.username);
-  if (usr?.username) return "This username is already used.";
-
-  usr = await User.findByEmail(user.email);
-  if (usr?.email) return "This email is already used.";
-  return null;
-};
-
 export const signUp = async (req, res) => {
-  if (req.session)
-    return res
-      .status(401)
-      .json({ signedUp: false, msg: "Already authenticated!" });
-
-  const body = await getBody(req);
-  const { email, username, password } = JSON.parse(body);
-
-  const err = await signUpSanitize({ email, username, password });
-  if (err) return res.status(401).json({ signedUp: false, msg: err });
-
-  // TODO: au lieu de sanitize ici, installer un middleware qui s'en charge et
-  // qui passe également un coup de regex sur les inputs
-
-  let hash;
-
   try {
+    let hash;
     const saltRounds = 10;
+    const { email, username, password } = req.body;
     hash = await bcrypt.hash(password, saltRounds);
 
     const newUser = await User.create(email, username, hash);
     const newRegistration = await Auth.createRegistration(newUser.id);
 
     const link = "http://localhost:4000/registration/" + newRegistration.rid;
+
+    //TODO choper le retour de cette fonction pck si elle renvoie une erreur
+    // c'est que l'adresse mail n'est pas valide, du coup il faut delete user
     sendConfirmationMail(email, username, link);
 
     return res.status(201).json({
@@ -99,7 +72,7 @@ export const signUp = async (req, res) => {
         newUser.username
       }. Please check your email to confirm your registration. The link will expires in ${
         maxRegistrationAge / 60
-      }minutes`,
+      } minutes`,
     });
   } catch (err) {
     console.error(err);
