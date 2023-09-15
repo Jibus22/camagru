@@ -26,6 +26,8 @@ services:
       - db-password
       - db-name
       - db-user
+      - mailUser
+      - mailPass
     volumes:
       - ./back/:/app
       - /app/node_modules #Excludes node_modules dir from the host
@@ -68,3 +70,7 @@ secrets:
     file: secret/postgres-db-name.txt
   db-user:
     file: secret/postgres-user.txt
+  mailUser:
+    file: secret/mailUser.txt
+  mailPass:
+    file: secret/mailPass.txt

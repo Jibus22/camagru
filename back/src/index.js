@@ -3,6 +3,8 @@
 import { migrate } from "./db/migration.js";
 import { Jibuxpress } from "./lib/Jibuxpress.js";
 import { getUsers } from "./controllers/userController.js";
+import { signIn, signUp } from "./controllers/authController.js";
+import { authGuard } from "./middlewares/authMiddleware.js";
 import { getBody } from "./utils.js";
 
 try {
@@ -14,8 +16,86 @@ try {
 
 const app = new Jibuxpress();
 
-app.route("/users").get((req, res) => {
-  getUsers(req, res);
+// Authorize for the whole server any request from my front (CORS).
+app.use(
+  (req, res, next) => {
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+
+    next();
+  },
+  (req, res, next) => {
+    console.log("[ " + req.method + " " + req.url + " ]");
+    next();
+  }
+);
+
+app.use(authGuard);
+
+// response interceptor middleware to filter outgoing data (exclude password)
+app.use("/users", (req, res, next) => {
+  const end = res.end;
+  res.end = (data) => {
+    if (data && typeof data === "object") {
+      let filter = data.map((elem) => {
+        const { id, username } = elem;
+        return { id, username };
+      });
+
+      data = JSON.stringify(filter);
+    }
+
+    res.end = end;
+    end.call(res, data);
+  };
+  next();
+});
+
+app
+  .route("/users")
+  .get((req, res) => {
+    getUsers(req, res);
+  })
+  .post(async (req, res) => {
+    console.log(`url: ${req.url}, method: ${req.method}`);
+    const body = await getBody(req);
+    res.json({
+      msg: "You have requested POST on /users route",
+      body: `you sent ${body}`,
+    });
+  });
+
+app
+  .route("/signin")
+  .post((req, res) => {
+    signIn(req, res);
+  })
+  .options((req, res) => {
+    res.end();
+  });
+
+app
+  .route("/signup")
+  .post((req, res) => {
+    signUp(req, res);
+  })
+  .options((req, res) => {
+    res.end();
+  });
+
+app.route("/registration/:tokenId").get((req, res) => {
+  // Quand on reçoit cette requête, on check si il y a une table qui possède
+  // ce token, si non: redirection homepage. Si oui: On check si le timestamp
+  // est trop vieux puis si le user est déjà enregistré ou pas.
+  // Pour confirmer l'enregistrement on met User.registered = true et on delete
+  // la table.
+  res.end();
+});
+
+app.listen(4000, () => {
+  console.log("Listening for request");
 });
 
 // const server = http.createServer(async (req, res) => {
@@ -135,7 +215,3 @@ app.route("/users").get((req, res) => {
 // );
 
 // console.dir(app.routeHandler, { depth: null });
-
-app.listen(4000, () => {
-  console.log("Listening for request");
-});

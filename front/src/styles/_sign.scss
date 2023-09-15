@@ -73,4 +73,20 @@
     top: 0;
     right: 0;
   }
+  &__valid-msg {
+    @include _form__display();
+    @include _form__font();
+    border: 1px solid $greenbtn;
+    color: $greenbtn;
+    padding: 2px 4px;
+    margin: 10px 0px;
+  }
+  &__invalid-msg {
+    @include _form__display();
+    @include _form__font();
+    border: 1px solid red;
+    color: red;
+    padding: 2px 4px;
+    margin: 10px 0px;
+  }
 }

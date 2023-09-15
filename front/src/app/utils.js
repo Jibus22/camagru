@@ -36,6 +36,7 @@ export const postHttpRequest = async (fetchLink, headers, body) => {
       method: "POST",
       headers: headers,
       body: JSON.stringify(body),
+      credentials: "include",
     });
     const content = await rawResponse.json();
     return content;
@@ -43,4 +44,12 @@ export const postHttpRequest = async (fetchLink, headers, body) => {
     console.error(`Error at fetch POST: ${err}`);
     throw err;
   }
+};
+
+// Wrap setTimeout to be able to return an object with a trigger handler which
+// cancel the timeout but still triggers its handler.
+export const newTimeout = (handler, delay) => {
+  const id = setTimeout(handler, delay),
+    clear = clearTimeout.bind(null, id);
+  return { id, clear, trigger: () => (clear(), handler()) };
 };

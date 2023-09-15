@@ -1,47 +1,12 @@
-import { navigateTo } from "../router.js";
-import { createElement, postHttpRequest } from "../utils.js";
-import AbstractView from "./AbstractView.js";
+import { navigateTo } from "../../router.js";
+import { createElement } from "../../utils.js";
+import AbstractView from "../AbstractView.js";
+import { displayAuthResponse, submitForm } from "./submitForm.js";
 
 export default class extends AbstractView {
   constructor(params) {
     super(params);
     this.setTitle("Signin");
-  }
-
-  buildJsonFormData(form) {
-    const jsonFormData = {};
-    const formData = new FormData(form);
-    for (const pair of formData) jsonFormData[pair[0]] = pair[1];
-    return jsonFormData;
-  }
-
-  async submitForm(e, form) {
-    e.preventDefault();
-
-    const btnSubmit = form.querySelector("button");
-    btnSubmit.disabled = true;
-    const style = document.createElement("style");
-    style.appendChild(
-      document.createTextNode("button:hover{cursor: not-allowed}")
-    );
-    btnSubmit.append(style);
-    setTimeout(() => {
-      btnSubmit.disabled = false;
-      style.remove();
-    }, 2000);
-
-    const jsonFormData = this.buildJsonFormData(form);
-    const headers = {
-      "Content-Type": "application/json",
-    };
-
-    const response = await postHttpRequest(
-      "http://localhost:4000/session",
-      headers,
-      jsonFormData
-    );
-
-    console.log(response);
   }
 
   async renderSignin(signin) {
@@ -69,8 +34,20 @@ export default class extends AbstractView {
     }
 
     const form = signin.querySelector(".sign__form");
+
     form.addEventListener("submit", (e) => {
-      this.submitForm(e, form);
+      submitForm(e, form, "http://localhost:4000/signin", (res, btn) => {
+        if (res.authenticated == true) {
+          displayAuthResponse(form, res.msg, "valid-msg");
+          setTimeout(() => {
+            navigateTo("/");
+          }, 1000);
+          return;
+        } else {
+          if (btn) btn.trigger();
+          displayAuthResponse(form, res.msg, "invalid-msg");
+        }
+      });
     });
   }
 
