@@ -1,6 +1,8 @@
 import http from "http";
 
-// Promisify the mean to receive the request body from http.IncomingMessage
+/**
+ * Promisify the mean to receive the request body from http.IncomingMessage
+ */
 export const getBody = (req) => {
   return new Promise((resolve, reject) => {
     try {
@@ -19,8 +21,10 @@ export const getBody = (req) => {
   });
 };
 
-// Promisify the mean to receive a response from
-// http.ClientRequest (which extends http.OutgoingMessage)
+/**
+ * Promisify the mean to receive a response from http.ClientRequest which
+ * extends http.OutgoingMessage
+ */
 export const getResponse = (req) => {
   return new Promise((resolve, reject) => {
     try {
@@ -34,12 +38,17 @@ export const getResponse = (req) => {
   });
 };
 
-// Send HTTP POST request. config signature must be {url, data, options}
-// ex:  const response = await httpPost({
-//        url: "http://localhost/users",
-//        data: { msg: "coucou depuis test" },
-//        options: { port: 4000 },
-//      });
+/**
+ * Send HTTP POST request.
+ *
+ * ex: const response = await httpPost({
+ *       url: "http://localhost/users",
+ *       data: { msg: "coucou depuis test" },
+ *       options: { port: 4000 },
+ *     });
+ * @param {obj} config configuration to be sent {url, data, options}
+ * @return {httpResponse} response to the sent request
+ */
 export const httpPost = async (config) => {
   let contentType, contentLength;
   let { url, data, options, headers } = config;

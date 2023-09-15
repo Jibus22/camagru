@@ -24,7 +24,11 @@ const laposteTransport = {
 
 const transporter = nodemailer.createTransport(laposteTransport);
 
-// Send payload of signature {to, subject, html}
+/**
+ * Send payload of {to, subject, html} signature
+ *
+ * @param {obj} payload payload to be sent
+ */
 export const sendMail = (payload) => {
   payload.from = laposte.user;
 
