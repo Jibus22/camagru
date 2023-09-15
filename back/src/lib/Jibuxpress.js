@@ -77,6 +77,44 @@ export class Jibuxpress {
     return;
   }
 
+  // Looks for a regex url match and extends the handler with params if match
+  _regexSearch(method, reqUrl) {
+    for (let [url, fn] of Object.entries(method)) {
+      // Build a regex dynamically adapted to the url - detects ':id' notation
+      // '/path/:id' regex will be '/^\/path\/([^/]+)\/?$/'
+      const regex = new RegExp(
+        "^" + url.replace(/\//g, "\\/").replace(/:\w+/g, "([^/]+)") + "/?$"
+      );
+      const res = reqUrl.match(regex);
+
+      if (!res) continue;
+
+      const values = res.slice(1); // keep only matchs from capture groups
+
+      // Create an array of keys. '/path/:id/:token' => keys are 'id' & 'token'
+      let keys = url.matchAll(/:(\w+)/g);
+      keys = Array.from(keys);
+      keys = keys.map((item) => item[1]);
+
+      // Create an array of entries, ex: [[ 'id', 'val' ], [ 'token', 'val2' ]]
+      const entries = keys.map((k, i) => {
+        return [k, values[i]];
+      });
+
+      // Create an object with key-value pairs from entries
+      const params = Object.fromEntries(entries);
+
+      // Wrap the main handler to extend its request object with params
+      const newFunc = (req, res) => {
+        req.params = params;
+        fn(req, res);
+      };
+
+      return newFunc;
+    }
+    return null;
+  }
+
   _processIncomingHttpMessage(req, res) {
     const method = this.routeHandler[req.method];
 
@@ -86,12 +124,16 @@ export class Jibuxpress {
         `App fn for ${req.method} undefined`
       );
 
-    const fn = method[req.url];
-    if (fn == undefined)
-      return this._notImplementedError(
-        res,
-        `App fn for ${req.method} ${req.url} undefined`
-      );
+    let fn = method[req.url];
+    if (fn == undefined) {
+      fn = this._regexSearch(method, req.url);
+
+      if (!fn)
+        return this._notImplementedError(
+          res,
+          `App fn for ${req.method} ${req.url} undefined`
+        );
+    }
 
     try {
       fn(req, res);

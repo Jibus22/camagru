@@ -12,6 +12,10 @@ export class HttpRouter {
           //   middlewares: [mw1, mw2, mw3...],
           //   handlers: [mw1, mw2, mw3... handler],
           // },
+          // "/path/:tokenId": {
+          //   middlewares: [mw1, mw2, mw3...],
+          //   handlers: [mw1, mw2, mw3... handler],
+          // },
         },
       },
       GET: {
@@ -68,6 +72,10 @@ export class HttpRouter {
 
     return middlewareArray;
   }
+
+  // app.get('/users/:userId', (req, res) => {
+  //   res.send(req.params)
+  // })
 
   _middlewareRecord(method, route, ...callbacks) {
     let middlewares;
@@ -153,7 +161,7 @@ export class HttpRouter {
   }
 
   // Create a middleware stack for each route then merge them to create a unique
-  // function per route, then delete this.routes now useless.
+  // function per route, then 'delete' this.routes which becomes useless.
   start(routeHandler) {
     if (!this.routes) return null;
     for (let [routeMethod, routeObj] of Object.entries(this.routes)) {

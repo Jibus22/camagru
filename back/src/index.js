@@ -27,7 +27,7 @@ app.use(
     next();
   },
   (req, res, next) => {
-    console.log("[ " + req.url + " " + req.method + " ]");
+    console.log("[ " + req.method + " " + req.url + " ]");
     next();
   }
 );
@@ -85,13 +85,13 @@ app
     res.end();
   });
 
-// Il faut checker "/registration/lhjZEEZKhazOHfhAOZBbAZ"
-app.route("/registration").get((req, res) => {
+app.route("/registration/:tokenId").get((req, res) => {
   // Quand on reçoit cette requête, on check si il y a une table qui possède
   // ce token, si non: redirection homepage. Si oui: On check si le timestamp
   // est trop vieux puis si le user est déjà enregistré ou pas.
   // Pour confirmer l'enregistrement on met User.registered = true et on delete
   // la table.
+  res.end();
 });
 
 app.listen(4000, () => {
