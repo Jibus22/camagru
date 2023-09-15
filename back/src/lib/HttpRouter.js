@@ -73,10 +73,6 @@ export class HttpRouter {
     return middlewareArray;
   }
 
-  // app.get('/users/:userId', (req, res) => {
-  //   res.send(req.params)
-  // })
-
   _middlewareRecord(method, route, ...callbacks) {
     let middlewares;
     let url;

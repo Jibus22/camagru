@@ -80,7 +80,7 @@ export class Jibuxpress {
   // Looks for a regex url match and extends the handler with params if match
   _regexSearch(method, reqUrl) {
     for (let [url, fn] of Object.entries(method)) {
-      // Build a regex dynamically adapted to the url - detects ':id' notation
+      // Dynamically build a regex adapted to the url - detects ':id' notation
       // '/path/:id' regex will be '/^\/path\/([^/]+)\/?$/'
       const regex = new RegExp(
         "^" + url.replace(/\//g, "\\/").replace(/:\w+/g, "([^/]+)") + "/?$"
