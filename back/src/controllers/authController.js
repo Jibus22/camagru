@@ -15,9 +15,6 @@ const cleanUserSessions = async (user) => {
 };
 
 export const signIn = async (req, res) => {
-  if (req.session)
-    return res.status(401).json({ auth: false, msg: "Already authenticated!" });
-
   const { username, password } = req.body;
   let user = await User.findByUsername(username);
 
@@ -51,23 +48,30 @@ export const signIn = async (req, res) => {
 };
 
 export const signUp = async (req, res) => {
+  let newUser;
   try {
     let hash;
     const saltRounds = 10;
     const { email, username, password } = req.body;
     hash = await bcrypt.hash(password, saltRounds);
 
-    const newUser = await User.create(email, username, hash);
+    newUser = await User.create(email, username, hash);
     const newRegistration = await Auth.createRegistration(newUser.id);
 
     const link = "http://localhost:4000/registration/" + newRegistration.rid;
 
-    //TODO choper le retour de cette fonction pck si elle renvoie une erreur
-    // c'est que l'adresse mail n'est pas valide, du coup il faut delete user
-    sendConfirmationMail(email, username, link);
+    try {
+      await sendConfirmationMail(email, username, link);
+    } catch (err) {
+      // Triggered when email isn't valid, so we delete the created tables
+      // without warning the user of this issue to prevent scammers to fetch
+      // email validity if ever we would feedback this.
+      console.log(err);
+      await User.deleteById(newUser.id);
+    }
 
     return res.status(201).json({
-      signedUp: true,
+      auth: true,
       msg: `Welcome to Camagru, ${
         newUser.username
       }. Please check your email to confirm your registration. The link will expires in ${
@@ -75,11 +79,11 @@ export const signUp = async (req, res) => {
       } minutes`,
     });
   } catch (err) {
-    console.error(err);
+    console.log(err);
     if (newUser) await User.deleteById(newUser.id);
 
     return res.status(401).json({
-      signedUp: false,
+      auth: false,
       msg: "Registration failed, try again.",
     });
   }
@@ -90,7 +94,7 @@ export const confirmRegistration = async (req, res) => {
   date = new Date(date.getTime() - maxRegistrationAge * 1000);
   await Auth.deleteOutdatedRegistrations(date);
 
-  const user = await User.findByRegistration();
+  const user = await User.findByRegistrationToken(req.params.token);
 
   console.log(user);
 

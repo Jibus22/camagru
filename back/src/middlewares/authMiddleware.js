@@ -1,6 +1,7 @@
 import { parse } from "cookie";
 import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
+import { mailRegex, passwordRegex, usernameRegex } from "../utils.js";
 
 /**
  * Verify user and session id in cookies to check if the user is already
@@ -21,31 +22,48 @@ export const authGuard = async (req, res, next) => {
 };
 
 const sanitizeInput = async ({ email, username, password }) => {
-  const mailRegex = /^[-.\w]+@([\w-]+\.)+[\w-]+$/g;
-  const passwordRegex = /^([\w.,#!?$%^&*;:"'{}=`~()-]{7,30})$/g;
-  const usernameRegex = /^([\w-]{4,15})$/g;
-
-  if (!mailRegex.test(email)) return "email is badly formated";
-  if (!passwordRegex.test(password)) return "password is badly formated";
-  if (!usernameRegex.test(username)) return "username is badly formated";
-
-  let usr = await User.findByUsername(username);
-  if (usr?.username) return "This username is not available.";
-
-  usr = await User.findByEmail(email);
-  if (usr?.email) return "This email is not available.";
+  if (email && !mailRegex.test(email)) return "email is badly formated";
+  if (password && !passwordRegex.test(password)) {
+    return "password is badly formated";
+  }
+  if (username && !usernameRegex.test(username)) {
+    return "username is badly formated";
+  }
 
   return null;
 };
 
 export const signUpSanitize = async (req, res, next) => {
   if (req.session)
-    return res
-      .status(401)
-      .json({ signedUp: false, msg: "Already authenticated!" });
+    return res.status(401).json({ auth: false, msg: "Already authenticated!" });
 
   const err = await sanitizeInput(req.body);
-  if (err) return res.status(401).json({ signedUp: false, msg: err });
+  if (err) return res.status(401).json({ auth: false, msg: err });
+
+  const { email, username } = req.body;
+  let usr = await User.findByUsername(username);
+  if (usr?.username) {
+    return res
+      .status(401)
+      .json({ auth: false, msg: "This username is not available." });
+  }
+
+  usr = await User.findByEmail(email);
+  if (usr?.email) {
+    return res
+      .status(401)
+      .json({ auth: false, msg: "This email is not available." });
+  }
+
+  next();
+};
+
+export const signInSanitize = async (req, res, next) => {
+  if (req.session)
+    return res.status(401).json({ auth: false, msg: "Already authenticated!" });
+
+  const err = sanitizeInput(req.body);
+  if (err) return res.status(401).json({ auth: false, msg: err });
 
   next();
 };

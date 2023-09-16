@@ -8,7 +8,11 @@ import {
   signIn,
   signUp,
 } from "./controllers/authController.js";
-import { authGuard, signUpSanitize } from "./middlewares/authMiddleware.js";
+import {
+  authGuard,
+  signInSanitize,
+  signUpSanitize,
+} from "./middlewares/authMiddleware.js";
 import { getBody } from "./utils.js";
 import {
   allowCors,
@@ -62,7 +66,7 @@ app
 
 app
   .route("/signin")
-  .post(signIn)
+  .post(signInSanitize, signIn)
   .options((req, res) => res.end());
 
 app

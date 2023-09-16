@@ -56,10 +56,11 @@ export const deleteById = async (id) => {
  * Finds a registration table
  * @return user user and registration id
  */
-export const findByRegistration = async () => {
+export const findByRegistrationToken = async (token) => {
   try {
     const { rows } = await db.query(
-      "SELECT registrations.rid, users.id, users.username, users.registered FROM registrations INNER JOIN users ON registrations.uid = users.id"
+      "SELECT registrations.rid, users.id, users.username, users.registered FROM registrations INNER JOIN users ON registrations.uid = users.id WHERE registrations.rid=$1",
+      [token]
     );
     return !rows.length ? null : rows[0];
   } catch (err) {

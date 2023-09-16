@@ -1,5 +1,9 @@
 import http from "http";
 
+export const mailRegex = /^[-.\w]+@([\w-]+\.)+[\w-]+$/g;
+export const passwordRegex = /^([\w.,#!?$%^&*;:"'{}=`~()-]{7,30})$/g;
+export const usernameRegex = /^([\w-]{4,15})$/g;
+
 /**
  * Promisify the mean to receive the request body from http.IncomingMessage
  */
