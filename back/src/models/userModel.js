@@ -2,30 +2,39 @@ import * as db from "../db/index.js";
 import { DBError } from "../errors/DBError.js";
 
 export const findAll = async () => {
-  const { rows } = await db.query(
-    "SELECT id, email, username FROM users LIMIT 50"
-  );
-  return rows;
+  try {
+    const { rows } = await db.query(
+      "SELECT id, email, username FROM users LIMIT 50"
+    );
+    return rows;
+  } catch (err) {
+    throw new DBError("Find error", "User", err);
+  }
 };
 
 export const findByUsername = async (username) => {
-  const { rows } = await db.query(
-    "SELECT id, username, password FROM users WHERE username=$1",
-    [username]
-  );
+  try {
+    const { rows } = await db.query(
+      "SELECT id, username, password FROM users WHERE username=$1",
+      [username]
+    );
 
-  if (!rows.length) return null;
-  return rows[0];
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Find error", "User", err);
+  }
 };
 
 export const findByEmail = async (email) => {
-  const { rows } = await db.query(
-    "SELECT id, username, password, email FROM users WHERE email=$1",
-    [email]
-  );
-
-  if (!rows.length) return null;
-  return rows[0];
+  try {
+    const { rows } = await db.query(
+      "SELECT id, username, password, email FROM users WHERE email=$1",
+      [email]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Find error", "User", err);
+  }
 };
 
 export const create = async (email, username, hash) => {

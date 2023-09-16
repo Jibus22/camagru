@@ -90,24 +90,32 @@ export const signUp = async (req, res) => {
 };
 
 export const confirmRegistration = async (req, res) => {
-  let date = new Date();
-  date = new Date(date.getTime() - maxRegistrationAge * 1000);
-  await Auth.deleteOutdatedRegistrations(date);
+  try {
+    let date = new Date();
+    date = new Date(date.getTime() - maxRegistrationAge * 1000);
+    await Auth.deleteOutdatedRegistrations(date);
 
-  const user = await User.findByRegistrationToken(req.params.token);
+    const uuidv4Regex =
+      /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+    if (!uuidv4Regex.test(req.params.token)) {
+      return res.redirect(301, "http://localhost:5173");
+    }
 
-  console.log(user);
+    const user = await User.findByRegistrationToken(req.params.token);
 
-  if (!user) return res.status(301).json({ msg: "User not found" });
+    console.log(user);
 
-  //TODO: create res.redirect() method to be able to redirect where we want
+    if (!user) return res.redirect(301, "http://localhost:5173");
 
-  if (user.registered)
-    return res.status(301).json({ msg: "User already registered" });
+    if (user.registered) return res.redirect(301, "http://localhost:5173");
 
-  await Auth.deleteRegistrationById(user.rid);
+    await Auth.deleteRegistrationById(user.rid);
 
-  await User.updateById(user.id, { registered: true });
+    await User.updateById(user.id, { registered: true });
 
-  res.json({ niquel: "michel" });
+    res.json({ niquel: "michel" });
+  } catch (err) {
+    console.log(err);
+    res.redirect(301, "http://localhost:5173");
+  }
 };

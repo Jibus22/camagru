@@ -6,6 +6,19 @@ http.ServerResponse.prototype.status = function (code) {
   return this;
 };
 
+http.ServerResponse.prototype.redirect = function (code, path = "") {
+  let url;
+  if (typeof code === "number") {
+    this.statusCode = code;
+    url = path;
+  } else {
+    this.statusCode = 302;
+    url = code;
+  }
+  this.setHeader("Location", url);
+  this.end();
+};
+
 http.ServerResponse.prototype.json = function (item) {
   if (typeof item === "object") item = JSON.stringify(item);
   this.setHeader("Content-Type", "application/json");

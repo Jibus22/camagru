@@ -21,23 +21,24 @@ export const authGuard = async (req, res, next) => {
   next();
 };
 
-const sanitizeInput = async ({ email, username, password }) => {
-  if (email && !mailRegex.test(email)) return "email is badly formated";
-  if (password && !passwordRegex.test(password)) {
+const sanitizeInput = ({ email, username, password }) => {
+  if (!mailRegex.test(email)) {
+    return "email is badly formated";
+  } else if (!passwordRegex.test(password)) {
     return "password is badly formated";
-  }
-  if (username && !usernameRegex.test(username)) {
+  } else if (!usernameRegex.test(username)) {
     return "username is badly formated";
+  } else {
+    return null;
   }
-
-  return null;
 };
 
 export const signUpSanitize = async (req, res, next) => {
   if (req.session)
     return res.status(401).json({ auth: false, msg: "Already authenticated!" });
 
-  const err = await sanitizeInput(req.body);
+  const err = sanitizeInput(req.body);
+  console.log(err);
   if (err) return res.status(401).json({ auth: false, msg: err });
 
   const { email, username } = req.body;
