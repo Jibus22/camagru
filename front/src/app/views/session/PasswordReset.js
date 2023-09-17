@@ -1,31 +1,27 @@
-import AbstractView from "../AbstractView.js";
 import { createElement } from "../../utils.js";
+import AbstractView from "../AbstractView.js";
 import { displayAuthResponse, submitForm } from "./submitForm.js";
 
 export default class extends AbstractView {
   constructor(params) {
     super(params);
-    this.setTitle("Sign up");
+    this.setTitle("Reset password");
   }
 
-  renderSignup(signup) {
-    signup.innerHTML = `
-        <h1>Create an account</h1>
+  renderPwdReset(pwdReset) {
+    pwdReset.innerHTML = `
+        <h1>Reset your password</h1>
         <form class="sign__form" action="">
-          <label for="email_field">Enter your email</label>
-          <input id="email_field" type="text" name="email"/>
-          <label for="password_field">Create a password</label>
-          <input id="password_field" type="password" name="password"/>
-          <label for="username_field">Enter a username</label>
-          <input id="username_field" type="text" name="username"/>
-          <button type="submit" >Sign up</button>
+          <label for="email_field">Enter your user account's verified email address and we will send you a password reset link.</label>
+          <input id="email_field" type="text" name="email" placeholder="Enter your email address" />
+          <button type="submit" >Send password reset email</button>
         </form>
       `;
 
-    const form = signup.querySelector(".sign__form");
+    const form = pwdReset.querySelector(".sign__form");
 
     form.addEventListener("submit", (e) => {
-      submitForm(e, form, "http://localhost:4000/signup", (res, btn) => {
+      submitForm(e, form, "http://localhost:4000/pwdreset", (res, btn) => {
         if (res.auth == true) {
           displayAuthResponse(form, res.msg, "valid-msg");
           return;
@@ -40,11 +36,11 @@ export default class extends AbstractView {
   async render(id) {
     const pageContainer = createElement("div", ["page-container"]);
     const pageContent = createElement("div", ["page-content"]);
-    const signup = createElement("div", ["signup"]);
+    const pwdReset = createElement("div", ["password_reset"]);
 
     pageContainer.append(pageContent);
-    pageContent.append(signup);
-    this.renderSignup(signup);
+    pageContent.append(pwdReset);
+    this.renderPwdReset(pwdReset);
 
     document.querySelector(id).innerHTML = "";
     document.querySelector(id).append(pageContainer);

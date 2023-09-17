@@ -24,20 +24,12 @@ const laposteTransport = {
 
 const transporter = nodemailer.createTransport(laposteTransport);
 
-// Send payload of signature {to, subject, html}
-export const sendMail = (payload) => {
+export const sendMail = async (payload) => {
   payload.from = laposte.user;
-
-  transporter.sendMail(payload, (error, info) => {
-    if (error) console.log(error);
-    else console.log("Mail sent" + info.response);
-  });
-};
-
-export const sendConfirmationMail = (recipient, username, link) => {
-  sendMail({
-    to: recipient,
-    subject: "camagru-noreply - registration confirmation",
-    html: `<h2>Hi ${username}</h2><p>Please confirm your registration to camagru by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
-  });
+  try {
+    const info = await transporter.sendMail(payload);
+    console.log(info.response);
+  } catch (err) {
+    throw err;
+  }
 };

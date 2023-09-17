@@ -10,7 +10,11 @@ const buildJsonFormData = (form) => {
 export const displayAuthResponse = (form, message, classname) => {
   const msg = createElement("div", [`sign__form__${classname}`]);
   const invalid = form.querySelector(`.sign__form__invalid-msg`);
+  const valid = form.querySelector(`.sign__form__valid-msg`);
+
   if (invalid) invalid.remove();
+  if (valid) valid.remove();
+
   msg.innerText = message;
   form.append(msg);
 };

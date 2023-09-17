@@ -37,7 +37,7 @@ export default class extends AbstractView {
 
     form.addEventListener("submit", (e) => {
       submitForm(e, form, "http://localhost:4000/signin", (res, btn) => {
-        if (res.authenticated == true) {
+        if (res.auth == true) {
           displayAuthResponse(form, res.msg, "valid-msg");
           setTimeout(() => {
             navigateTo("/");

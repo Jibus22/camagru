@@ -1,8 +1,8 @@
 import { navigateTo } from "./router";
+import { createElement } from "./utils";
 
-const themeEvent = () => {
+const themeEvent = (themeToggleBtn) => {
   const currentTheme = localStorage.getItem("theme");
-  const themeToggleBtn = document.querySelector(".theme-toggle");
   const iconTheme = themeToggleBtn.querySelector(".icon-theme");
   const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
   const root = document.documentElement;
@@ -29,45 +29,85 @@ const themeEvent = () => {
   });
 };
 
-const addNavbarEvents = () => {
-  const navigate = document.querySelectorAll(".header__nav");
-
-  navigate.forEach((navlink) => {
-    navlink.addEventListener("click", (e) => {
-      e.preventDefault();
-      navigateTo(navlink.pathname);
-    });
+const addNavButton = (elem, classList, href, html) => {
+  const item = createElement(elem, classList);
+  item.href = href;
+  item.innerHTML = html;
+  item.addEventListener("click", (e) => {
+    e.preventDefault();
+    navigateTo(href);
   });
 
-  themeEvent();
+  return item;
 };
 
-export const displayNavbar = (id) => {
-  const navbar = `
-    <div class="header">
-      <nav class="navbar">
-        <div>
-          <a class="header__nav homelogo" href="/">
-            <img src="/favicon.svg" alt="home logo" />
-          </a>
-          <a class="navtxt header__nav" href="/edit">Edit</a>
-        </div>
-        <div>
-          <a class="navtxt header__nav" href="/signin">Sign&nbsp;in</a>
-          <button class="theme-toggle">
-            <i class="icon-theme"></i>
-          </button>
-          <div class="div_hide user_id">
-            <img src="/images/pp/robert.jpg"/>
-          </div>
-        </div>
-      </nav>
-    </div>
-  `;
+const leftNavBar = (status) => {
+  const elem = createElement("div");
+  const home = addNavButton(
+    "a",
+    ["header__nav", "homelogo"],
+    "/",
+    `<img src="/favicon.svg" alt="home logo" />`
+  );
+  elem.append(home);
 
-  document.querySelector(id).innerHTML = navbar;
+  if (status == 401) return elem;
 
-  addNavbarEvents();
+  const edit = addNavButton("a", ["navtxt", "header__nav"], "/edit", `Edit`);
+  elem.append(edit);
+
+  return elem;
+};
+
+const rightNavBar = (status) => {
+  const elem = createElement("div");
+  const themeToggleBtn = createElement("button", ["theme_toggle"]);
+  themeToggleBtn.innerHTML = `<i class="icon-theme"></i>`;
+
+  themeEvent(themeToggleBtn);
+  elem.append(themeToggleBtn);
+
+  if (status == 401) {
+    const signin = addNavButton(
+      "a",
+      ["navtxt", "header__nav"],
+      "/signin",
+      `Sign&nbsp;in`
+    );
+    elem.prepend(signin);
+    return elem;
+  } else {
+    const me = createElement("div", ["user_id"]);
+    me.innerHTML = `<img src="/images/pp/robert.jpg"/>`;
+    elem.prepend(me);
+
+    const logout = addNavButton(
+      "a",
+      ["navtxt", "header__nav"],
+      "/logout",
+      `Log&nbsp;out`
+    );
+    elem.prepend(logout);
+  }
+
+  return elem;
+};
+
+export const displayNavbar = async (id) => {
+  const header = createElement("div", ["header"]);
+  const navbar = createElement("nav", ["navbar"]);
+
+  header.append(navbar);
+
+  const response = await fetch("http://localhost:4000/me", {
+    credentials: "include",
+  });
+
+  navbar.append(leftNavBar(response.status));
+  navbar.append(rightNavBar(response.status));
+
+  document.querySelector(id).innerHTML = "";
+  document.querySelector(id).append(header);
 };
 
 export const displayFooter = (id) => {

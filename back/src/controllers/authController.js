@@ -1,103 +1,180 @@
 import bcrypt from "bcrypt";
-import { DBError } from "../errors/DBError.js";
-import { sendConfirmationMail } from "../mail/sendMail.js";
+import { sendMail } from "../mail/sendMail.js";
+import * as db from "../db/index.js";
 import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
-import { getBody } from "../utils.js";
+import * as Registration from "../models/registrationModel.js";
+import * as ResetPassword from "../models/resetPasswordModel.js";
+import { uuidv4Regex } from "../utils.js";
 
-const maxAge = 3600 * 24; // 24h sessions
+const maxSessionAge = 3600 * 24; // 24h sessions
+const maxRegistrationAge = 3600 * 1; // 1h registration
+
+const saltRounds = 10; // salting complexity
 
 const cleanUserSessions = async (user) => {
   let date = new Date();
-  date = new Date(date.getTime() - maxAge * 1000);
+  date = new Date(date.getTime() - maxSessionAge * 1000);
 
   const sessions = await Auth.deleteSessionByDate(user.id, date);
   return sessions;
 };
 
 export const signIn = async (req, res) => {
-  if (req.session)
-    return res
-      .status(401)
-      .json({ authenticated: false, msg: "Already authenticated!" });
-
-  const body = await getBody(req);
-  const { username, password } = JSON.parse(body);
+  const { username, password } = req.body;
   let user = await User.findByUsername(username);
 
-  const verified = await bcrypt.compare(password, user?.password);
+  if (!user)
+    return res.status(401).json({ auth: false, msg: "Authentication error" });
+
+  const verified = await bcrypt.compare(password, user.password);
 
   if (!verified)
-    return res.status(401).json({
-      authenticated: false,
-      msg: "Authentication error, please try again.",
-    });
+    return res.status(401).json({ auth: false, msg: "Authentication error" });
 
+  console.log(user);
+
+  if (!user.registered)
+    return res.status(401).json({
+      auth: false,
+      msg: "Check your mail to confirm your registration",
+    });
   // Take advantage of signin to clean expired sessions
   cleanUserSessions(user);
 
   const session = await Auth.createSession(user.id);
 
   res.setHeader("Set-Cookie", [
-    `camagru_sid=${session.sid}; samesite=Lax; path=/; max-age=${maxAge}; httpOnly`,
-    `camagru_uid=${session.uid}; samesite=Lax; path=/; max-age=${maxAge}; httpOnly`,
+    `camagru_sid=${session.sid}; samesite=Lax; path=/; max-age=${maxSessionAge}; httpOnly`,
+    `camagru_uid=${session.uid}; samesite=Lax; path=/; max-age=${maxSessionAge}; httpOnly`,
   ]);
 
   return res.json({
-    authenticated: true,
-    msg: `Welcome <strong>${username}</strong>, you are authenticated !`,
+    auth: true,
+    msg: `Welcome ${username}, you are authenticated !`,
   });
 };
 
-const signUpSanitize = async (user) => {
-  if (user.password.length < 7) return "password must be 7 characters minimum";
-  if (user.username.length < 4) return "username must be 4 characters minimum";
-  if (user.username.length > 15)
-    return "username can't be longer than 15 characters";
-
-  let usr = await User.findByUsername(user.username);
-  if (usr?.username) return "This username is already used.";
-
-  usr = await User.findByEmail(user.email);
-  if (usr?.email) return "This email is already used.";
-  return null;
-};
-
 export const signUp = async (req, res) => {
-  if (req.session)
-    return res
-      .status(401)
-      .json({ signedUp: false, msg: "Already authenticated!" });
-
-  const body = await getBody(req);
-  const { email, username, password } = JSON.parse(body);
-
-  const err = await signUpSanitize({ email, username, password });
-  if (err) return res.status(401).json({ signedUp: false, msg: err });
-
-  let hash;
-
+  let newUser;
   try {
-    const saltRounds = 10;
+    let hash;
+    const { email, username, password } = req.body;
     hash = await bcrypt.hash(password, saltRounds);
 
-    const newUser = await User.createUser(email, username, hash);
-    const newRegistration = await Auth.createRegistration(newUser.id);
+    newUser = await User.create(email, username, hash);
+    const newRegistration = await Registration.create(newUser.id);
 
     const link = "http://localhost:4000/registration/" + newRegistration.rid;
-    sendConfirmationMail(email, username, link);
+
+    try {
+      await sendMail({
+        to: email,
+        subject: "registration confirmation",
+        html: `<h2>Hi ${username}</h2><p>Please confirm your registration to camagru by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
+      });
+    } catch (err) {
+      // Triggered when email isn't valid, so we delete the created tables
+      // without warning the user of this issue to prevent scammers to fetch
+      // email validity if ever we would feedback this.
+      console.log(err);
+      await User.deleteById(newUser.id);
+    }
 
     return res.status(201).json({
-      signedUp: true,
-      msg: `Welcome to Camagru, ${newUser.username}. Please check your email to confirm your registration.`,
+      auth: true,
+      msg: `Welcome to Camagru, ${
+        newUser.username
+      }. Please check your email to confirm your registration. The link will expires in ${
+        maxRegistrationAge / 60
+      } minutes`,
     });
   } catch (err) {
-    console.error(err);
-    if (newUser) await User.deleteUserById(newUser.id);
+    console.log(err);
+    if (newUser) await User.deleteById(newUser.id);
 
     return res.status(401).json({
-      signedUp: false,
+      auth: false,
       msg: "Registration failed, try again.",
     });
+  }
+};
+
+export const confirmRegistration = async (req, res) => {
+  try {
+    let date = new Date();
+    date = new Date(date.getTime() - maxRegistrationAge * 1000);
+    await Registration.deleteOutdated(date);
+
+    if (!uuidv4Regex.test(req.params.token)) {
+      return res.redirect(301, "http://localhost:5173");
+    }
+
+    const user = await User.findByRegistrationToken(req.params.token);
+
+    console.log(user);
+
+    if (!user) return res.redirect(301, "http://localhost:5173");
+
+    if (user.registered) return res.redirect(301, "http://localhost:5173");
+
+    await Registration.deleteById(user.rid);
+
+    await User.updateById(user.id, { registered: true });
+
+    res.json({ niquel: "michel" });
+  } catch (err) {
+    console.log(err);
+    res.redirect(301, "http://localhost:5173");
+  }
+};
+
+export const confirmPwdReset = async (req, res) => {
+  // on créé une session de reset (id, uid)
+  // on envoie l'id
+  const { email, username, id } = req.user;
+  try {
+    const newPwd = await ResetPassword.create(id);
+    const link = "http://localhost:4000/pwdreset/" + newPwd.id;
+
+    await sendMail({
+      to: email,
+      subject: "password reset confirmartion",
+      html: `<h2>Hi ${username}</h2><p>Please confirm your password reset by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
+    });
+
+    return res.json({
+      auth: true,
+      msg: "Check your mail to reset your password",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.json({ auth: false, msg: "faillllll" });
+  }
+};
+
+export const pwdReset = async (req, res) => {
+  try {
+    const { rows } = await db.query("SELECT gen_random_uuid() AS id");
+
+    let newPwd = await bcrypt.hash(rows[0].id, 1);
+    newPwd = newPwd.slice(8, 26);
+
+    const hash = await bcrypt.hash(newPwd, saltRounds);
+
+    await User.updateById(req.user.id, { password: hash });
+
+    await Auth.deleteSessionById(req.user.id);
+
+    await sendMail({
+      to: req.user.email,
+      subject: "new password",
+      html: `<h2>Hi ${username}</h2><p>Your new password is: ${newpwd}</p>`,
+    });
+
+    res.json({ auth: true, msg: "pouet pouet" });
+  } catch (err) {
+    console.log(err);
+    res.json({ auth: false, msg: "caca boudin" });
   }
 };

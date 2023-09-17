@@ -9,16 +9,9 @@ export const createSession = async (id) => {
   return !rows.length ? null : rows[0];
 };
 
-export const findOneSession = async (uid, sid) => {
-  const { rows } = await db.query(
-    "SELECT uid, sid, created_date FROM sessions WHERE uid=$1 AND sid=$2",
-    [uid, sid]
-  );
-
-  return !rows.length ? null : rows[0];
-};
-
-// Delete expired sessions of uid.
+/**
+ * Delete expired sessions of uid.
+ */
 export const deleteSessionByDate = async (uid, date) => {
   const { rows } = await db.query(
     "DELETE FROM sessions WHERE uid=$1 AND created_date < $2 returning *",
@@ -28,14 +21,11 @@ export const deleteSessionByDate = async (uid, date) => {
   return !rows.length ? null : rows;
 };
 
-export const createRegistration = async (id) => {
-  try {
-    const { rows } = await db.query(
-      "INSERT INTO registrations(uid) VALUES($1) returning *",
-      [id]
-    );
-    return rows[0];
-  } catch (err) {
-    throw new DBError("Create error", "Auth", err);
-  }
+export const deleteSessionById = async (uid) => {
+  const { rows } = await db.query(
+    "DELETE FROM sessions WHERE uid=$1 returning *",
+    [uid]
+  );
+
+  return !rows.length ? null : rows;
 };

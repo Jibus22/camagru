@@ -1,11 +1,13 @@
 import Edit from "./views/edit/Edit";
 import Home from "./views/home/Home";
-import PasswordReset from "./views/PasswordReset";
+import PasswordReset from "./views/session/PasswordReset";
 import Signin from "./views/session/Signin";
 import Signup from "./views/session/Signup";
 
 const pathToRegex = (path) =>
-  new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
+  new RegExp(
+    "^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "([^/]+)") + "/?$"
+  );
 
 const getParams = (match) => {
   const values = match.result.slice(1);
