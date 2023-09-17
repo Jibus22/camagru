@@ -1,6 +1,6 @@
 import Edit from "./views/edit/Edit";
 import Home from "./views/home/Home";
-import PasswordReset from "./views/PasswordReset";
+import PasswordReset from "./views/session/PasswordReset";
 import Signin from "./views/session/Signin";
 import Signup from "./views/session/Signup";
 

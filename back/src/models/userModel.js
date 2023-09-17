@@ -15,7 +15,7 @@ export const findAll = async () => {
 export const findByUsername = async (username) => {
   try {
     const { rows } = await db.query(
-      "SELECT id, username, password FROM users WHERE username=$1",
+      "SELECT id, username, email, password, registered FROM users WHERE username=$1",
       [username]
     );
 
@@ -28,7 +28,7 @@ export const findByUsername = async (username) => {
 export const findByEmail = async (email) => {
   try {
     const { rows } = await db.query(
-      "SELECT id, username, password, email FROM users WHERE email=$1",
+      "SELECT id, username, password, email, registered FROM users WHERE email=$1",
       [email]
     );
     return !rows.length ? null : rows[0];
@@ -73,7 +73,19 @@ export const findByRegistrationToken = async (token) => {
     );
     return !rows.length ? null : rows[0];
   } catch (err) {
-    throw new DBError("Delete error", "User", err);
+    throw new DBError("Find error", "User", err);
+  }
+};
+
+export const findByResetPasswordToken = async (token) => {
+  try {
+    const { rows } = await db.query(
+      "SELECT password_reset.id AS pwd_id, users.id, users.username, users.email FROM password_reset INNER JOIN users ON password_reset.uid = users.id WHERE password_reset.id=$1",
+      [token]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Find error", "User", err);
   }
 };
 

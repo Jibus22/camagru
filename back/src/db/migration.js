@@ -57,6 +57,14 @@ const db_tables = [
   FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE
     `,
   },
+  {
+    name: "password_reset",
+    query: `id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+  uid UUID NOT NULL,
+  created_date TIMESTAMP DEFAULT current_timestamp,
+  FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE
+    `,
+  },
 ];
 
 // Creates tables if they don't exist, within a transaction

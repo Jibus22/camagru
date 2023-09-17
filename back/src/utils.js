@@ -1,8 +1,10 @@
 import http from "http";
 
 export const mailRegex = /^[-.\w]+@([\w-]+\.)+[\w-]+$/;
-export const passwordRegex = /^([\w.,#!?$%^&*;:"'{}=`~()-]{7,30})$/;
+export const passwordRegex = /^([\w.,#!?$%^&*;:"'{}\/\\=`~()-]{7,60})$/;
 export const usernameRegex = /^([\w-]{4,15})$/;
+export const uuidv4Regex =
+  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 /**
  * Promisify the mean to receive the request body from http.IncomingMessage

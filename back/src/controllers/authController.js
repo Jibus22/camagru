@@ -1,10 +1,20 @@
 import bcrypt from "bcrypt";
-import { sendConfirmationMail } from "../mail/sendMail.js";
+import {
+  sendConfirmationMail,
+  sendNewPwd,
+  sendPasswordResetConfirmation,
+} from "../mail/sendMail.js";
+import * as db from "../db/index.js";
 import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
+import * as Registration from "../models/registrationModel.js";
+import * as ResetPassword from "../models/resetPasswordModel.js";
+import { uuidv4Regex } from "../utils.js";
 
 const maxSessionAge = 3600 * 24; // 24h sessions
 const maxRegistrationAge = 3600 * 1; // 1h registration
+
+const saltRounds = 10; // salting complexity
 
 const cleanUserSessions = async (user) => {
   let date = new Date();
@@ -26,6 +36,8 @@ export const signIn = async (req, res) => {
   if (!verified)
     return res.status(401).json({ auth: false, msg: "Authentication error" });
 
+  console.log(user);
+
   if (!user.registered)
     return res.status(401).json({
       auth: false,
@@ -43,7 +55,7 @@ export const signIn = async (req, res) => {
 
   return res.json({
     auth: true,
-    msg: `Welcome <strong>${username}</strong>, you are authenticated !`,
+    msg: `Welcome ${username}, you are authenticated !`,
   });
 };
 
@@ -51,12 +63,11 @@ export const signUp = async (req, res) => {
   let newUser;
   try {
     let hash;
-    const saltRounds = 10;
     const { email, username, password } = req.body;
     hash = await bcrypt.hash(password, saltRounds);
 
     newUser = await User.create(email, username, hash);
-    const newRegistration = await Auth.createRegistration(newUser.id);
+    const newRegistration = await Registration.create(newUser.id);
 
     const link = "http://localhost:4000/registration/" + newRegistration.rid;
 
@@ -93,10 +104,8 @@ export const confirmRegistration = async (req, res) => {
   try {
     let date = new Date();
     date = new Date(date.getTime() - maxRegistrationAge * 1000);
-    await Auth.deleteOutdatedRegistrations(date);
+    await Registration.deleteOutdated(date);
 
-    const uuidv4Regex =
-      /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
     if (!uuidv4Regex.test(req.params.token)) {
       return res.redirect(301, "http://localhost:5173");
     }
@@ -109,7 +118,7 @@ export const confirmRegistration = async (req, res) => {
 
     if (user.registered) return res.redirect(301, "http://localhost:5173");
 
-    await Auth.deleteRegistrationById(user.rid);
+    await Registration.deleteById(user.rid);
 
     await User.updateById(user.id, { registered: true });
 
@@ -117,5 +126,45 @@ export const confirmRegistration = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.redirect(301, "http://localhost:5173");
+  }
+};
+
+export const confirmPwdReset = async (req, res) => {
+  // on créé une session de reset (id, uid)
+  // on envoie l'id
+  const { email, username, id } = req.user;
+  try {
+    const newPwd = await ResetPassword.create(id);
+    const link = "http://localhost:4000/pwdreset/" + newPwd.id;
+    await sendPasswordResetConfirmation(email, username, link);
+    return res.json({
+      auth: true,
+      msg: "Check your mail to reset your password",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.json({ auth: false, msg: "faillllll" });
+  }
+};
+
+export const pwdReset = async (req, res) => {
+  try {
+    const { rows } = await db.query("SELECT gen_random_uuid() AS id");
+
+    let newPwd = await bcrypt.hash(rows[0].id, 1);
+    newPwd = newPwd.slice(8, 26);
+
+    const hash = await bcrypt.hash(newPwd, saltRounds);
+
+    await User.updateById(req.user.id, { password: hash });
+
+    await Auth.deleteSessionById(req.user.id);
+
+    await sendNewPwd(req.user.email, req.user.username, newPwd);
+
+    res.json({ auth: true, msg: "pouet pouet" });
+  } catch (err) {
+    console.log(err);
+    res.json({ auth: false, msg: "caca boudin" });
   }
 };

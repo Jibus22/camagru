@@ -4,12 +4,16 @@ import { migrate } from "./db/migration.js";
 import { Jibuxpress } from "./lib/Jibuxpress.js";
 import { getUsers } from "./controllers/userController.js";
 import {
+  confirmPwdReset,
   confirmRegistration,
+  pwdReset,
   signIn,
   signUp,
 } from "./controllers/authController.js";
 import {
   authGuard,
+  confirmPwdResetSanitize,
+  pwdResetSanitize,
   signInSanitize,
   signUpSanitize,
 } from "./middlewares/authMiddleware.js";
@@ -74,7 +78,14 @@ app
   .post(signUpSanitize, signUp)
   .options((req, res) => res.end());
 
+app
+  .route("/confirmpwdreset")
+  .post(confirmPwdResetSanitize, confirmPwdReset)
+  .options((req, res) => res.end());
+
 app.route("/registration/:token").get(confirmRegistration);
+
+app.route("/pwdreset/:token").get(pwdResetSanitize, pwdReset);
 
 app.listen(4000, () => {
   console.log("Listening for request");
