@@ -79,7 +79,7 @@ app
   .options((req, res) => res.end());
 
 app
-  .route("/confirmpwdreset")
+  .route("/pwdreset")
   .post(confirmPwdResetSanitize, confirmPwdReset)
   .options((req, res) => res.end());
 

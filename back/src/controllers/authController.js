@@ -1,9 +1,5 @@
 import bcrypt from "bcrypt";
-import {
-  sendConfirmationMail,
-  sendNewPwd,
-  sendPasswordResetConfirmation,
-} from "../mail/sendMail.js";
+import { sendMail } from "../mail/sendMail.js";
 import * as db from "../db/index.js";
 import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
@@ -72,7 +68,11 @@ export const signUp = async (req, res) => {
     const link = "http://localhost:4000/registration/" + newRegistration.rid;
 
     try {
-      await sendConfirmationMail(email, username, link);
+      await sendMail({
+        to: email,
+        subject: "registration confirmation",
+        html: `<h2>Hi ${username}</h2><p>Please confirm your registration to camagru by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
+      });
     } catch (err) {
       // Triggered when email isn't valid, so we delete the created tables
       // without warning the user of this issue to prevent scammers to fetch
@@ -136,7 +136,13 @@ export const confirmPwdReset = async (req, res) => {
   try {
     const newPwd = await ResetPassword.create(id);
     const link = "http://localhost:4000/pwdreset/" + newPwd.id;
-    await sendPasswordResetConfirmation(email, username, link);
+
+    await sendMail({
+      to: email,
+      subject: "password reset confirmartion",
+      html: `<h2>Hi ${username}</h2><p>Please confirm your password reset by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
+    });
+
     return res.json({
       auth: true,
       msg: "Check your mail to reset your password",
@@ -160,7 +166,11 @@ export const pwdReset = async (req, res) => {
 
     await Auth.deleteSessionById(req.user.id);
 
-    await sendNewPwd(req.user.email, req.user.username, newPwd);
+    await sendMail({
+      to: req.user.email,
+      subject: "new password",
+      html: `<h2>Hi ${username}</h2><p>Your new password is: ${newpwd}</p>`,
+    });
 
     res.json({ auth: true, msg: "pouet pouet" });
   } catch (err) {

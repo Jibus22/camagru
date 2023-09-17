@@ -24,56 +24,8 @@ const laposteTransport = {
 
 const transporter = nodemailer.createTransport(laposteTransport);
 
-/**
- * Send pre-formated email for registration confirmation
- */
-export const sendConfirmationMail = async (recipient, username, link) => {
-  const payload = {
-    from: laposte.user,
-    to: recipient,
-    subject: "camagru-noreply - registration confirmation",
-    html: `<h2>Hi ${username}</h2><p>Please confirm your registration to camagru by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
-  };
-
-  try {
-    const info = await transporter.sendMail(payload);
-    console.log(info.response);
-  } catch (err) {
-    throw err;
-  }
-};
-
-export const sendPasswordResetConfirmation = async (
-  recipient,
-  username,
-  link
-) => {
-  const payload = {
-    from: laposte.user,
-    to: recipient,
-    subject: "camagru-noreply - password reset confirmartion",
-    html: `<h2>Hi ${username}</h2><p>Please confirm your password reset by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
-  };
-
-  try {
-    const info = await transporter.sendMail(payload);
-    console.log(info.response);
-  } catch (err) {
-    throw err;
-  }
-};
-
-/**
- * Send pre-formated email for password reset
- */
-export const sendNewPwd = async (recipient, username, newpwd) => {
-  const payload = {
-    from: laposte.user,
-    to: recipient,
-    subject: "camagru-noreply - new password",
-    html: `<h2>Hi ${username}</h2><p>Your new password is: ${newpwd}.</p>`,
-  };
-
+export const sendMail = async (payload) => {
+  payload.from = laposte.user;
   try {
     const info = await transporter.sendMail(payload);
     console.log(info.response);
