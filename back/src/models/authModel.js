@@ -9,15 +9,6 @@ export const createSession = async (id) => {
   return !rows.length ? null : rows[0];
 };
 
-export const findOneSession = async (uid, sid) => {
-  const { rows } = await db.query(
-    "SELECT uid, sid, created_date FROM sessions WHERE uid=$1 AND sid=$2",
-    [uid, sid]
-  );
-
-  return !rows.length ? null : rows[0];
-};
-
 /**
  * Delete expired sessions of uid.
  */

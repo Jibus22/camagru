@@ -1,8 +1,17 @@
 import * as User from "../models/userModel.js";
 
-export const getUsers = async (req, res) => {
-  const users = await User.findAll();
-
-  // res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(users);
+export const me = async (req, res) => {
+  if (req.session) {
+    const { username } = req.session;
+    return res.json({
+      auth: true,
+      msg: "You are not authenticated",
+      user: username,
+    });
+  } else {
+    return res.status(401).json({
+      auth: false,
+      msg: "You are not authenticated",
+    });
+  }
 };

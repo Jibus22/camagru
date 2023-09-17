@@ -2,7 +2,6 @@
 
 import { migrate } from "./db/migration.js";
 import { Jibuxpress } from "./lib/Jibuxpress.js";
-import { getUsers } from "./controllers/userController.js";
 import {
   confirmPwdReset,
   confirmRegistration,
@@ -17,7 +16,7 @@ import {
   signInSanitize,
   signUpSanitize,
 } from "./middlewares/authMiddleware.js";
-import { getBody } from "./utils.js";
+import { me } from "./controllers/userController.js";
 import {
   allowCors,
   bodyParser,
@@ -35,38 +34,7 @@ const app = new Jibuxpress();
 
 app.use(logRequest, allowCors, authGuard, bodyParser);
 
-// response interceptor middleware to filter outgoing data (exclude password)
-app.use("/users", (req, res, next) => {
-  const end = res.end;
-  res.end = (data) => {
-    if (data && typeof data === "object") {
-      let filter = data.map((elem) => {
-        const { id, username } = elem;
-        return { id, username };
-      });
-
-      data = JSON.stringify(filter);
-    }
-
-    res.end = end;
-    end.call(res, data);
-  };
-  next();
-});
-
-app
-  .route("/users")
-  .get((req, res) => {
-    getUsers(req, res);
-  })
-  .post(async (req, res) => {
-    console.log(`url: ${req.url}, method: ${req.method}`);
-    const body = await getBody(req);
-    res.json({
-      msg: "You have requested POST on /users route",
-      body: `you sent ${body}`,
-    });
-  });
+app.route("/me").get(me);
 
 app
   .route("/signin")
@@ -90,3 +58,23 @@ app.route("/pwdreset/:token").get(pwdResetSanitize, pwdReset);
 app.listen(4000, () => {
   console.log("Listening for request");
 });
+
+// response interceptor middleware to filter outgoing data (exclude password)
+
+// app.use("/users", (req, res, next) => {
+//   const end = res.end;
+//   res.end = (data) => {
+//     if (data && typeof data === "object") {
+//       let filter = data.map((elem) => {
+//         const { id, username } = elem;
+//         return { id, username };
+//       });
+
+//       data = JSON.stringify(filter);
+//     }
+
+//     res.end = end;
+//     end.call(res, data);
+//   };
+//   next();
+// });

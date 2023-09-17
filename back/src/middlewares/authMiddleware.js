@@ -1,5 +1,4 @@
 import { parse } from "cookie";
-import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
 import * as ResetPassword from "../models/resetPasswordModel.js";
 import {
@@ -18,11 +17,9 @@ export const authGuard = async (req, res, next) => {
 
   const { camagru_sid, camagru_uid } = parse(req.headers.cookie);
 
-  const session = await Auth.findOneSession(camagru_uid, camagru_sid);
+  const user = await User.findBySession(camagru_sid, camagru_uid);
 
-  req.session = session;
-
-  //TODO sans doute mettre le user dans req
+  req.session = user; // {sid, id, username, email, registered}
 
   next();
 };
