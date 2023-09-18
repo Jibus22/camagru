@@ -5,7 +5,9 @@ import { Jibuxpress } from "./lib/Jibuxpress.js";
 import {
   confirmPwdReset,
   confirmRegistration,
+  edit,
   logout,
+  mailUpdate,
   pwdReset,
   signIn,
   signUp,
@@ -13,6 +15,8 @@ import {
 import {
   authGuard,
   confirmPwdResetSanitize,
+  editSanitize,
+  mailUpdateSanitize,
   pwdResetSanitize,
   signInSanitize,
   signUpSanitize,
@@ -54,9 +58,16 @@ app
   .post(confirmPwdResetSanitize, confirmPwdReset)
   .options((req, res) => res.end());
 
+app
+  .route("/edit")
+  .post(editSanitize, edit)
+  .options((req, res) => res.end());
+
 app.route("/registration/:token").get(confirmRegistration);
 
 app.route("/pwdreset/:token").get(pwdResetSanitize, pwdReset);
+
+app.route("/mailupdate/:token").get(mailUpdateSanitize, mailUpdate);
 
 app.listen(4000, () => {
   console.log("Listening for request");

@@ -11,12 +11,13 @@ export default class extends AbstractView {
   renderSignup(profile) {
     profile.innerHTML = `
         <h1>Edit profile</h1>
+        <p>Fullfill any field you want to edit</p>
         <form class="sign__form" action="">
-          <label for="email_field">Enter your email</label>
+          <label for="email_field">Change email</label>
           <input id="email_field" type="text" name="email"/>
-          <label for="password_field">Create a password</label>
+          <label for="password_field">Change password</label>
           <input id="password_field" type="password" name="password"/>
-          <label for="username_field">Enter a username</label>
+          <label for="username_field">Change username</label>
           <input id="username_field" type="text" name="username"/>
           <button type="submit" >Edit</button>
         </form>

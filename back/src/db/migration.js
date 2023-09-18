@@ -65,6 +65,15 @@ const db_tables = [
   FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE
     `,
   },
+  {
+    name: "mail_update",
+    query: `id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+  uid UUID NOT NULL,
+  new_email VARCHAR(128) NOT NULL,
+  created_date TIMESTAMP DEFAULT current_timestamp,
+  FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE
+    `,
+  },
 ];
 
 // Creates tables if they don't exist, within a transaction
