@@ -5,6 +5,7 @@ import { Jibuxpress } from "./lib/Jibuxpress.js";
 import {
   confirmPwdReset,
   confirmRegistration,
+  logout,
   pwdReset,
   signIn,
   signUp,
@@ -35,6 +36,8 @@ const app = new Jibuxpress();
 app.use(logRequest, allowCors, authGuard, bodyParser);
 
 app.route("/me").get(me);
+
+app.route("/logout").get(logout);
 
 app
   .route("/signin")

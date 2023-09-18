@@ -164,7 +164,7 @@ export const pwdReset = async (req, res) => {
 
     await User.updateById(req.user.id, { password: hash });
 
-    await Auth.deleteSessionById(req.user.id);
+    await Auth.deleteSessionByUserId(req.user.id);
 
     await sendMail({
       to: req.user.email,
@@ -177,4 +177,12 @@ export const pwdReset = async (req, res) => {
     console.log(err);
     res.json({ auth: false, msg: "caca boudin" });
   }
+};
+
+export const logout = async (req, res) => {
+  if (!req.session) res.status(401).end();
+
+  await Auth.deleteSessionByUserId(req.session.id);
+
+  res.end();
 };
