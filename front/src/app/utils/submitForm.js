@@ -1,4 +1,4 @@
-import { createElement, newTimeout, postHttpRequest } from "../../utils";
+import { createElement, newTimeout, postHttpRequest } from "./utils.js";
 
 const buildJsonFormData = (form) => {
   const jsonFormData = {};

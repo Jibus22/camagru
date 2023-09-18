@@ -1,5 +1,5 @@
 import { navigateTo } from "./router";
-import { createElement } from "./utils";
+import { createElement } from "./utils/utils";
 
 const themeEvent = (themeToggleBtn) => {
   const currentTheme = localStorage.getItem("theme");
@@ -77,16 +77,26 @@ const rightNavBar = (status) => {
     elem.prepend(signin);
     return elem;
   } else {
-    const me = createElement("div", ["user_id"]);
-    me.innerHTML = `<img src="/images/pp/robert.jpg"/>`;
-    elem.prepend(me);
-
-    const logout = addNavButton(
+    const profile = addNavButton(
       "a",
-      ["navtxt", "header__nav"],
-      "/logout",
-      `Log&nbsp;out`
+      ["user_id"],
+      "/profile",
+      `<img src="/images/pp/robert.jpg"/>`
     );
+    elem.prepend(profile);
+
+    const logout = createElement("a", ["navtxt", "header__nav"]);
+    logout.href = "/logout";
+    logout.innerHTML = `Log&nbsp;out`;
+    logout.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const response = await fetch("http://localhost:4000/logout", {
+        credentials: "include",
+      });
+
+      if (response.status == 200) location.href = "/";
+    });
+
     elem.prepend(logout);
   }
 

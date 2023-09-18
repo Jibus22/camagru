@@ -1,4 +1,4 @@
-import { createElement } from "../../utils.js";
+import { createElement } from "../../utils/utils.js";
 import AbstractView from "../AbstractView.js";
 import { data_post } from "../data/home.js";
 import { post__author } from "./post__author.js";

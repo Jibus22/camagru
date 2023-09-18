@@ -1,4 +1,4 @@
-import { createElement } from "../../../utils";
+import { createElement } from "../../../utils/utils.js";
 import { post__reaction__comments } from "./post__reaction__comments";
 import { post__reaction__count } from "./post__reaction__count";
 

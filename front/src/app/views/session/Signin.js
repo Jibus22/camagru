@@ -1,7 +1,7 @@
 import { navigateTo } from "../../router.js";
-import { createElement } from "../../utils.js";
+import { createElement } from "../../utils/utils.js";
 import AbstractView from "../AbstractView.js";
-import { displayAuthResponse, submitForm } from "./submitForm.js";
+import { displayAuthResponse, submitForm } from "../../utils/submitForm.js";
 
 export default class extends AbstractView {
   constructor(params) {
@@ -40,7 +40,7 @@ export default class extends AbstractView {
         if (res.auth == true) {
           displayAuthResponse(form, res.msg, "valid-msg");
           setTimeout(() => {
-            navigateTo("/");
+            location.href = "/";
           }, 1000);
           return;
         } else {

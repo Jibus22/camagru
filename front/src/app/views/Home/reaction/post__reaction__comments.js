@@ -1,4 +1,4 @@
-import { createElement } from "../../../utils";
+import { createElement } from "../../../utils/utils.js";
 import { data_comments, data_post, data_user } from "../../data/home";
 
 export const post__reaction__comments = (reaction, post) => {

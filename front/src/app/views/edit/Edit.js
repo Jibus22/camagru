@@ -1,5 +1,5 @@
 import AbstractView from "../AbstractView.js";
-import { createElement } from "../../utils.js";
+import { createElement } from "../../utils/utils.js";
 import { camera } from "./camera";
 import { superposable } from "./superposable";
 

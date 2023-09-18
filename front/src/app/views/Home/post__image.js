@@ -1,4 +1,4 @@
-import { createElement } from "../../utils";
+import { createElement } from "../../utils/utils.js";
 
 export const post__image = (item, post) => {
   const image = createElement("div", ["post__image"]);
