@@ -27,6 +27,7 @@ import {
   bodyParser,
   logRequest,
 } from "./middlewares/appMiddleware.js";
+import { getPosts, getReactions } from "./controllers/galleryController.js";
 
 try {
   await migrate();
@@ -68,6 +69,16 @@ app.route("/registration/:token").get(confirmRegistration);
 app.route("/pwdreset/:token").get(pwdResetSanitize, pwdReset);
 
 app.route("/mailupdate/:token").get(mailUpdateSanitize, mailUpdate);
+
+app
+  .route("/gallery")
+  .post(getPosts)
+  .options((req, res) => res.end());
+
+app
+  .route("/gallery/postreactions")
+  .post(getReactions)
+  .options((req, res) => res.end());
 
 app.listen(4000, () => {
   console.log("Listening for request");

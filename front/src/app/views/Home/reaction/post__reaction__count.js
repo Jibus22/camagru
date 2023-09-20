@@ -1,23 +1,18 @@
-import { createElement } from "../../../utils/utils.js";
-import { data_comments } from "../../data/home";
+import { createElement, postHttpRequest } from "../../../utils/utils";
 
-export const post__reaction__count = (item) => {
+export const reactionCount = () => {
   const reaction__count = createElement("div", ["post__reaction__count"]);
-  let com_count = 0;
-
-  if (item.com_id)
-    com_count = data_comments[parseInt(item.com_id)].comments.length;
 
   reaction__count.innerHTML = `
           <div class="post__reaction__count__likes">
-            <p><span>${item.likes}</span></p>
+            <p><span></span></p>
             <button class="post__reaction__count__likes-btn">
               <span class="icon-thumbs-o-up"></span>
             </button>
           </div>
           <div class="post__reaction__count__comments">
             <p>
-              <span>${com_count}</span> comment${com_count > 1 ? "s" : ""}
+              <span></span> comments
             </p>
             <button class="post__reaction__open-comments">
               <span class="icon-chat_bubble_outline"></span>
@@ -25,23 +20,50 @@ export const post__reaction__count = (item) => {
           </div>
         `;
 
-  const likes_cnt = reaction__count
+  return reaction__count;
+};
+
+export const reactionCountData = async (reactionCount, id) => {
+  const count = await postHttpRequest(
+    "http://localhost:4000/gallery/postreactions",
+    { "Content-Type": "application/json" },
+    { id }
+  );
+
+  console.log(count);
+
+  const likes = reactionCount
     .querySelector(".post__reaction__count__likes")
-    .querySelector("p")
     .querySelector("span");
-  const like_btn = reaction__count.querySelector(
+  likes.innerHTML = count.like_cnt;
+
+  const likeBtn = reactionCount.querySelector(
     ".post__reaction__count__likes-btn"
   );
-  like_btn.addEventListener("click", () => {
-    // temporary solution before developing backend which will return if
-    // the user already like this post or not.
-    if (like_btn.classList.contains("like_color")) {
-      likes_cnt.innerText = parseInt(likes_cnt.innerText) - 1;
-    } else {
-      likes_cnt.innerText = parseInt(likes_cnt.innerText) + 1;
-    }
-    like_btn.classList.toggle("like_color");
-  });
 
-  return reaction__count;
+  if (count.clicked) likeBtn.classList.toggle("like_color");
+
+  const comments = reactionCount
+    .querySelector(".post__reaction__count__comments")
+    .querySelector("span");
+  comments.innerHTML = count.comment_cnt;
+
+  likeBtn.addEventListener("click", async () => {
+    // TODO: Ajouter une requete pour envoyer un +1/-1 sur le post en question
+    //       Et qui renvoie {clicked / like_cnt} ? Comme ça on n'appelle pas
+    //       l'autre requete
+
+    const count = await postHttpRequest(
+      "http://localhost:4000/gallery/postreactions",
+      { "Content-Type": "application/json" },
+      { id }
+    );
+
+    likes.innerHTML = count.like_cnt;
+    if (count.clicked) {
+      likeBtn.classList.add("like_color");
+    } else {
+      likeBtn.classList.remove("like_color");
+    }
+  });
 };

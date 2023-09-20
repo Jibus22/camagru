@@ -1,16 +1,19 @@
 import { createElement } from "../../utils/utils.js";
-import { data_user } from "../data/home";
 
-export const post__author = (item) => {
+export const post__author = ({ avatar, username, created_date }) => {
   const author = createElement("div", ["post__author"]);
+  avatar = new Uint8Array(avatar.data);
+  const blob = new Blob([avatar], { type: "image/png" });
+  const date = new Date(created_date);
+
   author.innerHTML = `
     <div class="post__author__id">
       <div>
-        <img src=${data_user[parseInt(item.user_id)].pp} />
+        <img src=${URL.createObjectURL(blob)} />
       </div>
-      <p>${data_user[parseInt(item.user_id)].name}</p>
+      <p>${username}</p>
     </div>
-    <p>${item.date}</p>
+    <p>${date.toDateString()}</p>
     `;
   return author;
 };

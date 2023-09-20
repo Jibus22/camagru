@@ -33,8 +33,6 @@ export const signIn = async (req, res) => {
   if (!verified)
     return res.status(401).json({ auth: false, msg: "Authentication error" });
 
-  console.log(user);
-
   if (!user.registered)
     return res.status(401).json({
       auth: false,
