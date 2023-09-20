@@ -27,7 +27,11 @@ import {
   bodyParser,
   logRequest,
 } from "./middlewares/appMiddleware.js";
-import { getPosts, getReactions } from "./controllers/galleryController.js";
+import {
+  getPosts,
+  getReactions,
+  likePost,
+} from "./controllers/galleryController.js";
 
 try {
   await migrate();
@@ -78,6 +82,11 @@ app
 app
   .route("/gallery/postreactions")
   .post(getReactions)
+  .options((req, res) => res.end());
+
+app
+  .route("/gallery/postreactions/like")
+  .post(likePost)
   .options((req, res) => res.end());
 
 app.listen(4000, () => {

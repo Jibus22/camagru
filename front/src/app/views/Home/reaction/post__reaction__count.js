@@ -30,8 +30,6 @@ export const reactionCountData = async (reactionCount, id) => {
     { id }
   );
 
-  console.log(reactions);
-
   const likes = reactionCount
     .querySelector(".post__reaction__count__likes")
     .querySelector("span");
@@ -48,19 +46,21 @@ export const reactionCountData = async (reactionCount, id) => {
     .querySelector("span");
   comments.innerHTML = reactions.comment_cnt;
 
+  let isLiked = reactions.liked;
+  let likeCnt = parseInt(reactions.like_cnt);
   likeBtn.addEventListener("click", async () => {
-    // TODO: Ajouter une requete pour envoyer un +1/-1 sur le post en question
-    //       Et qui renvoie {clicked / like_cnt} ? Comme ça on n'appelle pas
-    //       l'autre requete
-
-    const reactions = await postHttpRequest(
-      "http://localhost:4000/gallery/postreactions",
+    const response = await postHttpRequest(
+      "http://localhost:4000/gallery/postreactions/like",
       { "Content-Type": "application/json" },
-      { id }
+      { id, isLiked }
     );
 
-    likes.innerHTML = reactions.like_cnt;
-    if (reactions.liked) {
+    if (!response.ok) return;
+
+    isLiked = !isLiked;
+    likeCnt = isLiked ? likeCnt + 1 : likeCnt - 1;
+    likes.innerHTML = likeCnt;
+    if (isLiked) {
       likeBtn.classList.add("like_color");
     } else {
       likeBtn.classList.remove("like_color");

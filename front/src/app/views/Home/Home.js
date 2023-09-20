@@ -50,14 +50,13 @@ export default class extends AbstractView {
   async displayHome(home) {
     home.innerHTML = "";
 
-    const response = await postHttpRequest(
+    const posts = await postHttpRequest(
       "http://localhost:4000/gallery",
       { "Content-Type": "application/json" },
       { page: 1, limit: 5 }
     );
 
-    response.forEach((item) => {
-      console.log(item);
+    posts.forEach((item) => {
       const post = createElement("div", ["post"]);
       post.dataset.postId = item.id;
       post.append(post__author(item));

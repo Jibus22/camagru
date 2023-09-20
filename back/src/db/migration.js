@@ -34,7 +34,7 @@ const db_tables = [
   },
   {
     name: "likes",
-    query: `id INT PRIMARY KEY NOT NULL,
+    query: `id SERIAL PRIMARY KEY,
   user_id UUID NOT NULL,
   post_id UUID NOT NULL,
   FOREIGN KEY (post_id) REFERENCES posts(id),

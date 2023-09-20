@@ -42,11 +42,39 @@ export const getReactions = async (id) => {
 export const isLiked = async (uid, id) => {
   try {
     const { rows } = await db.query(
-      `SELECT CASE WHEN EXISTS (SELECT 1 FROM likes WHERE likes.user_id=$1 AND likes.post_id=$2) THEN true ELSE false END`,
+      `SELECT CASE WHEN EXISTS
+         (SELECT 1 FROM likes WHERE likes.user_id=$1 AND likes.post_id=$2)
+       THEN true
+       ELSE false
+       END`,
       [uid, id]
     );
     return !rows.length ? null : rows[0];
   } catch (err) {
     throw new DBError("Find error", "Post", err);
+  }
+};
+
+export const like = async (uid, pid) => {
+  try {
+    const { rows } = await db.query(
+      `INSERT INTO likes(user_id, post_id) VALUES($1, $2) returning *`,
+      [uid, pid]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Insert error", "Post", err);
+  }
+};
+
+export const dislike = async (uid, pid) => {
+  try {
+    const { rows } = await db.query(
+      `DELETE FROM likes WHERE user_id=$1 AND post_id=$2 returning *`,
+      [uid, pid]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Delete error", "Post", err);
   }
 };

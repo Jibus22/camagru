@@ -24,3 +24,20 @@ export const getReactions = async (req, res) => {
 
   return res.json(result);
 };
+
+export const likePost = async (req, res) => {
+  if (!req.session)
+    return res.status(401).json({ ok: false, msg: "Not authentified" });
+
+  const { id, isLiked } = req.body;
+
+  if (isLiked) {
+    // dislike = remove row where id == req.session.id
+    await Post.dislike(req.session.id, id);
+  } else {
+    // like = add row where like.user_id == req.session.id
+    await Post.like(req.session.id, id);
+  }
+
+  return res.json({ ok: true });
+};
