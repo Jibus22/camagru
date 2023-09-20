@@ -28,6 +28,7 @@ export const getReactions = async (id) => {
        LEFT JOIN
          (SELECT post_id, COUNT(*) AS cnt FROM comments WHERE post_id=$1 GROUP BY post_id) c
        ON p.id = c.post_id
+       WHERE p.id=$1
        ORDER BY p.id
       `,
       [id]
@@ -38,4 +39,14 @@ export const getReactions = async (id) => {
   }
 };
 
-// "SELECT posts.id, COUNT(CASE WHEN likes.post_id=$1 THEN likes.id END) AS likecount, COUNT(CASE WHEN comments.post_id=$1 THEN comments.id END) AS commentcount FROM posts INNER JOIN likes ON posts.id = likes.post_id INNER JOIN comments ON posts.id = comments.post_id GROUP BY posts.id",
+export const isLiked = async (uid, id) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT CASE WHEN EXISTS (SELECT 1 FROM likes WHERE likes.user_id=$1 AND likes.post_id=$2) THEN true ELSE false END`,
+      [uid, id]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Find error", "Post", err);
+  }
+};

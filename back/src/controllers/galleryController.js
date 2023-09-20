@@ -14,14 +14,13 @@ export const getPosts = async (req, res) => {
 
 export const getReactions = async (req, res) => {
   const { id } = req.body;
-  // choper le post avec l'id, retourner un COUNT des reactions et des comments
-  // + savoir si le user a liké le post
+  let clicked;
+
+  if (req.session) clicked = await Post.isLiked(req.session.id, id);
 
   const result = await Post.getReactions(id);
 
-  console.log(id);
-  console.log(result);
-  console.log("-----------------------------");
+  result.liked = clicked?.case == true ? true : false;
 
   return res.json(result);
 };
