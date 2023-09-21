@@ -1,7 +1,7 @@
 import { submitForm } from "../../../utils/submitForm.js";
 import { me, createElement, postHttpRequest } from "../../../utils/utils.js";
 
-const setCommentForm = (commentSection, id) => {
+const setCommentForm = (commentSection, id, allComments) => {
   if (!me.auth) return;
 
   const commentForm = createElement("div", ["post__reaction__comments__write"]);
@@ -20,7 +20,17 @@ const setCommentForm = (commentSection, id) => {
   `;
   commentSection.append(commentForm);
 
-  // TODO Ajouter la logique pour envoyer un com via le form
+  const submitBtn = commentForm.querySelector("button");
+  submitBtn.disabled = true;
+
+  const input = commentForm.querySelector("input");
+  input.addEventListener("keyup", () => {
+    if (input.value.length) {
+      submitBtn.disabled = false;
+    } else {
+      submitBtn.disabled = true;
+    }
+  });
 
   const form = commentForm.querySelector(
     ".post__reaction__comments__write__form"
@@ -33,15 +43,57 @@ const setCommentForm = (commentSection, id) => {
       "http://localhost:4000/comment",
       (res, btn) => {
         if (res.sent == true) {
-          // dispay un truc pour dire que ça a pas été envoyé
+          displayComments(id, allComments);
+          form.reset();
+          // reset le compteur de com
           return;
         } else {
           if (btn) btn.trigger();
-          // dispay un truc pour dire que ça a pas été envoyé
         }
       },
       id
     );
+  });
+};
+
+const displayComments = async (id, allComments) => {
+  let coms;
+  coms = await postHttpRequest(
+    "http://localhost:4000/gallery/postreactions/getcomments",
+    { "Content-Type": "application/json" },
+    { id }
+  );
+
+  if (!coms || !coms.length) {
+    coms = [];
+    return;
+  }
+
+  allComments.innerHTML = "";
+
+  coms.forEach((item) => {
+    const oneComment = createElement("div", [
+      "post__reaction__comments__all__com",
+    ]);
+
+    const avatar = new Uint8Array(item.avatar.data);
+    const blob = new Blob([avatar], { type: "image/jpeg" });
+
+    oneComment.innerHTML = `
+        <div class="post__reaction__comments__all__com__pp">
+          <img src=${URL.createObjectURL(blob)} />
+        </div>
+        <div class="post__reaction__comments__all__com__text">
+          <p class="post__reaction__comments__all__com__text-author">
+            ${item.username}
+          </p>
+          <p class="post__reaction__comments__all__com__text-comment">
+            ${item.body}
+          </p>
+        </div>
+      `;
+
+    allComments.append(oneComment);
   });
 };
 
@@ -56,48 +108,13 @@ export const setCommentSection = (reaction, id) => {
   reaction.append(commentSection);
 
   const commentBtn = reaction.querySelector(".post__reaction__open-comments");
-  let coms;
   commentBtn.addEventListener("click", async () => {
     commentSection.classList.toggle("div_hide");
 
-    if (!coms) {
-      coms = await postHttpRequest(
-        "http://localhost:4000/gallery/postreactions/getcomments",
-        { "Content-Type": "application/json" },
-        { id }
-      );
-
-      if (!coms || !coms.length) {
-        coms = [];
-        return;
-      }
-
-      coms.forEach((item) => {
-        const oneComment = createElement("div", [
-          "post__reaction__comments__all__com",
-        ]);
-
-        const avatar = new Uint8Array(item.avatar.data);
-        const blob = new Blob([avatar], { type: "image/jpeg" });
-
-        oneComment.innerHTML = `
-        <div class="post__reaction__comments__all__com__pp">
-          <img src=${URL.createObjectURL(blob)} />
-        </div>
-        <div class="post__reaction__comments__all__com__text">
-          <p class="post__reaction__comments__all__com__text-author">
-            ${item.username}
-          </p>
-          <p class="post__reaction__comments__all__com__text-comment">
-            ${item.body}
-          </p>
-        </div>
-      `;
-
-        allComments.append(oneComment);
-      });
+    if (!allComments.children.length) {
+      displayComments(id, allComments);
     }
   });
 
-  setCommentForm(commentSection, id);
+  setCommentForm(commentSection, id, allComments);
 };

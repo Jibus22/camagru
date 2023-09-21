@@ -75,6 +75,8 @@ export const getPostsNb = async (req, res) => {
 export const comment = async (req, res) => {
   const { comment, id } = req.body;
 
+  if (!comment.length) return res.json({ sent: false });
+
   try {
     const com = await Post.comment(req.session.id, id, comment);
     console.log(com);
