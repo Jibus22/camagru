@@ -9,6 +9,12 @@ import {
   uuidv4Regex,
 } from "../utils.js";
 
+export const authGuard = async (req, res, next) => {
+  if (!req.session)
+    return res.status(401).json({ auth: false, msg: "Not authenticated" });
+  else next();
+};
+
 /**
  * Verify user and session id in cookies to check if the user is already
  * authenticated and add session to the request object for the following logic

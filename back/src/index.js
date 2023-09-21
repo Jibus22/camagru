@@ -13,6 +13,7 @@ import {
   signUp,
 } from "./controllers/authController.js";
 import {
+  authGuard,
   authSession,
   confirmPwdResetSanitize,
   editSanitize,
@@ -28,6 +29,7 @@ import {
   logRequest,
 } from "./middlewares/appMiddleware.js";
 import {
+  comment,
   getComments,
   getPosts,
   getPostsNb,
@@ -89,6 +91,11 @@ app
 app
   .route("/gallery/postreactions/like")
   .post(likePost)
+  .options((req, res) => res.end());
+
+app
+  .route("/comment")
+  .post(authGuard, comment)
   .options((req, res) => res.end());
 
 app

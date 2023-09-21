@@ -19,7 +19,7 @@ export const displayAuthResponse = (form, message, classname) => {
   form.append(msg);
 };
 
-export const submitForm = async (e, form, url, cb) => {
+export const submitForm = async (e, form, url, cb, id = "") => {
   e.preventDefault();
 
   const btnSubmit = form.querySelector("button");
@@ -37,6 +37,8 @@ export const submitForm = async (e, form, url, cb) => {
   btnSubmit.append(style);
 
   const jsonFormData = buildJsonFormData(form);
+
+  if (id.length) jsonFormData.id = id;
 
   try {
     const response = await postHttpRequest(

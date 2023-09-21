@@ -1,13 +1,15 @@
-import { createElement, postHttpRequest } from "../../../utils/utils.js";
+import { submitForm } from "../../../utils/submitForm.js";
+import { me, createElement, postHttpRequest } from "../../../utils/utils.js";
 
-const setCommentForm = (commentSection) => {
-  //////////////////// TODO Ajouter ça que si le user est log
+const setCommentForm = (commentSection, id) => {
+  if (!me.auth) return;
+
   const commentForm = createElement("div", ["post__reaction__comments__write"]);
   commentForm.innerHTML = `
     <div class="post__reaction__comments__write__pp">
-      <img src="/images/pp/monica.jpg"/>
+      <img src=${me.avatar} />
     </div>
-    <form class="post__reaction__comments__write__form">
+    <form class="post__reaction__comments__write__form" action="">
       <input id="comment_field" type="text" name="comment" placeholder="Write a public comment..."/>
       <div>
         <div>
@@ -17,7 +19,30 @@ const setCommentForm = (commentSection) => {
     </form>
   `;
   commentSection.append(commentForm);
+
   // TODO Ajouter la logique pour envoyer un com via le form
+
+  const form = commentForm.querySelector(
+    ".post__reaction__comments__write__form"
+  );
+
+  form.addEventListener("submit", (e) => {
+    submitForm(
+      e,
+      form,
+      "http://localhost:4000/comment",
+      (res, btn) => {
+        if (res.sent == true) {
+          // dispay un truc pour dire que ça a pas été envoyé
+          return;
+        } else {
+          if (btn) btn.trigger();
+          // dispay un truc pour dire que ça a pas été envoyé
+        }
+      },
+      id
+    );
+  });
 };
 
 export const setCommentSection = (reaction, id) => {
@@ -74,5 +99,5 @@ export const setCommentSection = (reaction, id) => {
     }
   });
 
-  setCommentForm(commentSection);
+  setCommentForm(commentSection, id);
 };

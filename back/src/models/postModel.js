@@ -105,3 +105,15 @@ export const count = async () => {
     throw new DBError("Count error", "Post", err);
   }
 };
+
+export const comment = async (uid, pid, comment) => {
+  try {
+    const { rows } = await db.query(
+      "INSERT INTO comments(user_id, post_id, body) VALUES($1, $2, $3) returning *",
+      [uid, pid, comment]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Count error", "Post", err);
+  }
+};
