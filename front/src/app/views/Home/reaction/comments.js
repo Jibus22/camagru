@@ -1,7 +1,7 @@
 import { submitForm } from "../../../utils/submitForm.js";
 import { me, createElement, postHttpRequest } from "../../../utils/utils.js";
 
-const setCommentForm = (commentSection, id, allComments) => {
+const setCommentForm = (reaction, commentSection, id, allComments) => {
   if (!me.auth) return;
 
   const commentForm = createElement("div", ["post__reaction__comments__write"]);
@@ -36,6 +36,11 @@ const setCommentForm = (commentSection, id, allComments) => {
     ".post__reaction__comments__write__form"
   );
 
+  const commentCnt = reaction
+    .querySelector(".post__reaction__count__comments")
+    .querySelector("p")
+    .querySelector("span");
+
   form.addEventListener("submit", (e) => {
     submitForm(
       e,
@@ -45,7 +50,7 @@ const setCommentForm = (commentSection, id, allComments) => {
         if (res.sent == true) {
           displayComments(id, allComments);
           form.reset();
-          // reset le compteur de com
+          commentCnt.innerText = parseInt(commentCnt.innerText) + 1;
           return;
         } else {
           if (btn) btn.trigger();
@@ -116,5 +121,5 @@ export const setCommentSection = (reaction, id) => {
     }
   });
 
-  setCommentForm(commentSection, id, allComments);
+  setCommentForm(reaction, commentSection, id, allComments);
 };
