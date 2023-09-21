@@ -30,6 +30,7 @@ import {
 import {
   getComments,
   getPosts,
+  getPostsNb,
   getReactions,
   likePost,
 } from "./controllers/galleryController.js";
@@ -94,6 +95,8 @@ app
   .route("/gallery/postreactions/getcomments")
   .post(getComments)
   .options((req, res) => res.end());
+
+app.get("/gallery/postnb", getPostsNb);
 
 app.listen(4000, () => {
   console.log("Listening for request");

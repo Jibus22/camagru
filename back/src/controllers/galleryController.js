@@ -58,3 +58,16 @@ export const getComments = async (req, res) => {
 
   res.json(comments);
 };
+
+export const getPostsNb = async (req, res) => {
+  let count;
+
+  try {
+    count = await Post.count();
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json([]);
+  }
+
+  res.json(count);
+};

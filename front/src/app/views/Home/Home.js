@@ -11,13 +11,25 @@ export default class extends AbstractView {
     this.setTitle("Home");
     this.pageIndex = 0;
     this.itemPerPage = 5;
-    this.pageNb = 1;
   }
 
-  displayPagination(home, pageContent) {
+  async displayPagination(pageContent, home) {
     const pagination = createElement("div", ["pagination"]);
 
-    for (let i = 0; i < data_post.length / this.itemPerPage; i++) {
+    pageContent.append(pagination);
+
+    const response = await fetch("http://localhost:4000/gallery/postnb", {
+      credentials: "include",
+    });
+
+    console.log(response);
+    if (!response.ok) return;
+
+    const body = await response.json();
+
+    const nbPage = parseInt(body.count) / this.itemPerPage;
+
+    for (let i = 0; i < nbPage; i++) {
       const btn = createElement("button", [
         "pagination-btn",
         this.pageIndex == i ? "active-btn" : "null",
@@ -29,22 +41,23 @@ export default class extends AbstractView {
         const btnId = parseInt(btn.dataset.index);
 
         if (btnId == this.pageIndex) return;
+
         const activeBtn = pagination.querySelector(".active-btn");
         activeBtn.classList.remove("active-btn");
         btn.classList.add("active-btn");
-        btn.classList.remove("null-btn");
+        btn.classList.remove("null-btn"); //TODO cheker l'utilité de ça
 
         window.scrollTo({
           top: 0,
           left: 0,
         });
+
         this.pageIndex = btnId;
-        this.displayHome(home, pageContent);
+        this.displayHome(home);
       });
 
       pagination.append(btn);
     }
-    return pagination;
   }
 
   async displayHome(home) {
@@ -53,7 +66,7 @@ export default class extends AbstractView {
     const posts = await postHttpRequest(
       "http://localhost:4000/gallery",
       { "Content-Type": "application/json" },
-      { page: 1, limit: 5 }
+      { page: this.pageIndex * this.itemPerPage + 1, limit: this.itemPerPage }
     );
 
     posts.forEach((item) => {
@@ -79,10 +92,10 @@ export default class extends AbstractView {
     document.querySelector(id).append(pageContainer);
 
     const pagination = pageContent.querySelector(".pagination");
-    // render pagination only once
-    if (!pagination)
-      pageContent.append(this.displayPagination(home, pageContent));
 
-    this.displayHome(home, pageContent);
+    // render pagination only once
+    if (!pagination) this.displayPagination(pageContent, home);
+
+    this.displayHome(home);
   }
 }

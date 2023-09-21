@@ -96,3 +96,12 @@ export const getComments = async (pid) => {
     throw new DBError("Find error", "Post", err);
   }
 };
+
+export const count = async () => {
+  try {
+    const { rows } = await db.query("SELECT COUNT(*) from posts");
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Count error", "Post", err);
+  }
+};
