@@ -1,29 +1,6 @@
 import { createElement, postHttpRequest } from "../../../utils/utils";
 
-export const reactionCount = () => {
-  const reaction__count = createElement("div", ["post__reaction__count"]);
-
-  reaction__count.innerHTML = `
-          <div class="post__reaction__count__likes">
-            <p><span></span></p>
-            <button class="post__reaction__count__likes-btn">
-              <span class="icon-thumbs-o-up"></span>
-            </button>
-          </div>
-          <div class="post__reaction__count__comments">
-            <p>
-              <span></span> comments
-            </p>
-            <button class="post__reaction__open-comments">
-              <span class="icon-chat_bubble_outline"></span>
-            </button>
-          </div>
-        `;
-
-  return reaction__count;
-};
-
-export const reactionCountData = async (reactionCount, id) => {
+const setReactionData = async (reactionCount, id) => {
   const reactions = await postHttpRequest(
     "http://localhost:4000/gallery/postreactions",
     { "Content-Type": "application/json" },
@@ -66,4 +43,29 @@ export const reactionCountData = async (reactionCount, id) => {
       likeBtn.classList.remove("like_color");
     }
   });
+};
+
+export const setReactionSection = (reaction, id) => {
+  const reactionCount = createElement("div", ["post__reaction__count"]);
+
+  reactionCount.innerHTML = `
+          <div class="post__reaction__count__likes">
+            <p><span></span></p>
+            <button class="post__reaction__count__likes-btn">
+              <span class="icon-thumbs-o-up"></span>
+            </button>
+          </div>
+          <div class="post__reaction__count__comments">
+            <p>
+              <span></span> comments
+            </p>
+            <button class="post__reaction__open-comments">
+              <span class="icon-chat_bubble_outline"></span>
+            </button>
+          </div>
+        `;
+
+  reaction.append(reactionCount);
+
+  setReactionData(reactionCount, id);
 };
