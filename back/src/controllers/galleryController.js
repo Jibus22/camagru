@@ -31,13 +31,30 @@ export const likePost = async (req, res) => {
 
   const { id, isLiked } = req.body;
 
-  if (isLiked) {
-    // dislike = remove row where id == req.session.id
-    await Post.dislike(req.session.id, id);
-  } else {
-    // like = add row where like.user_id == req.session.id
-    await Post.like(req.session.id, id);
+  try {
+    if (isLiked == true) {
+      await Post.dislike(req.session.id, id);
+    } else if (isLiked == false) {
+      await Post.like(req.session.id, id);
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ ok: false });
   }
 
   return res.json({ ok: true });
+};
+
+export const getComments = async (req, res) => {
+  const { id } = req.body;
+  let comments;
+
+  try {
+    comments = await Post.getComments(id);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json([]);
+  }
+
+  res.json(comments);
 };

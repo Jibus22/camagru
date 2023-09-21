@@ -78,3 +78,21 @@ export const dislike = async (uid, pid) => {
     throw new DBError("Delete error", "Post", err);
   }
 };
+
+export const getComments = async (pid) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT comments.body, comments.created_date, users.username, users.photo AS avatar
+       FROM posts
+       INNER JOIN comments ON posts.id=comments.post_id
+       INNER JOIN users ON comments.user_id=users.id
+       WHERE posts.id=$1
+       ORDER BY comments.created_date DESC
+      `,
+      [pid]
+    );
+    return !rows.length ? null : rows;
+  } catch (err) {
+    throw new DBError("Find error", "Post", err);
+  }
+};

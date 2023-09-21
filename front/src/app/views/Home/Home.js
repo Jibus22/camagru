@@ -61,7 +61,7 @@ export default class extends AbstractView {
       post.dataset.postId = item.id;
       post.append(post__author(item));
       post.append(post__image(item, post));
-      post.append(post__reaction(item.id, post));
+      post.append(post__reaction(item.id));
 
       home.append(post);
     });

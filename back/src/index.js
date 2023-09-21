@@ -28,6 +28,7 @@ import {
   logRequest,
 } from "./middlewares/appMiddleware.js";
 import {
+  getComments,
   getPosts,
   getReactions,
   likePost,
@@ -87,6 +88,11 @@ app
 app
   .route("/gallery/postreactions/like")
   .post(likePost)
+  .options((req, res) => res.end());
+
+app
+  .route("/gallery/postreactions/getcomments")
+  .post(getComments)
   .options((req, res) => res.end());
 
 app.listen(4000, () => {
