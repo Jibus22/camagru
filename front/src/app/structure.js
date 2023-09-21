@@ -1,5 +1,5 @@
 import { navigateTo } from "./router";
-import { createElement } from "./utils/utils";
+import { me, createElement } from "./utils/utils";
 
 const themeEvent = (themeToggleBtn) => {
   const currentTheme = localStorage.getItem("theme");
@@ -41,7 +41,7 @@ const addNavButton = (elem, classList, href, html) => {
   return item;
 };
 
-const leftNavBar = (status) => {
+const leftNavBar = () => {
   const elem = createElement("div");
   const home = addNavButton(
     "a",
@@ -51,7 +51,7 @@ const leftNavBar = (status) => {
   );
   elem.append(home);
 
-  if (status == 401) return elem;
+  if (!me.auth) return elem;
 
   const edit = addNavButton("a", ["navtxt", "header__nav"], "/edit", `Edit`);
   elem.append(edit);
@@ -59,7 +59,7 @@ const leftNavBar = (status) => {
   return elem;
 };
 
-const rightNavBar = (status) => {
+const rightNavBar = () => {
   const elem = createElement("div");
   const themeToggleBtn = createElement("button", ["theme_toggle"]);
   themeToggleBtn.innerHTML = `<i class="icon-theme"></i>`;
@@ -67,7 +67,7 @@ const rightNavBar = (status) => {
   themeEvent(themeToggleBtn);
   elem.append(themeToggleBtn);
 
-  if (status == 401) {
+  if (!me.auth) {
     const signin = addNavButton(
       "a",
       ["navtxt", "header__nav"],
@@ -81,7 +81,7 @@ const rightNavBar = (status) => {
       "a",
       ["user_id"],
       "/profile",
-      `<img src="/images/pp/robert.jpg"/>`
+      `<img src=${me.avatar} />`
     );
     elem.prepend(profile);
 
@@ -109,12 +109,8 @@ export const displayNavbar = async (id) => {
 
   header.append(navbar);
 
-  const response = await fetch("http://localhost:4000/me", {
-    credentials: "include",
-  });
-
-  navbar.append(leftNavBar(response.status));
-  navbar.append(rightNavBar(response.status));
+  navbar.append(leftNavBar());
+  navbar.append(rightNavBar());
 
   document.querySelector(id).innerHTML = "";
   document.querySelector(id).append(header);

@@ -12,6 +12,19 @@ export const findAll = async () => {
   }
 };
 
+export const getPhotoById = async (id) => {
+  try {
+    const { rows } = await db.query(
+      "SELECT photo AS avatar FROM users WHERE id=$1",
+      [id]
+    );
+
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Find error", "User", err);
+  }
+};
+
 export const findByUsername = async (username) => {
   try {
     const { rows } = await db.query(

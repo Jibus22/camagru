@@ -13,7 +13,7 @@ import {
   signUp,
 } from "./controllers/authController.js";
 import {
-  authGuard,
+  authSession,
   confirmPwdResetSanitize,
   editSanitize,
   mailUpdateSanitize,
@@ -44,7 +44,7 @@ try {
 
 const app = new Jibuxpress();
 
-app.use(logRequest, allowCors, authGuard, bodyParser);
+app.use(logRequest, allowCors, authSession, bodyParser);
 
 app.route("/me").get(me);
 
