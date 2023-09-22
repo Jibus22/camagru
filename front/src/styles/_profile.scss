@@ -1,5 +1,18 @@
 @use "variables" as *;
 
+@mixin _buttonStyle {
+  width: 30%;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  border: 1px solid getColor(border-color);
+  padding: 5px 16px;
+  cursor: pointer;
+  margin: .3em .3em;
+  color: white;
+  margin: 0 auto;
+}
+
 .checkbox {
   display: flex;
   > input {
@@ -11,6 +24,9 @@
   margin: 1em .5em;
   > p {
     margin: 1em .5em;
+  }
+  > input {
+    display: none;
   }
   &__username {
     font-size: calc(2.1rem + .1vw);
@@ -32,5 +48,17 @@
       width: 100%;
     }
   }
-}
+  .user_id:hover {
+    cursor: pointer;
+  }
 
+  .green_msg {
+    @include _buttonStyle();
+    background-color: $greenbtn;
+  }
+
+  .red_msg {
+    @include _buttonStyle();
+    background-color: $redbtn;
+  }
+}

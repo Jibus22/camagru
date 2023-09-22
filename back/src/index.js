@@ -5,7 +5,6 @@ import { Jibuxpress } from "./lib/Jibuxpress.js";
 import {
   confirmPwdReset,
   confirmRegistration,
-  edit,
   logout,
   mailUpdate,
   pwdReset,
@@ -22,7 +21,7 @@ import {
   signInSanitize,
   signUpSanitize,
 } from "./middlewares/authMiddleware.js";
-import { me } from "./controllers/userController.js";
+import { editProfile, me, updateAvatar } from "./controllers/userController.js";
 import {
   allowCors,
   bodyParser,
@@ -67,9 +66,16 @@ app
   .post(confirmPwdResetSanitize, confirmPwdReset)
   .options((req, res) => res.end());
 
+// PATCH
 app
   .route("/edit")
-  .post(editSanitize, edit)
+  .post(editSanitize, editProfile)
+  .options((req, res) => res.end());
+
+// PATCH
+app
+  .route("/edit/avatar")
+  .post(authGuard, updateAvatar)
   .options((req, res) => res.end());
 
 app.route("/registration/:token").get(confirmRegistration);

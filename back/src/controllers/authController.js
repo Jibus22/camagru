@@ -5,7 +5,6 @@ import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
 import * as Registration from "../models/registrationModel.js";
 import * as ResetPassword from "../models/resetPasswordModel.js";
-import * as MailUpdate from "../models/mailUpdateModel.js";
 import { uuidv4Regex } from "../utils.js";
 
 const maxSessionAge = 3600 * 24; // 24h sessions
@@ -186,64 +185,7 @@ export const logout = async (req, res) => {
   res.end();
 };
 
-export const edit = async (req, res) => {
-  const { email, username, password, enable, disable } = req.body;
-  let info = "";
-
-  try {
-    if (username) {
-      await User.updateById(req.session.id, { username });
-      info = info + ` Username updated to ${username}.`;
-    }
-
-    if (email) {
-      const newMail = await MailUpdate.create(req.session.id, email);
-
-      const link = "http://localhost:4000/mailupdate/" + newMail.id;
-
-      try {
-        await sendMail({
-          to: email,
-          subject: "mail update confirmation",
-          html: `<h2>Hi ${
-            username ? username : req.session.username
-          }</h2><p>Please confirm your mail update by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
-        });
-      } catch (err) {
-        console.log(err);
-        await MailUpdate.deleteById(newMail.id);
-      }
-
-      info = info + ` Check your mail to confirm your change to ${email}.`;
-    }
-
-    if (password) {
-      const hash = await bcrypt.hash(password, saltRounds);
-      await User.updateById(req.session.id, { password: hash });
-      info = info + " Password updated.";
-    }
-
-    if (enable) {
-      await User.updateById(req.session.id, { post_notif: true });
-      info = info + " Email notification enabled.";
-    } else if (disable) {
-      await User.updateById(req.session.id, { post_notif: false });
-      info = info + " Email notification disabled.";
-    }
-
-    return res.json({ auth: true, msg: info });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({
-      auth: info.length > 0 ? true : false,
-      msg: "internal error." + info,
-    });
-  }
-};
-
 export const mailUpdate = async (req, res) => {
-  // fetch the new mail stored in the table
-  // update user table
   try {
     await User.updateById(req.session.id, { email: req.session.newEmail });
     return res.json({ auth: true, msg: "email has been updated !" });
