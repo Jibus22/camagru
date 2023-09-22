@@ -1,4 +1,6 @@
+import { sendMail } from "../mail/sendMail.js";
 import * as Post from "../models/postModel.js";
+import * as User from "../models/userModel.js";
 
 export const getPosts = async (req, res) => {
   const { page, limit } = req.body;
@@ -78,8 +80,18 @@ export const comment = async (req, res) => {
   if (!comment.length) return res.json({ sent: false });
 
   try {
-    const com = await Post.comment(req.session.id, id, comment);
-    console.log(com);
+    await Post.comment(req.session.id, id, comment);
+    const postAuthor = await User.findByPost(id);
+    if (postAuthor.post_notif) {
+      await sendMail({
+        to: postAuthor.email,
+        subject: "Your post had been commented",
+        html: `<h2>Hi ${postAuthor.username}</h2>
+        <p>${req.session.username} commented one of your post:</p>
+        <p>${comment}</p>
+        `,
+      });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json({ sent: false });

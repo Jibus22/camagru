@@ -135,3 +135,17 @@ export const updateById = async (id, obj) => {
     throw new DBError("Delete error", "User", err);
   }
 };
+
+export const findByPost = async (id) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT users.username, users.email, users.post_notif FROM posts
+       INNER JOIN users ON users.id = posts.user_id
+       WHERE posts.id=$1`,
+      [id]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Find error", "User", err);
+  }
+};

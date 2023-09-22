@@ -9,6 +9,7 @@ const db_tables = [
   password VARCHAR(128) NOT NULL,
   photo BYTEA,
   registered BOOL DEFAULT FALSE,
+  post_notif BOOL DEFAULT TRUE,
   created_date TIMESTAMP DEFAULT current_timestamp
     `,
   },
