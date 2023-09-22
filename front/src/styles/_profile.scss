@@ -1,0 +1,36 @@
+@use "variables" as *;
+
+.checkbox {
+  display: flex;
+  > input {
+    width: auto;
+  }
+}
+
+.profile_prez {
+  margin: 1em .5em;
+  > p {
+    margin: 1em .5em;
+  }
+  &__username {
+    font-size: calc(2.1rem + .1vw);
+    font-weight: 600;
+  }
+  &__email {
+    font-size: calc(1.2rem + .1vw);
+    font-weight: 300;
+  }
+  .user_id {
+    margin: 0 auto;
+    margin-bottom: 1em;
+    width: calc(4.8rem + .5vw);
+    height: calc(4.8rem + .5vw);
+    border-radius: 50%;
+    background-color: grey;
+    overflow: hidden;
+    > img {
+      width: 100%;
+    }
+  }
+}
+

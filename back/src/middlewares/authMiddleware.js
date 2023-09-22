@@ -26,7 +26,7 @@ export const authSession = async (req, res, next) => {
 
   const user = await User.findBySession(camagru_sid, camagru_uid);
 
-  req.session = user; // {sid, id, username, email, registered}
+  req.session = user; // {sid, id, username, email, registered, post_notif}
 
   next();
 };
@@ -68,8 +68,8 @@ export const editSanitize = async (req, res, next) => {
       .status(401)
       .json({ auth: false, msg: "You are not authenticated" });
 
-  const { email, username, password } = req.body;
-  if (!email && !username && !password)
+  const { email, username, password, enable, disable } = req.body;
+  if (!email && !username && !password && !enable && !disable)
     return res.status(401).json({ auth: false, msg: "All fields are empty !" });
 
   let err = sanitizeInput(req.body);

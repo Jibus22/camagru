@@ -1,5 +1,5 @@
 import AbstractView from "../AbstractView.js";
-import { createElement } from "../../utils/utils.js";
+import { createElement, getMe, me } from "../../utils/utils.js";
 import { displayAuthResponse, submitForm } from "../../utils/submitForm.js";
 
 export default class extends AbstractView {
@@ -8,26 +8,42 @@ export default class extends AbstractView {
     this.setTitle("Sign up");
   }
 
+  renderForm(form) {
+    form.innerHTML = "";
+    form.innerHTML = `
+      <label for="email_field">Change email</label>
+      <input id="email_field" type="email" name="email"/>
+      <label for="password_field">Change password</label>
+      <input id="password_field" type="password" name="password"/>
+      <label for="username_field">Change username</label>
+      <input id="username_field" type="text" name="username"/>
+      <label for="notif">${
+        me.notif ? "Disable" : "Enable"
+      } email notification</label>
+      <div class="checkbox">
+        <input id="notif" type="checkbox" name=${
+          me.notif ? "disable" : "enable"
+        } value="true" /> 
+      </div>
+      <button type="submit" >Edit</button>
+    `;
+  }
+
   renderSignup(profile) {
+    const form = createElement("form", ["sign__form"]);
+
+    this.renderForm(form);
     profile.innerHTML = `
         <h1>Edit profile</h1>
         <p>Fullfill any field you want to edit</p>
-        <form class="sign__form" action="">
-          <label for="email_field">Change email</label>
-          <input id="email_field" type="text" name="email"/>
-          <label for="password_field">Change password</label>
-          <input id="password_field" type="password" name="password"/>
-          <label for="username_field">Change username</label>
-          <input id="username_field" type="text" name="username"/>
-          <button type="submit" >Edit</button>
-        </form>
       `;
-
-    const form = profile.querySelector(".sign__form");
+    profile.append(form);
 
     form.addEventListener("submit", (e) => {
-      submitForm(e, form, "http://localhost:4000/edit", (res, btn) => {
+      submitForm(e, form, "http://localhost:4000/edit", async (res, btn) => {
         if (res.auth == true) {
+          await getMe();
+          this.renderForm(form);
           displayAuthResponse(form, res.msg, "valid-msg");
           return;
         } else {
@@ -38,7 +54,20 @@ export default class extends AbstractView {
     });
   }
 
+  renderProfile(profile) {
+    const profilePrez = createElement("div", ["profile_prez"]);
+    profile.prepend(profilePrez);
+
+    profilePrez.innerHTML = `
+      <div class="user_id"> <img src=${me.avatar} /> </div>
+      <p class="profile_prez__username" >${me.username}</p>
+      <p class="profile_prez__email" >${me.email}</p>
+      <hr/>
+    `;
+  }
+
   async render(id) {
+    if (!me.auth) return;
     const pageContainer = createElement("div", ["page-container"]);
     const pageContent = createElement("div", ["page-content"]);
     const profile = createElement("div", ["signup"]);
@@ -46,6 +75,7 @@ export default class extends AbstractView {
     pageContainer.append(pageContent);
     pageContent.append(profile);
     this.renderSignup(profile);
+    this.renderProfile(profile);
 
     document.querySelector(id).innerHTML = "";
     document.querySelector(id).append(pageContainer);

@@ -2,7 +2,7 @@ import * as User from "../models/userModel.js";
 
 export const me = async (req, res) => {
   if (req.session) {
-    const { id, username, registered } = req.session;
+    const { id, username, email, registered, post_notif } = req.session;
 
     if (!registered) {
       return res.status(401).json({
@@ -25,7 +25,10 @@ export const me = async (req, res) => {
       auth: true,
       msg: "You are authenticated",
       username,
+      email,
       avatar,
+      registered,
+      post_notif,
     });
   } else {
     return res.status(401).json({

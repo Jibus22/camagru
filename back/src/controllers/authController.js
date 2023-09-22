@@ -187,7 +187,7 @@ export const logout = async (req, res) => {
 };
 
 export const edit = async (req, res) => {
-  const { password, username, email } = req.body;
+  const { email, username, password, enable, disable } = req.body;
   let info = "";
 
   try {
@@ -220,7 +220,15 @@ export const edit = async (req, res) => {
     if (password) {
       const hash = await bcrypt.hash(password, saltRounds);
       await User.updateById(req.session.id, { password: hash });
-      info = info + "Password updated.";
+      info = info + " Password updated.";
+    }
+
+    if (enable) {
+      await User.updateById(req.session.id, { post_notif: true });
+      info = info + " Email notification enabled.";
+    } else if (disable) {
+      await User.updateById(req.session.id, { post_notif: false });
+      info = info + " Email notification disabled.";
     }
 
     return res.json({ auth: true, msg: info });

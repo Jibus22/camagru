@@ -77,7 +77,12 @@ export const deleteById = async (id) => {
 export const findBySession = async (sid, uid) => {
   try {
     const { rows } = await db.query(
-      "SELECT sessions.sid, users.id, users.email, users.username, users.registered FROM sessions INNER JOIN users ON sessions.uid = users.id WHERE sessions.sid=$1 AND sessions.uid=$2",
+      `SELECT
+      sessions.sid, users.id, users.email, users.username, users.registered, users.post_notif
+      FROM sessions
+      INNER JOIN users
+      ON sessions.uid = users.id
+      WHERE sessions.sid=$1 AND sessions.uid=$2`,
       [sid, uid]
     );
     return !rows.length ? null : rows[0];
