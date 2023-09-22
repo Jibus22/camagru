@@ -1,6 +1,6 @@
-import { createElement } from "../../utils.js";
+import { createElement } from "../../utils/utils.js";
 import AbstractView from "../AbstractView.js";
-import { displayAuthResponse, submitForm } from "./submitForm.js";
+import { displayAuthResponse, submitForm } from "../../utils/submitForm.js";
 
 export default class extends AbstractView {
   constructor(params) {

@@ -9,6 +9,7 @@ const db_tables = [
   password VARCHAR(128) NOT NULL,
   photo BYTEA,
   registered BOOL DEFAULT FALSE,
+  post_notif BOOL DEFAULT TRUE,
   created_date TIMESTAMP DEFAULT current_timestamp
     `,
   },
@@ -34,7 +35,7 @@ const db_tables = [
   },
   {
     name: "likes",
-    query: `id INT PRIMARY KEY NOT NULL,
+    query: `id SERIAL PRIMARY KEY,
   user_id UUID NOT NULL,
   post_id UUID NOT NULL,
   FOREIGN KEY (post_id) REFERENCES posts(id),
@@ -61,6 +62,15 @@ const db_tables = [
     name: "password_reset",
     query: `id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
   uid UUID NOT NULL,
+  created_date TIMESTAMP DEFAULT current_timestamp,
+  FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE
+    `,
+  },
+  {
+    name: "mail_update",
+    query: `id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+  uid UUID NOT NULL,
+  new_email VARCHAR(128) NOT NULL,
   created_date TIMESTAMP DEFAULT current_timestamp,
   FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE
     `,

@@ -1,12 +1,12 @@
-import { createElement } from "../../../utils";
-import { post__reaction__comments } from "./post__reaction__comments";
-import { post__reaction__count } from "./post__reaction__count";
+import { createElement } from "../../../utils/utils.js";
+import { setCommentSection } from "./comments.js";
+import { setReactionSection } from "./post__reaction__count.js";
 
-export const post__reaction = (item, post) => {
+export const post__reaction = (id) => {
   const reaction = createElement("div", ["post__reaction"]);
 
-  reaction.append(post__reaction__count(item));
-  reaction.append(post__reaction__comments(reaction, post));
+  setReactionSection(reaction, id);
+  setCommentSection(reaction, id);
 
   return reaction;
 };

@@ -1,4 +1,4 @@
-import { createElement } from "../../utils.js";
+import { createElement, postHttpRequest } from "../../utils/utils.js";
 import AbstractView from "../AbstractView.js";
 import { data_post } from "../data/home.js";
 import { post__author } from "./post__author.js";
@@ -13,10 +13,23 @@ export default class extends AbstractView {
     this.itemPerPage = 5;
   }
 
-  displayPagination(home, pageContent) {
+  async displayPagination(pageContent, home) {
     const pagination = createElement("div", ["pagination"]);
 
-    for (let i = 0; i < data_post.length / this.itemPerPage; i++) {
+    pageContent.append(pagination);
+
+    const response = await fetch("http://localhost:4000/gallery/postnb", {
+      credentials: "include",
+    });
+
+    console.log(response);
+    if (!response.ok) return;
+
+    const body = await response.json();
+
+    const nbPage = parseInt(body.count) / this.itemPerPage;
+
+    for (let i = 0; i < nbPage; i++) {
       const btn = createElement("button", [
         "pagination-btn",
         this.pageIndex == i ? "active-btn" : "null",
@@ -28,59 +41,61 @@ export default class extends AbstractView {
         const btnId = parseInt(btn.dataset.index);
 
         if (btnId == this.pageIndex) return;
+
         const activeBtn = pagination.querySelector(".active-btn");
         activeBtn.classList.remove("active-btn");
         btn.classList.add("active-btn");
-        btn.classList.remove("null-btn");
+        btn.classList.remove("null-btn"); //TODO cheker l'utilité de ça
 
         window.scrollTo({
           top: 0,
           left: 0,
         });
+
         this.pageIndex = btnId;
-        this.displayHome(home, pageContent);
+        this.displayHome(home);
       });
 
       pagination.append(btn);
     }
-    return pagination;
   }
 
-  displayHome(home, pageContent) {
+  async displayHome(home) {
     home.innerHTML = "";
-    for (
-      let i = this.pageIndex * this.itemPerPage;
-      i < this.pageIndex * this.itemPerPage + this.itemPerPage;
-      i++
-    ) {
-      if (i == data_post.length) break;
-      const item = data_post[i];
+
+    const posts = await postHttpRequest(
+      "http://localhost:4000/gallery",
+      { "Content-Type": "application/json" },
+      { page: this.pageIndex * this.itemPerPage + 1, limit: this.itemPerPage }
+    );
+
+    posts.forEach((item) => {
       const post = createElement("div", ["post"]);
       post.dataset.postId = item.id;
       post.append(post__author(item));
       post.append(post__image(item, post));
-      post.append(post__reaction(item, post));
-      home.append(post);
-    }
+      post.append(post__reaction(item.id));
 
-    const pagination = pageContent.querySelector(".pagination");
-    // render pagination only once
-    if (!pagination)
-      pageContent.append(this.displayPagination(home, pageContent));
+      home.append(post);
+    });
   }
 
   async render(id) {
-    let divs = [];
-    for (let item of ["page-container", "page-content", "home"]) {
-      divs.push(createElement("div", [item]));
-    }
-    for (let i = 0; i < divs.length; i++) {
-      if (i + 1 < divs.length) divs[i].append(divs[i + 1]);
-    }
+    const pageContainer = createElement("div", ["page-container"]);
+    const pageContent = createElement("div", ["page-content"]);
+    const home = createElement("div", ["home"]);
+
+    pageContainer.append(pageContent);
+    pageContent.append(home);
 
     document.querySelector(id).innerHTML = "";
-    document.querySelector(id).append(divs[0]);
+    document.querySelector(id).append(pageContainer);
 
-    this.displayHome(divs[divs.length - 1], divs[1]);
+    const pagination = pageContent.querySelector(".pagination");
+
+    // render pagination only once
+    if (!pagination) this.displayPagination(pageContent, home);
+
+    this.displayHome(home);
   }
 }

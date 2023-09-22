@@ -1,0 +1,64 @@
+@use "variables" as *;
+
+@mixin _buttonStyle {
+  width: 30%;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  border: 1px solid getColor(border-color);
+  padding: 5px 16px;
+  cursor: pointer;
+  margin: .3em .3em;
+  color: white;
+  margin: 0 auto;
+}
+
+.checkbox {
+  display: flex;
+  > input {
+    width: auto;
+  }
+}
+
+.profile_prez {
+  margin: 1em .5em;
+  > p {
+    margin: 1em .5em;
+  }
+  > input {
+    display: none;
+  }
+  &__username {
+    font-size: calc(2.1rem + .1vw);
+    font-weight: 600;
+  }
+  &__email {
+    font-size: calc(1.2rem + .1vw);
+    font-weight: 300;
+  }
+  .user_id {
+    margin: 0 auto;
+    margin-bottom: 1em;
+    width: calc(4.8rem + .5vw);
+    height: calc(4.8rem + .5vw);
+    border-radius: 50%;
+    background-color: grey;
+    overflow: hidden;
+    > img {
+      width: 100%;
+    }
+  }
+  .user_id:hover {
+    cursor: pointer;
+  }
+
+  .green_msg {
+    @include _buttonStyle();
+    background-color: $greenbtn;
+  }
+
+  .red_msg {
+    @include _buttonStyle();
+    background-color: $redbtn;
+  }
+}

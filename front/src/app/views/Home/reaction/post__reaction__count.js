@@ -1,23 +1,63 @@
-import { createElement } from "../../../utils";
-import { data_comments } from "../../data/home";
+import { createElement, postHttpRequest } from "../../../utils/utils";
 
-export const post__reaction__count = (item) => {
-  const reaction__count = createElement("div", ["post__reaction__count"]);
-  let com_count = 0;
+const setReactionData = async (reactionCount, id) => {
+  const reactions = await postHttpRequest(
+    "http://localhost:4000/gallery/postreactions",
+    { "Content-Type": "application/json" },
+    { id }
+  );
 
-  if (item.com_id)
-    com_count = data_comments[parseInt(item.com_id)].comments.length;
+  const likes = reactionCount
+    .querySelector(".post__reaction__count__likes")
+    .querySelector("span");
+  likes.innerHTML = reactions.like_cnt;
 
-  reaction__count.innerHTML = `
+  const likeBtn = reactionCount.querySelector(
+    ".post__reaction__count__likes-btn"
+  );
+
+  if (reactions.liked) likeBtn.classList.toggle("like_color");
+
+  const comments = reactionCount
+    .querySelector(".post__reaction__count__comments")
+    .querySelector("span");
+  comments.innerHTML = reactions.comment_cnt;
+
+  let isLiked = reactions.liked;
+  let likeCnt = parseInt(reactions.like_cnt);
+  likeBtn.addEventListener("click", async () => {
+    const response = await postHttpRequest(
+      "http://localhost:4000/gallery/postreactions/like",
+      { "Content-Type": "application/json" },
+      { id, isLiked }
+    );
+
+    if (!response.ok) return;
+
+    isLiked = !isLiked;
+    likeCnt = isLiked ? likeCnt + 1 : likeCnt - 1;
+    likes.innerHTML = likeCnt;
+    if (isLiked) {
+      likeBtn.classList.add("like_color");
+    } else {
+      likeBtn.classList.remove("like_color");
+    }
+  });
+};
+
+export const setReactionSection = (reaction, id) => {
+  const reactionCount = createElement("div", ["post__reaction__count"]);
+
+  reactionCount.innerHTML = `
           <div class="post__reaction__count__likes">
-            <p><span>${item.likes}</span></p>
+            <p><span></span></p>
             <button class="post__reaction__count__likes-btn">
               <span class="icon-thumbs-o-up"></span>
             </button>
           </div>
           <div class="post__reaction__count__comments">
             <p>
-              <span>${com_count}</span> comment${com_count > 1 ? "s" : ""}
+              <span></span> comments
             </p>
             <button class="post__reaction__open-comments">
               <span class="icon-chat_bubble_outline"></span>
@@ -25,23 +65,7 @@ export const post__reaction__count = (item) => {
           </div>
         `;
 
-  const likes_cnt = reaction__count
-    .querySelector(".post__reaction__count__likes")
-    .querySelector("p")
-    .querySelector("span");
-  const like_btn = reaction__count.querySelector(
-    ".post__reaction__count__likes-btn"
-  );
-  like_btn.addEventListener("click", () => {
-    // temporary solution before developing backend which will return if
-    // the user already like this post or not.
-    if (like_btn.classList.contains("like_color")) {
-      likes_cnt.innerText = parseInt(likes_cnt.innerText) - 1;
-    } else {
-      likes_cnt.innerText = parseInt(likes_cnt.innerText) + 1;
-    }
-    like_btn.classList.toggle("like_color");
-  });
+  reaction.append(reactionCount);
 
-  return reaction__count;
+  setReactionData(reactionCount, id);
 };

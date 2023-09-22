@@ -1,5 +1,5 @@
 import { navigateTo } from "./router";
-import { createElement } from "./utils";
+import { me, createElement } from "./utils/utils";
 
 const themeEvent = (themeToggleBtn) => {
   const currentTheme = localStorage.getItem("theme");
@@ -41,7 +41,7 @@ const addNavButton = (elem, classList, href, html) => {
   return item;
 };
 
-const leftNavBar = (status) => {
+const leftNavBar = () => {
   const elem = createElement("div");
   const home = addNavButton(
     "a",
@@ -51,7 +51,7 @@ const leftNavBar = (status) => {
   );
   elem.append(home);
 
-  if (status == 401) return elem;
+  if (!me.auth) return elem;
 
   const edit = addNavButton("a", ["navtxt", "header__nav"], "/edit", `Edit`);
   elem.append(edit);
@@ -59,7 +59,7 @@ const leftNavBar = (status) => {
   return elem;
 };
 
-const rightNavBar = (status) => {
+const rightNavBar = () => {
   const elem = createElement("div");
   const themeToggleBtn = createElement("button", ["theme_toggle"]);
   themeToggleBtn.innerHTML = `<i class="icon-theme"></i>`;
@@ -67,7 +67,7 @@ const rightNavBar = (status) => {
   themeEvent(themeToggleBtn);
   elem.append(themeToggleBtn);
 
-  if (status == 401) {
+  if (!me.auth) {
     const signin = addNavButton(
       "a",
       ["navtxt", "header__nav"],
@@ -77,16 +77,26 @@ const rightNavBar = (status) => {
     elem.prepend(signin);
     return elem;
   } else {
-    const me = createElement("div", ["user_id"]);
-    me.innerHTML = `<img src="/images/pp/robert.jpg"/>`;
-    elem.prepend(me);
-
-    const logout = addNavButton(
+    const profile = addNavButton(
       "a",
-      ["navtxt", "header__nav"],
-      "/logout",
-      `Log&nbsp;out`
+      ["user_id"],
+      "/profile",
+      `<img src=${me.avatar} />`
     );
+    elem.prepend(profile);
+
+    const logout = createElement("a", ["navtxt", "header__nav"]);
+    logout.href = "/logout";
+    logout.innerHTML = `Log&nbsp;out`;
+    logout.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const response = await fetch("http://localhost:4000/logout", {
+        credentials: "include",
+      });
+
+      if (response.status == 200) location.href = "/";
+    });
+
     elem.prepend(logout);
   }
 
@@ -99,12 +109,8 @@ export const displayNavbar = async (id) => {
 
   header.append(navbar);
 
-  const response = await fetch("http://localhost:4000/me", {
-    credentials: "include",
-  });
-
-  navbar.append(leftNavBar(response.status));
-  navbar.append(rightNavBar(response.status));
+  navbar.append(leftNavBar());
+  navbar.append(rightNavBar());
 
   document.querySelector(id).innerHTML = "";
   document.querySelector(id).append(header);

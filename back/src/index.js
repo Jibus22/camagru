@@ -5,23 +5,36 @@ import { Jibuxpress } from "./lib/Jibuxpress.js";
 import {
   confirmPwdReset,
   confirmRegistration,
+  logout,
+  mailUpdate,
   pwdReset,
   signIn,
   signUp,
 } from "./controllers/authController.js";
 import {
   authGuard,
+  authSession,
   confirmPwdResetSanitize,
+  editSanitize,
+  mailUpdateSanitize,
   pwdResetSanitize,
   signInSanitize,
   signUpSanitize,
 } from "./middlewares/authMiddleware.js";
-import { me } from "./controllers/userController.js";
+import { editProfile, me, updateAvatar } from "./controllers/userController.js";
 import {
   allowCors,
   bodyParser,
   logRequest,
 } from "./middlewares/appMiddleware.js";
+import {
+  comment,
+  getComments,
+  getPosts,
+  getPostsNb,
+  getReactions,
+  likePost,
+} from "./controllers/galleryController.js";
 
 try {
   await migrate();
@@ -32,9 +45,11 @@ try {
 
 const app = new Jibuxpress();
 
-app.use(logRequest, allowCors, authGuard, bodyParser);
+app.use(logRequest, allowCors, authSession, bodyParser);
 
 app.route("/me").get(me);
+
+app.route("/logout").get(logout);
 
 app
   .route("/signin")
@@ -51,9 +66,50 @@ app
   .post(confirmPwdResetSanitize, confirmPwdReset)
   .options((req, res) => res.end());
 
+// PATCH
+app
+  .route("/edit")
+  .post(editSanitize, editProfile)
+  .options((req, res) => res.end());
+
+// PATCH
+app
+  .route("/edit/avatar")
+  .post(authGuard, updateAvatar)
+  .options((req, res) => res.end());
+
 app.route("/registration/:token").get(confirmRegistration);
 
 app.route("/pwdreset/:token").get(pwdResetSanitize, pwdReset);
+
+app.route("/mailupdate/:token").get(mailUpdateSanitize, mailUpdate);
+
+app
+  .route("/gallery")
+  .post(getPosts)
+  .options((req, res) => res.end());
+
+app
+  .route("/gallery/postreactions")
+  .post(getReactions)
+  .options((req, res) => res.end());
+
+app
+  .route("/gallery/postreactions/like")
+  .post(likePost)
+  .options((req, res) => res.end());
+
+app
+  .route("/comment")
+  .post(authGuard, comment)
+  .options((req, res) => res.end());
+
+app
+  .route("/gallery/postreactions/getcomments")
+  .post(getComments)
+  .options((req, res) => res.end());
+
+app.get("/gallery/postnb", getPostsNb);
 
 app.listen(4000, () => {
   console.log("Listening for request");

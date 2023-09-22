@@ -12,6 +12,19 @@ export const findAll = async () => {
   }
 };
 
+export const getPhotoById = async (id) => {
+  try {
+    const { rows } = await db.query(
+      "SELECT photo AS avatar FROM users WHERE id=$1",
+      [id]
+    );
+
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Find error", "User", err);
+  }
+};
+
 export const findByUsername = async (username) => {
   try {
     const { rows } = await db.query(
@@ -64,7 +77,12 @@ export const deleteById = async (id) => {
 export const findBySession = async (sid, uid) => {
   try {
     const { rows } = await db.query(
-      "SELECT sessions.sid, users.id, users.email, users.username, users.registered FROM sessions INNER JOIN users ON sessions.uid = users.id WHERE sessions.sid=$1 AND sessions.uid=$2",
+      `SELECT
+      sessions.sid, users.id, users.email, users.username, users.registered, users.post_notif
+      FROM sessions
+      INNER JOIN users
+      ON sessions.uid = users.id
+      WHERE sessions.sid=$1 AND sessions.uid=$2`,
       [sid, uid]
     );
     return !rows.length ? null : rows[0];
@@ -120,5 +138,19 @@ export const updateById = async (id, obj) => {
     return !rows.length ? null : rows[0];
   } catch (err) {
     throw new DBError("Delete error", "User", err);
+  }
+};
+
+export const findByPost = async (id) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT users.username, users.email, users.post_notif FROM posts
+       INNER JOIN users ON users.id = posts.user_id
+       WHERE posts.id=$1`,
+      [id]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Find error", "User", err);
   }
 };

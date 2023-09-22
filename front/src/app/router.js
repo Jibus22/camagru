@@ -1,5 +1,6 @@
 import Edit from "./views/edit/Edit";
 import Home from "./views/home/Home";
+import Profile from "./views/profile/Profile";
 import PasswordReset from "./views/session/PasswordReset";
 import Signin from "./views/session/Signin";
 import Signup from "./views/session/Signup";
@@ -42,6 +43,7 @@ export const router = async () => {
     { path: "/signup", view: Signup },
     { path: "/password_reset", view: PasswordReset },
     { path: "/edit", view: Edit },
+    { path: "/profile", view: Profile },
   ];
 
   // Test each route for a potential match.

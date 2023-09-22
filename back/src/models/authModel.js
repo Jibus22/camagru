@@ -21,7 +21,7 @@ export const deleteSessionByDate = async (uid, date) => {
   return !rows.length ? null : rows;
 };
 
-export const deleteSessionById = async (uid) => {
+export const deleteSessionByUserId = async (uid) => {
   const { rows } = await db.query(
     "DELETE FROM sessions WHERE uid=$1 returning *",
     [uid]
