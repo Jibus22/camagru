@@ -108,16 +108,16 @@ export const camera = (parent) => {
       return;
     }
 
-    const supImg = camera
+    const previewSup = camera
       .querySelector(".camera__preview__sup")
       .querySelector("img");
 
     const imgFit = imageFit(
-      { w: supImg.naturalWidth, h: supImg.naturalHeight },
+      { w: previewSup.naturalWidth, h: previewSup.naturalHeight },
       mainImg
     );
     const myImage = new Image(imgFit.w, imgFit.h);
-    myImage.src = supImg.src;
+    myImage.src = previewSup.src;
     context.drawImage(myImage, imgFit.lOff, imgFit.tOff, imgFit.w, imgFit.h);
 
     data = canvas.toDataURL("image/png");

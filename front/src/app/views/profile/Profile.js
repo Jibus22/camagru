@@ -10,7 +10,7 @@ import { displayAuthResponse, submitForm } from "../../utils/submitForm.js";
 export default class extends AbstractView {
   constructor(params) {
     super(params);
-    this.setTitle("Sign up");
+    this.setTitle("Profile");
   }
 
   renderForm(form) {

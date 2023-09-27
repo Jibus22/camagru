@@ -29,8 +29,10 @@ export const createElement = (elem, arr = []) => {
   return newElem;
 };
 
-// Returns new dimension of userImg so it can fit in containerImg (like
-// object-fit: contain would do in css), and returns the offsets to position it
+/**
+ * Returns new dimension of userImg so it can fit in containerImg (like
+ * object-fit: contain would do in css), and returns the offsets to position it
+ */
 export const imageFit = (userImg, containerImg) => {
   let w = userImg.w;
   let h = userImg.h;
