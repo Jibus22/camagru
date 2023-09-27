@@ -16,9 +16,17 @@ export const logRequest = (req, res, next) => {
 };
 
 export const bodyParser = async (req, res, next) => {
+  console.log("xyz123");
+  console.log(req.headers["content-type"]);
+
   if (req.method === "POST") {
-    let body = await getBody(req);
-    req.body = JSON.parse(body);
+    if (
+      req.headers["content-type"] &&
+      req.headers["content-type"] === "application/json"
+    ) {
+      let body = await getBody(req);
+      req.body = JSON.parse(body);
+    }
   }
   next();
 };
