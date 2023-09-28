@@ -119,6 +119,11 @@ export const findByResetPasswordToken = async (token) => {
   }
 };
 
+/**
+ * Update User table where users.id = id. Obj must be a javascript object which
+ * key names match with those of the user table. It automatically creates the
+ * approppriate query.
+ */
 export const updateById = async (id, obj) => {
   let query = "";
   let values = [];

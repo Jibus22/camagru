@@ -35,6 +35,7 @@ import {
   getReactions,
   likePost,
   newPost,
+  postPublish,
 } from "./controllers/galleryController.js";
 
 try {
@@ -115,6 +116,11 @@ app.get("/gallery/postnb", getPostsNb);
 app
   .route("/newpost")
   .post(authGuard, newPost)
+  .options((req, res) => res.end());
+
+app
+  .route("/post/new")
+  .post(authGuard, postPublish)
   .options((req, res) => res.end());
 
 app.listen(4000, () => {

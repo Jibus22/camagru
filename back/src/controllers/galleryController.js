@@ -111,6 +111,20 @@ export const newPost = async (req, res) => {
     Canvas: Canvas,
     Image: Image,
   }).then((b64) => {
-    return res.json({ image: b64 });
+    const buffer = Buffer.from(b64.replace(/^[\w\d/;:]+,/, ""), "base64");
+    return res.json({ image: buffer });
   });
+};
+
+export const postPublish = async (req, res) => {
+  const photo = new Uint8Array(req.body);
+
+  try {
+    await Post.create(req.session.id, photo);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ ok: false, msg: "internal error." });
+  }
+
+  res.json({ ok: true, msg: "published" });
 };

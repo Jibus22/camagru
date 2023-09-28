@@ -117,3 +117,15 @@ export const comment = async (uid, pid, comment) => {
     throw new DBError("Count error", "Post", err);
   }
 };
+
+export const create = async (uid, photo) => {
+  try {
+    const { rows } = await db.query(
+      "INSERT INTO posts(user_id, photo) VALUES($1, $2) returning *",
+      [uid, photo]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Create error", "Post", err);
+  }
+};
