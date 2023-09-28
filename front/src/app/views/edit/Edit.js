@@ -1,5 +1,5 @@
 import AbstractView from "../AbstractView.js";
-import { createElement } from "../../utils/utils.js";
+import { createElement, me } from "../../utils/utils.js";
 import { camera } from "./camera";
 import { superposable } from "./superposable";
 
@@ -10,6 +10,7 @@ export default class extends AbstractView {
   }
 
   async render(id) {
+    if (!me.auth) return;
     const pageContainer = createElement("div", ["page-container__edit"]);
     const pageContent = createElement("div", ["page-content"]);
     const edit = createElement("div", ["edit"]);

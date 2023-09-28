@@ -171,13 +171,46 @@ export const camera = (parent) => {
         <img/>
       </div>
     `;
-    const img = thumbnail.querySelector("img");
-    const removeBtn = thumbnail.querySelector(".remove-btn");
 
+    const img = thumbnail.querySelector("img");
     // Give to the image the base64 encoded image we received from the backend
     img.src = response.image;
 
+    const removeBtn = thumbnail.querySelector(".remove-btn");
     removeBtn.addEventListener("click", () => thumbnail.remove());
+
+    const shareBtn = thumbnail.querySelector(".share-btn");
+    shareBtn.addEventListener("click", () => {
+      const thumbnailUnderlayer = thumbnail.querySelector(
+        ".thumbnail-ctnr__underlayer"
+      );
+      const confirmation = createElement("div", [
+        "thumbnail-ctnr__underlayer__confirmation",
+      ]);
+      confirmation.innerHTML = `
+        <button class="green_msg" >confirm </button>
+        <button class="red_msg" >cancel </button>
+      `;
+
+      const cancelBtn = confirmation.querySelector(".red_msg");
+      cancelBtn.addEventListener("click", () => {
+        confirmation.remove();
+      });
+
+      const confirmBtn = confirmation.querySelector(".green_msg");
+      confirmBtn.addEventListener("click", () => {
+        // transformer l'image en data envoyable par POST
+
+        thumbnail.style = "border: 1px solid green";
+        shareBtn.innerHTML = "";
+        shareBtn.style = "cursor:auto;";
+        shareBtn.disable = true;
+        confirmation.remove();
+      });
+
+      thumbnailUnderlayer.append(confirmation);
+    });
+
     edit__side.prepend(thumbnail);
   });
 
