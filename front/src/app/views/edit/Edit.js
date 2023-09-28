@@ -10,17 +10,15 @@ export default class extends AbstractView {
   }
 
   async render(id) {
-    let divs = [];
-    for (let item of ["page-container__edit", "page-content", "edit"]) {
-      divs.push(createElement("div", [item]));
-    }
-    for (let i = 0; i < divs.length; i++) {
-      if (i + 1 < divs.length) divs[i].append(divs[i + 1]);
-    }
-    const edit = divs[divs.length - 1];
+    const pageContainer = createElement("div", ["page-container__edit"]);
+    const pageContent = createElement("div", ["page-content"]);
+    const edit = createElement("div", ["edit"]);
+
+    pageContainer.append(pageContent);
+    pageContent.append(edit);
 
     document.querySelector(id).innerHTML = "";
-    document.querySelector(id).append(divs[0]);
+    document.querySelector(id).append(pageContainer);
 
     const edit__side = createElement("div", ["edit__side"]);
     edit.append(edit__side);
