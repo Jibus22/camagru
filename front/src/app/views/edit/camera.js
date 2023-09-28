@@ -1,4 +1,4 @@
-import { createElement, imageFit } from "../../utils/utils.js";
+import { createElement, imageFit, postHttpRequest } from "../../utils/utils.js";
 
 export const camera = (parent) => {
   const camera = createElement("div", ["camera"]);
@@ -162,6 +162,10 @@ export const camera = (parent) => {
     // The backend sends back a base64 encoded image into a json
     response = await response.json();
 
+    const editedImg = new Uint8Array(response.image.data);
+    const editedImgBlob = new Blob([editedImg], { type: "image/png" });
+    const editedImgUrl = URL.createObjectURL(editedImgBlob);
+
     // Create the thumbnail html element to add it in the side container
     const thumbnail = createElement("div", ["thumbnail-ctnr"]);
     thumbnail.innerHTML = `
@@ -174,7 +178,7 @@ export const camera = (parent) => {
 
     const img = thumbnail.querySelector("img");
     // Give to the image the base64 encoded image we received from the backend
-    img.src = response.image;
+    img.src = editedImgUrl;
 
     const removeBtn = thumbnail.querySelector(".remove-btn");
     removeBtn.addEventListener("click", () => thumbnail.remove());
@@ -198,14 +202,22 @@ export const camera = (parent) => {
       });
 
       const confirmBtn = confirmation.querySelector(".green_msg");
-      confirmBtn.addEventListener("click", () => {
-        // transformer l'image en data envoyable par POST
+      confirmBtn.addEventListener("click", async () => {
+        const newResponse = await postHttpRequest(
+          "http://localhost:4000/post/new",
+          { "Content-Type": "application/json" },
+          response.image.data
+        );
 
-        thumbnail.style = "border: 1px solid green";
-        shareBtn.innerHTML = "";
-        shareBtn.style = "cursor:auto;";
-        shareBtn.disable = true;
-        confirmation.remove();
+        if (newResponse.ok) {
+          thumbnail.style = "border: 1px solid green";
+          shareBtn.innerHTML = "";
+          shareBtn.style = "cursor:auto;";
+          shareBtn.disable = true;
+          confirmation.remove();
+        } else {
+          thumbnail.style = "border: 1px solid red";
+        }
       });
 
       thumbnailUnderlayer.append(confirmation);
