@@ -34,6 +34,7 @@ import {
   getPostsNb,
   getReactions,
   likePost,
+  newPost,
 } from "./controllers/galleryController.js";
 
 try {
@@ -110,6 +111,11 @@ app
   .options((req, res) => res.end());
 
 app.get("/gallery/postnb", getPostsNb);
+
+app
+  .route("/newpost")
+  .post(authGuard, newPost)
+  .options((req, res) => res.end());
 
 app.listen(4000, () => {
   console.log("Listening for request");

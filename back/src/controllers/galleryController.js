@@ -99,3 +99,18 @@ export const comment = async (req, res) => {
 
   res.json({ sent: true });
 };
+
+import mergeImages from "merge-images";
+import { Canvas, Image } from "canvas";
+
+export const newPost = async (req, res) => {
+  const baseImg = req.files.baseImg[0].filepath;
+  const supImg = req.files.supImg[0].filepath;
+
+  mergeImages([baseImg, supImg], {
+    Canvas: Canvas,
+    Image: Image,
+  }).then((b64) => {
+    return res.json({ image: b64 });
+  });
+};
