@@ -117,3 +117,57 @@ export const comment = async (uid, pid, comment) => {
     throw new DBError("Count error", "Post", err);
   }
 };
+
+export const create = async (uid, photo) => {
+  try {
+    const { rows } = await db.query(
+      "INSERT INTO posts(user_id, photo) VALUES($1, $2) returning *",
+      [uid, photo]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Create error", "Post", err);
+  }
+};
+
+export const getCreations = async (uid) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT posts.created_date, posts.id
+       FROM posts INNER JOIN users
+       ON posts.user_id = users.id
+       WHERE posts.user_id = $1
+       ORDER BY posts.created_date DESC
+       `,
+      [uid]
+    );
+    return !rows.length ? null : rows;
+  } catch (err) {
+    throw new DBError("Find error", "Post", err);
+  }
+};
+
+export const getPhotoCreation = async (postId) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT posts.photo FROM posts
+       WHERE posts.id = $1`,
+      [postId]
+    );
+    return !rows.length ? null : rows[0];
+  } catch (err) {
+    throw new DBError("Find error", "Post", err);
+  }
+};
+
+export const deleteOne = async (postId, userId) => {
+  try {
+    const { rows } = await db.query(
+      `DELETE FROM posts WHERE user_id=$2 AND id=$1 returning *`,
+      [postId, userId]
+    );
+    return !rows.length ? null : rows;
+  } catch (err) {
+    throw new DBError("Find error", "Post", err);
+  }
+};

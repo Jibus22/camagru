@@ -19,7 +19,7 @@ const db_tables = [
   user_id UUID NOT NULL,
   photo BYTEA NOT NULL,
   created_date TIMESTAMP DEFAULT current_timestamp,
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     `,
   },
   {
@@ -29,8 +29,8 @@ const db_tables = [
   user_id UUID NOT NULL,
   post_id UUID NOT NULL,
   created_date TIMESTAMP DEFAULT current_timestamp,
-  FOREIGN KEY (post_id) REFERENCES posts(id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     `,
   },
   {
@@ -38,8 +38,8 @@ const db_tables = [
     query: `id SERIAL PRIMARY KEY,
   user_id UUID NOT NULL,
   post_id UUID NOT NULL,
-  FOREIGN KEY (post_id) REFERENCES posts(id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     `,
   },
   {

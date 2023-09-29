@@ -1,3 +1,4 @@
+import Creations from "./views/creations/Creations";
 import Edit from "./views/edit/Edit";
 import Home from "./views/home/Home";
 import Profile from "./views/profile/Profile";
@@ -43,6 +44,7 @@ export const router = async () => {
     { path: "/signup", view: Signup },
     { path: "/password_reset", view: PasswordReset },
     { path: "/edit", view: Edit },
+    { path: "/creations", view: Creations },
     { path: "/profile", view: Profile },
   ];
 

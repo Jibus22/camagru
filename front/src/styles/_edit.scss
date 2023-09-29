@@ -141,9 +141,36 @@ $width-breakpoint: 700px;
           width: 100%;
           object-fit: contain;
         }
+        &__confirmation {
+          width: 100%;
+          display: flex;
+          position: absolute;
+          right: 0;
+          bottom: 0;
+        }
       }
     }
   }
+}
+
+@mixin _buttonStyle {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 300;
+  border: 1px solid getColor(border-color);
+  padding: 5px 16px;
+  cursor: pointer;
+  color: white;
+}
+
+.green_msg {
+  @include _buttonStyle();
+  background-color: $greenbtn;
+}
+
+.red_msg {
+  @include _buttonStyle();
+  background-color: $redbtn;
 }
 
 .superposable-selected {

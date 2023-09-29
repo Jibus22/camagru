@@ -99,3 +99,66 @@ export const comment = async (req, res) => {
 
   res.json({ sent: true });
 };
+
+import mergeImages from "merge-images";
+import { Canvas, Image } from "canvas";
+
+export const newPost = async (req, res) => {
+  const baseImg = req.files.baseImg[0].filepath;
+  const supImg = req.files.supImg[0].filepath;
+
+  mergeImages([baseImg, supImg], {
+    Canvas: Canvas,
+    Image: Image,
+  }).then((b64) => {
+    const buffer = Buffer.from(b64.replace(/^[\w\d/;:]+,/, ""), "base64");
+    return res.json({ image: buffer });
+  });
+};
+
+export const postPublish = async (req, res) => {
+  const photo = new Uint8Array(req.body);
+
+  try {
+    await Post.create(req.session.id, photo);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ ok: false, msg: "internal error." });
+  }
+
+  res.json({ ok: true, msg: "published" });
+};
+
+export const getCreations = async (req, res) => {
+  let creations;
+  try {
+    creations = await Post.getCreations(req.session.id);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ ok: false, msg: "internal error." });
+  }
+
+  res.json({ ok: true, creations });
+};
+
+export const getPhotoCreation = async (req, res) => {
+  try {
+    const { photo } = await Post.getPhotoCreation(req.body.id);
+    console.log(photo);
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.end(photo);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ ok: false, msg: "internal error." });
+  }
+};
+
+export const deletePost = async (req, res) => {
+  try {
+    await Post.deleteOne(req.body.id, req.session.id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ ok: false, msg: "internal error." });
+  }
+};

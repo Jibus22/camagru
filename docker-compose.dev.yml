@@ -2,7 +2,7 @@ name: camagru
 
 services:
   frontend:
-    image: node:18-alpine
+    image: node:18-buster-slim
     container_name: frontend
     ports:
       - 5173:5173
@@ -11,11 +11,11 @@ services:
       - backend
     volumes:
       - ./front/:/app
-      - /app/node_modules #Excludes node_modules dir from the host
+      - /app/node_modules # Excludes node_modules dir from the host
     command: sh -c "npm install && npm run dev"
 
   backend:
-    image: node:18-alpine
+    image: node:18-buster-slim
     container_name: backend
     ports:
       - 4000:4000
@@ -30,7 +30,7 @@ services:
       - mailPass
     volumes:
       - ./back/:/app
-      - /app/node_modules #Excludes node_modules dir from the host
+      - /app/node_modules
     command: sh -c "npm install && npm run dev"
 
   adminer:

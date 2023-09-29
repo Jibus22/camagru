@@ -1,6 +1,5 @@
 import { createElement, postHttpRequest } from "../../utils/utils.js";
 import AbstractView from "../AbstractView.js";
-import { data_post } from "../data/home.js";
 import { post__author } from "./post__author.js";
 import { post__image } from "./post__image.js";
 import { post__reaction } from "./reaction/post__reaction.js";
@@ -22,7 +21,6 @@ export default class extends AbstractView {
       credentials: "include",
     });
 
-    console.log(response);
     if (!response.ok) return;
 
     const body = await response.json();
