@@ -56,6 +56,14 @@ const leftNavBar = () => {
   const edit = addNavButton("a", ["navtxt", "header__nav"], "/edit", `Edit`);
   elem.append(edit);
 
+  const creations = addNavButton(
+    "a",
+    ["navtxt", "header__nav"],
+    "/creations",
+    `Creations`
+  );
+  elem.append(creations);
+
   return elem;
 };
 

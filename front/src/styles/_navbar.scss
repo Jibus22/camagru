@@ -1,5 +1,7 @@
 @use "variables" as *;
 
+$width-breakpoint: 700px;
+
 .header {
   position: fixed;
   top: 0;
@@ -23,6 +25,10 @@
       margin: .1rem 1rem;
       border-radius: $radius;
       transition: $transition-2;
+      @media (max-width: $width-breakpoint) {
+        padding: .1rem .2rem;
+        margin: .1rem .3rem;
+      }
     }
     .navtxt:hover {
       background-color: getColor(bg-hover-light);
