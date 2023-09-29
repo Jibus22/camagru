@@ -1,4 +1,5 @@
 import http from "http";
+import fs from "fs";
 
 export const mailRegex = /^[-.\w]+@([\w-]+\.)+[\w-]+$/;
 export const passwordRegex = /^([\w.,#!?$%^&*;:"'{}\/\\=`~()-]{7,60})$/;
@@ -88,4 +89,13 @@ export const httpPost = async (config) => {
 
   const response = await getResponse(req);
   return response;
+};
+
+export const removeFiles = (files) => {
+  files.forEach((file) => {
+    fs.unlink(file, (err) => {
+      if (err) console.error(err);
+      if (process.env.DEV) console.log(`File ${file} is deleted.`);
+    });
+  });
 };

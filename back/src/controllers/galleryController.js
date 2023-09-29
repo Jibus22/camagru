@@ -1,6 +1,9 @@
 import { sendMail } from "../mail/sendMail.js";
 import * as Post from "../models/postModel.js";
 import * as User from "../models/userModel.js";
+import mergeImages from "merge-images";
+import { Canvas, Image } from "canvas";
+import { removeFiles } from "../utils.js";
 
 export const getPosts = async (req, res) => {
   const { page, limit } = req.body;
@@ -98,9 +101,6 @@ export const comment = async (req, res) => {
   res.json({ sent: true });
 };
 
-import mergeImages from "merge-images";
-import { Canvas, Image } from "canvas";
-
 export const newPost = async (req, res) => {
   const baseImg = req.files.baseImg[0].filepath;
   const supImg = req.files.supImg[0].filepath;
@@ -110,7 +110,8 @@ export const newPost = async (req, res) => {
     Image: Image,
   }).then((b64) => {
     const buffer = Buffer.from(b64.replace(/^[\w\d/;:]+,/, ""), "base64");
-    return res.json({ image: buffer });
+    res.json({ image: buffer });
+    removeFiles([baseImg, supImg]);
   });
 };
 
