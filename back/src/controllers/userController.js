@@ -65,7 +65,7 @@ export const editProfile = async (req, res) => {
           }</h2><p>Please confirm your mail update by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
         });
       } catch (err) {
-        console.log(err);
+        console.error(err);
         await MailUpdate.deleteById(newMail.id);
       }
 
@@ -88,7 +88,7 @@ export const editProfile = async (req, res) => {
 
     return res.json({ auth: true, msg: info });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({
       auth: info.length > 0 ? true : false,
       msg: "internal error." + info,
@@ -102,7 +102,7 @@ export const updateAvatar = async (req, res) => {
   try {
     await User.updateById(req.session.id, { photo });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 

@@ -9,8 +9,6 @@ export const getPosts = async (req, res) => {
 
   const posts = await Post.findSome(page - 1, limit);
 
-  console.log(posts);
-
   return res.json(posts);
 };
 
@@ -40,7 +38,7 @@ export const likePost = async (req, res) => {
       await Post.like(req.session.id, id);
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false });
   }
 
@@ -54,7 +52,7 @@ export const getComments = async (req, res) => {
   try {
     comments = await Post.getComments(id);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json([]);
   }
 
@@ -67,7 +65,7 @@ export const getPostsNb = async (req, res) => {
   try {
     count = await Post.count();
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json([]);
   }
 
@@ -93,7 +91,7 @@ export const comment = async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ sent: false });
   }
 
@@ -122,7 +120,7 @@ export const postPublish = async (req, res) => {
   try {
     await Post.create(req.session.id, photo);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 
@@ -134,7 +132,7 @@ export const getCreations = async (req, res) => {
   try {
     creations = await Post.getCreations(req.session.id);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 
@@ -144,11 +142,11 @@ export const getCreations = async (req, res) => {
 export const getPhotoCreation = async (req, res) => {
   try {
     const { photo } = await Post.getPhotoCreation(req.body.id);
-    console.log(photo);
+
     res.setHeader("Content-Type", "application/octet-stream");
     res.end(photo);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 };
@@ -158,7 +156,7 @@ export const deletePost = async (req, res) => {
     await Post.deleteOne(req.body.id, req.session.id);
     res.json({ ok: true });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 };

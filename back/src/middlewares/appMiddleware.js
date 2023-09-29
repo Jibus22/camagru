@@ -12,7 +12,7 @@ export const allowCors = (req, res, next) => {
 };
 
 export const logRequest = (req, res, next) => {
-  console.log("[ " + req.method + " " + req.url + " ]");
+  if (process.env.DEV) console.log("[ " + req.method + " " + req.url + " ]");
   next();
 };
 

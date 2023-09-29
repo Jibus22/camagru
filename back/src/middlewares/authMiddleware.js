@@ -56,7 +56,7 @@ const findDuplicates = async ({ email, username }) => {
       if (user?.email) return "This email is not available.";
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return "error";
   }
   return null;
@@ -154,7 +154,7 @@ export const pwdResetSanitize = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.json({ coucou: "pwdResetSanitize err" });
   }
 };
@@ -188,7 +188,7 @@ export const mailUpdateSanitize = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ coucou: "err" });
   }
 };

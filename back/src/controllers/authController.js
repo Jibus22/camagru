@@ -75,7 +75,7 @@ export const signUp = async (req, res) => {
       // Triggered when email isn't valid, so we delete the created tables
       // without warning the user of this issue to prevent scammers to fetch
       // email validity if ever we would feedback this.
-      console.log(err);
+      console.error(err);
       await User.deleteById(newUser.id);
     }
 
@@ -88,7 +88,7 @@ export const signUp = async (req, res) => {
       } minutes`,
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     if (newUser) await User.deleteById(newUser.id);
 
     return res.status(401).json({
@@ -110,7 +110,7 @@ export const confirmRegistration = async (req, res) => {
 
     const user = await User.findByRegistrationToken(req.params.token);
 
-    console.log(user);
+    if (process.env.DEV) console.log(user);
 
     if (!user) return res.redirect(301, "http://localhost:5173");
 
@@ -122,7 +122,7 @@ export const confirmRegistration = async (req, res) => {
 
     res.json({ niquel: "michel" });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.redirect(301, "http://localhost:5173");
   }
 };
@@ -146,7 +146,7 @@ export const confirmPwdReset = async (req, res) => {
       msg: "Check your mail to reset your password",
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.json({ auth: false, msg: "faillllll" });
   }
 };
@@ -172,7 +172,7 @@ export const pwdReset = async (req, res) => {
 
     res.json({ auth: true, msg: "pouet pouet" });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.json({ auth: false, msg: "caca boudin" });
   }
 };
@@ -190,7 +190,7 @@ export const mailUpdate = async (req, res) => {
     await User.updateById(req.session.id, { email: req.session.newEmail });
     return res.json({ auth: true, msg: "email has been updated !" });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ msg: "internal error" });
   }
 };
