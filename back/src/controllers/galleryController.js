@@ -128,3 +128,37 @@ export const postPublish = async (req, res) => {
 
   res.json({ ok: true, msg: "published" });
 };
+
+export const getCreations = async (req, res) => {
+  let creations;
+  try {
+    creations = await Post.getCreations(req.session.id);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ ok: false, msg: "internal error." });
+  }
+
+  res.json({ ok: true, creations });
+};
+
+export const getPhotoCreation = async (req, res) => {
+  try {
+    const { photo } = await Post.getPhotoCreation(req.body.id);
+    console.log(photo);
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.end(photo);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ ok: false, msg: "internal error." });
+  }
+};
+
+export const deletePost = async (req, res) => {
+  try {
+    await Post.deleteOne(req.body.id, req.session.id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ ok: false, msg: "internal error." });
+  }
+};

@@ -29,7 +29,10 @@ import {
 } from "./middlewares/appMiddleware.js";
 import {
   comment,
+  deletePost,
   getComments,
+  getCreations,
+  getPhotoCreation,
   getPosts,
   getPostsNb,
   getReactions,
@@ -122,6 +125,21 @@ app
   .route("/post/new")
   .post(authGuard, postPublish)
   .options((req, res) => res.end());
+
+app.get("/gallery/creations", authGuard, getCreations);
+
+app
+  .route("/gallery/creations/photo")
+  .post(authGuard, getPhotoCreation)
+  .options((req, res) => res.end());
+
+app
+  .route("/gallery/creations/delete")
+  .delete(authGuard, deletePost)
+  .options((req, res) => {
+    res.setHeader("Access-Control-Allow-Methods", "DELETE");
+    res.end();
+  });
 
 app.listen(4000, () => {
   console.log("Listening for request");
