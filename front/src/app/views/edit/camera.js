@@ -226,9 +226,7 @@ export const camera = (parent) => {
 
         if (newResponse.ok) {
           thumbnail.style = "border: 1px solid green";
-          shareBtn.innerHTML = "";
-          shareBtn.style = "cursor:auto;";
-          shareBtn.disable = true;
+          shareBtn.style = "display:none";
           confirmation.remove();
         } else {
           thumbnail.style = "border: 1px solid red";
