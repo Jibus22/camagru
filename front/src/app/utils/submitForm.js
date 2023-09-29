@@ -49,7 +49,7 @@ export const submitForm = async (e, form, url, cb, id = "") => {
 
     cb(response, btnTimeout);
   } catch (err) {
-    console.error("form error: " + err);
+    return;
     // display something to say it din't worked, try again.
   }
 };

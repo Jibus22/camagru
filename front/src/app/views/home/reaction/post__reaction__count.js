@@ -1,11 +1,17 @@
 import { createElement, postHttpRequest } from "../../../utils/utils";
 
 const setReactionData = async (reactionCount, id) => {
-  const reactions = await postHttpRequest(
-    "http://localhost:4000/gallery/postreactions",
-    { "Content-Type": "application/json" },
-    { id }
-  );
+  let reactions;
+
+  try {
+    reactions = await postHttpRequest(
+      "http://localhost:4000/gallery/postreactions",
+      { "Content-Type": "application/json" },
+      { id }
+    );
+  } catch (err) {
+    return;
+  }
 
   const likes = reactionCount
     .querySelector(".post__reaction__count__likes")
@@ -26,11 +32,17 @@ const setReactionData = async (reactionCount, id) => {
   let isLiked = reactions.liked;
   let likeCnt = parseInt(reactions.like_cnt);
   likeBtn.addEventListener("click", async () => {
-    const response = await postHttpRequest(
-      "http://localhost:4000/gallery/postreactions/like",
-      { "Content-Type": "application/json" },
-      { id, isLiked }
-    );
+    let response;
+
+    try {
+      response = await postHttpRequest(
+        "http://localhost:4000/gallery/postreactions/like",
+        { "Content-Type": "application/json" },
+        { id, isLiked }
+      );
+    } catch (err) {
+      return;
+    }
 
     if (!response.ok) return;
 

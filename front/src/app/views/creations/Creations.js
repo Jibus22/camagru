@@ -8,11 +8,17 @@ export default class extends AbstractView {
   }
 
   async myCreationReactionsSet(myCreation, { id }) {
-    const reactions = await postHttpRequest(
-      "http://localhost:4000/gallery/postreactions",
-      { "Content-Type": "application/json" },
-      { id }
-    );
+    let reactions;
+
+    try {
+      reactions = await postHttpRequest(
+        "http://localhost:4000/gallery/postreactions",
+        { "Content-Type": "application/json" },
+        { id }
+      );
+    } catch (err) {
+      return;
+    }
 
     const like = myCreation.querySelector(".like");
     const comment = myCreation.querySelector(".comment");
@@ -27,15 +33,19 @@ export default class extends AbstractView {
   }
 
   async myCreationPhotoSet(myCreation, { id }) {
-    const response = await fetch(
-      "http://localhost:4000/gallery/creations/photo",
-      {
+    let response;
+
+    try {
+      response = await fetch("http://localhost:4000/gallery/creations/photo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ id }),
-      }
-    );
+      });
+    } catch (err) {
+      if (import.meta.env.DEV) console.error(`Error at fetch: ${err}`);
+      return;
+    }
 
     if (!response.ok) return;
 
@@ -49,9 +59,16 @@ export default class extends AbstractView {
   async displayCreations(creations) {
     creations.innerHTML = "";
 
-    const response = await fetch("http://localhost:4000/gallery/creations", {
-      credentials: "include",
-    });
+    let response;
+
+    try {
+      response = await fetch("http://localhost:4000/gallery/creations", {
+        credentials: "include",
+      });
+    } catch (err) {
+      if (import.meta.env.DEV) console.error(`Error at get creations: ${err}`);
+      return;
+    }
 
     const myCreations = await response.json();
 
@@ -88,15 +105,23 @@ export default class extends AbstractView {
 
       const deleteBtn = myCreation.querySelector(".remove-btn");
       deleteBtn.addEventListener("click", async () => {
-        const response = await fetch(
-          "http://localhost:4000/gallery/creations/delete",
-          {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ id: item.id }),
-          }
-        );
+        let response;
+
+        try {
+          response = await fetch(
+            "http://localhost:4000/gallery/creations/delete",
+            {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ id: item.id }),
+            }
+          );
+        } catch (err) {
+          if (import.meta.env.DEV)
+            console.error(`Error at delete creation: ${err}`);
+          return;
+        }
 
         if (!response.ok) return;
         myCreation.remove();

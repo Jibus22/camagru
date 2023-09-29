@@ -63,11 +63,15 @@ const setCommentForm = (reaction, commentSection, id, allComments) => {
 
 const displayComments = async (id, allComments) => {
   let coms;
-  coms = await postHttpRequest(
-    "http://localhost:4000/gallery/postreactions/getcomments",
-    { "Content-Type": "application/json" },
-    { id }
-  );
+  try {
+    coms = await postHttpRequest(
+      "http://localhost:4000/gallery/postreactions/getcomments",
+      { "Content-Type": "application/json" },
+      { id }
+    );
+  } catch (err) {
+    return;
+  }
 
   if (!coms || !coms.length) {
     coms = [];
