@@ -1,3 +1,4 @@
+import fs from "fs";
 import bcrypt from "bcrypt";
 import { sendMail } from "../mail/sendMail.js";
 import * as db from "../db/index.js";
@@ -57,10 +58,13 @@ export const signUp = async (req, res) => {
   let newUser;
   try {
     let hash;
+    let defaultAvatar = fs.readFileSync("src/assets/default.jpg");
+    defaultAvatar = new Uint8Array(defaultAvatar);
+
     const { email, username, password } = req.body;
     hash = await bcrypt.hash(password, saltRounds);
 
-    newUser = await User.create(email, username, hash);
+    newUser = await User.create(email, username, hash, defaultAvatar);
     const newRegistration = await Registration.create(newUser.id);
 
     const link = "http://localhost:4000/registration/" + newRegistration.rid;

@@ -50,11 +50,12 @@ export const findByEmail = async (email) => {
   }
 };
 
-export const create = async (email, username, hash) => {
+export const create = async (email, username, hash, photo) => {
   try {
     const { rows } = await db.query(
-      "INSERT INTO users(email, username, password) VALUES($1, $2, $3) returning *",
-      [email, username, hash]
+      `INSERT INTO users(email, username, password, photo)
+      VALUES($1, $2, $3, $4) returning *`,
+      [email, username, hash, photo]
     );
     return !rows.length ? null : rows[0];
   } catch (err) {
