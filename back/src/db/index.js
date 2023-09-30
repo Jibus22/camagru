@@ -2,26 +2,29 @@
 
 import fs from "fs";
 import pg from "pg";
-const { Pool } = pg;
 
-const path_to_database_name = "/run/secrets/db-name";
-const path_to_password = "/run/secrets/db-password";
-const path_to_database_user = "/run/secrets/db-user";
+const { Pool } = pg;
 
 let db_conn = {
   host: "postgresql_db",
   port: 5432,
 };
 
-try {
-  db_conn.database = fs.readFileSync(path_to_database_name, "utf8");
-  db_conn.user = fs.readFileSync(path_to_database_user, "utf8");
-  db_conn.password = fs.readFileSync(path_to_password, "utf8");
-} catch (err) {
-  console.error(err);
-}
+let pool;
 
-const pool = new Pool(db_conn);
+export const dbConnection = () => {
+  const path_to_password = "/run/secrets/db-password";
+
+  try {
+    db_conn.database = process.env.POSTGRES_DB;
+    db_conn.user = process.env.POSTGRES_USER;
+    db_conn.password = fs.readFileSync(path_to_password, "utf8");
+    pool = new Pool(db_conn);
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
 
 export const query = async (text, params) => {
   const start = Date.now();

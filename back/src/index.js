@@ -40,12 +40,13 @@ import {
   newPost,
   postPublish,
 } from "./controllers/galleryController.js";
+import { dbConnection } from "./db/index.js";
 
 try {
+  dbConnection();
   await migrate();
 } catch (err) {
-  console.error("database migration error:");
-  console.error(err);
+  process.exit(1);
 }
 
 const app = new Jibuxpress();
