@@ -148,8 +148,6 @@ export const pwdResetSanitize = async (req, res, next) => {
 
     if (!user) return res.redirect(301, "http://localhost:5173");
 
-    await ResetPassword.deleteById(user.pwd_id);
-
     req.user = user;
 
     next();

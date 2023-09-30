@@ -70,7 +70,7 @@ export default class extends AbstractView {
           <img class="newavatar div_hide"/>
         </div>
       </label>
-      <input id="file-upload" type="file" accept="image/*">
+      <input id="file-upload" type="file" accept="image/jpeg">
       <p class="profile_prez__username" >${me.username}</p>
       <p class="profile_prez__email" >${me.email}</p>
       <hr/>

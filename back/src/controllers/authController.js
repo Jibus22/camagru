@@ -166,18 +166,20 @@ export const pwdReset = async (req, res) => {
 
     await User.updateById(req.user.id, { password: hash });
 
-    await Auth.deleteSessionByUserId(req.user.id);
-
     await sendMail({
       to: req.user.email,
       subject: "new password",
-      html: `<h2>Hi ${username}</h2><p>Your new password is: ${newpwd}</p>`,
+      html: `<h2>Hi ${req.user.username}</h2><p>Your new password is: ${newPwd}</p>`,
     });
 
-    res.json({ auth: true, msg: "pouet pouet" });
+    await Auth.deleteSessionByUserId(req.user.id);
+
+    await ResetPassword.deleteById(req.user.pwd_id);
+
+    res.json({ auth: true, msg: "Check your mail to get your new password" });
   } catch (err) {
     console.error(err);
-    res.json({ auth: false, msg: "caca boudin" });
+    res.json({ auth: false, msg: "An error occured, try again" });
   }
 };
 

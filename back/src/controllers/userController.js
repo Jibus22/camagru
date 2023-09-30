@@ -1,5 +1,9 @@
+import bcrypt from "bcrypt";
+import { sendMail } from "../mail/sendMail.js";
 import * as User from "../models/userModel.js";
 import * as MailUpdate from "../models/mailUpdateModel.js";
+
+const saltRounds = 10; // salting complexity
 
 export const me = async (req, res) => {
   if (req.session) {
