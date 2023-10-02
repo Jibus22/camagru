@@ -26,7 +26,7 @@ services:
     env_file:
       - .env
     environment:
-      - DEV
+      - DEV=1
     secrets:
       - db-password
       - mailUser
