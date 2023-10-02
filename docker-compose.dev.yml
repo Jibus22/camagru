@@ -1,9 +1,9 @@
-name: camagru
+name: camagru_dev
 
 services:
   frontend:
     image: node:18-buster-slim
-    container_name: frontend
+    container_name: frontend_dev
     ports:
       - 5173:5173
     working_dir: /app
@@ -16,7 +16,7 @@ services:
 
   backend:
     image: node:18-buster-slim
-    container_name: backend
+    container_name: backend_dev
     ports:
       - 4000:4000
     working_dir: /app
@@ -37,8 +37,8 @@ services:
     command: sh -c "npm install && npm run dev"
 
   adminer:
-    container_name: adminer
     image: adminer
+    container_name: adminer_dev
     ports:
       - 8080:8080
     restart: always
@@ -47,7 +47,7 @@ services:
 
   postgresql_db:
     image: postgres:15.3-alpine
-    container_name: postgresql
+    container_name: postgresql_dev
     expose:
       - 5432
     restart: always

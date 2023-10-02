@@ -2,7 +2,7 @@ import http from "http";
 import fs from "fs";
 
 export const FRONTENDORIGIN = process.env.PROD
-  ? "https://localhost"
+  ? "http://localhost"
   : "http://localhost:5173";
 
 export const frontendBasename = (url) => `/${FRONTENDORIGIN}${url}`;

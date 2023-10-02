@@ -37,7 +37,9 @@ transporter.verify((error, success) => {
     process.exit(1);
   } else {
     if (process.env.DEV)
-      console.log("Server is ready to take our messages\n" + success);
+      console.log(
+        "Mail server is ready to take our messages. (" + success + ")"
+      );
   }
 });
 
