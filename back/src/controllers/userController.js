@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { sendMail } from "../mail/sendMail.js";
 import * as User from "../models/userModel.js";
 import * as MailUpdate from "../models/mailUpdateModel.js";
+import { backendBasename } from "../utils.js";
 
 const saltRounds = 10; // salting complexity
 
@@ -58,7 +59,7 @@ export const editProfile = async (req, res) => {
     if (email) {
       const newMail = await MailUpdate.create(req.session.id, email);
 
-      const link = "http://localhost:4000/mailupdate/" + newMail.id;
+      const link = backendBasename("/mailupdate/") + newMail.id;
 
       try {
         await sendMail({

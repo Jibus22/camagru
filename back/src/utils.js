@@ -1,6 +1,15 @@
 import http from "http";
 import fs from "fs";
 
+export const FRONTENDORIGIN = process.env.PROD
+  ? "https://localhost"
+  : "http://localhost:5173";
+
+export const frontendBasename = (url) => `/${FRONTENDORIGIN}${url}`;
+
+const BACKENDORIGIN = "http://localhost:4000";
+export const backendBasename = (url) => `/${BACKENDORIGIN}${url}`;
+
 export const mailRegex = /^[-.\w]+@([\w-]+\.)+[\w-]+$/;
 export const passwordRegex = /^([\w.,#!?$%^&*;:"'{}\/\\=`~()-]{7,60})$/;
 export const usernameRegex = /^([\w-]{4,15})$/;

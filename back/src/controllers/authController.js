@@ -6,7 +6,7 @@ import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
 import * as Registration from "../models/registrationModel.js";
 import * as ResetPassword from "../models/resetPasswordModel.js";
-import { uuidv4Regex } from "../utils.js";
+import { backendBasename, FRONTENDORIGIN, uuidv4Regex } from "../utils.js";
 
 const maxSessionAge = 3600 * 24; // 24h sessions
 const maxRegistrationAge = 3600 * 1; // 1h registration
@@ -67,7 +67,7 @@ export const signUp = async (req, res) => {
     newUser = await User.create(email, username, hash, defaultAvatar);
     const newRegistration = await Registration.create(newUser.id);
 
-    const link = "http://localhost:4000/registration/" + newRegistration.rid;
+    const link = backendBasename("/registration/") + newRegistration.rid;
 
     try {
       await sendMail({
@@ -109,16 +109,16 @@ export const confirmRegistration = async (req, res) => {
     await Registration.deleteOutdated(date);
 
     if (!uuidv4Regex.test(req.params.token)) {
-      return res.redirect(301, "http://localhost:5173");
+      return res.redirect(301, FRONTENDORIGIN);
     }
 
     const user = await User.findByRegistrationToken(req.params.token);
 
     if (process.env.DEV) console.log(user);
 
-    if (!user) return res.redirect(301, "http://localhost:5173");
+    if (!user) return res.redirect(301, FRONTENDORIGIN);
 
-    if (user.registered) return res.redirect(301, "http://localhost:5173");
+    if (user.registered) return res.redirect(301, FRONTENDORIGIN);
 
     await Registration.deleteById(user.rid);
 
@@ -127,7 +127,7 @@ export const confirmRegistration = async (req, res) => {
     res.json({ niquel: "michel" });
   } catch (err) {
     console.error(err);
-    res.redirect(301, "http://localhost:5173");
+    res.redirect(301, FRONTENDORIGIN);
   }
 };
 
@@ -137,7 +137,7 @@ export const confirmPwdReset = async (req, res) => {
   const { email, username, id } = req.user;
   try {
     const newPwd = await ResetPassword.create(id);
-    const link = "http://localhost:4000/pwdreset/" + newPwd.id;
+    const link = backendBasename("/pwdreset/") + newPwd.id;
 
     await sendMail({
       to: email,
