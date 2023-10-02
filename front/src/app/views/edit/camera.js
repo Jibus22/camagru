@@ -35,7 +35,8 @@ export const camera = (parent) => {
       window.localStream = stream;
     })
     .catch((err) => {
-      console.error(`Une erreur est survenue : ${err}`);
+      if (import.meta.env.DEV)
+        console.error(`Une erreur est survenue : ${err}`);
       previewVideo.classList.add("div_hide");
     });
 
@@ -152,14 +153,22 @@ export const camera = (parent) => {
     const formData = new FormData();
     formData.append("baseImg", baseImageBlob);
     formData.append("supImg", superposableImageBlob);
-    // Send blobs to backend in multipart form data content-type.
-    let response = await fetch("http://localhost:4000/newpost", {
-      method: "POST",
-      body: formData,
-      credentials: "include",
-    });
 
-    // The backend sends back a base64 encoded image into a json
+    let response;
+
+    // Send blobs to backend in multipart form data content-type.
+    try {
+      response = await fetch("http://localhost:4000/newpost", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+    } catch (err) {
+      if (import.meta.env.DEV) console.error(`Error at post newpost: ${err}`);
+      return;
+    }
+
+    // The backend sends back a binary image into a json
     response = await response.json();
 
     const editedImg = new Uint8Array(response.image.data);
@@ -177,7 +186,7 @@ export const camera = (parent) => {
     `;
 
     const img = thumbnail.querySelector("img");
-    // Give to the image the base64 encoded image we received from the backend
+    // Give to img the image url from the binary we received from the backend
     img.src = editedImgUrl;
 
     const removeBtn = thumbnail.querySelector(".remove-btn");
@@ -203,17 +212,21 @@ export const camera = (parent) => {
 
       const confirmBtn = confirmation.querySelector(".green_msg");
       confirmBtn.addEventListener("click", async () => {
-        const newResponse = await postHttpRequest(
-          "http://localhost:4000/post/new",
-          { "Content-Type": "application/json" },
-          response.image.data
-        );
+        let newResponse;
+        try {
+          newResponse = await postHttpRequest(
+            "http://localhost:4000/post/new",
+            { "Content-Type": "application/json" },
+            response.image.data
+          );
+        } catch (err) {
+          thumbnail.style = "border: 1px solid red";
+          return;
+        }
 
         if (newResponse.ok) {
           thumbnail.style = "border: 1px solid green";
-          shareBtn.innerHTML = "";
-          shareBtn.style = "cursor:auto;";
-          shareBtn.disable = true;
+          shareBtn.style = "display:none";
           confirmation.remove();
         } else {
           thumbnail.style = "border: 1px solid red";

@@ -1,4 +1,14 @@
 import http from "http";
+import fs from "fs";
+
+export const FRONTENDORIGIN = process.env.PROD
+  ? "http://localhost"
+  : "http://localhost:5173";
+
+export const frontendBasename = (url) => `/${FRONTENDORIGIN}${url}`;
+
+const BACKENDORIGIN = "http://localhost:4000";
+export const backendBasename = (url) => `/${BACKENDORIGIN}${url}`;
 
 export const mailRegex = /^[-.\w]+@([\w-]+\.)+[\w-]+$/;
 export const passwordRegex = /^([\w.,#!?$%^&*;:"'{}\/\\=`~()-]{7,60})$/;
@@ -88,4 +98,13 @@ export const httpPost = async (config) => {
 
   const response = await getResponse(req);
   return response;
+};
+
+export const removeFiles = (files) => {
+  files.forEach((file) => {
+    fs.unlink(file, (err) => {
+      if (err) console.error(err);
+      if (process.env.DEV) console.log(`File ${file} is deleted.`);
+    });
+  });
 };

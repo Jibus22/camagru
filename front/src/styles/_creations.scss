@@ -1,5 +1,8 @@
 @use "variables" as *;
 
+$width-breakpoint1: 1100px;
+$width-breakpoint2: 700px;
+
 @mixin _btn() {
   background: transparent;
   border-color: transparent;
@@ -12,6 +15,12 @@
   column-gap: 20px;
   row-gap: 40px;
   grid-template-columns: 1fr 1fr 1fr;
+  @media (max-width: $width-breakpoint1) {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: $width-breakpoint2) {
+    grid-template-columns: 1fr;
+  }
   .mycreation {
     display: flex;
     flex-direction: column;

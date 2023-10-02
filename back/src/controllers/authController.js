@@ -1,3 +1,4 @@
+import fs from "fs";
 import bcrypt from "bcrypt";
 import { sendMail } from "../mail/sendMail.js";
 import * as db from "../db/index.js";
@@ -5,7 +6,7 @@ import * as Auth from "../models/authModel.js";
 import * as User from "../models/userModel.js";
 import * as Registration from "../models/registrationModel.js";
 import * as ResetPassword from "../models/resetPasswordModel.js";
-import { uuidv4Regex } from "../utils.js";
+import { backendBasename, FRONTENDORIGIN, uuidv4Regex } from "../utils.js";
 
 const maxSessionAge = 3600 * 24; // 24h sessions
 const maxRegistrationAge = 3600 * 1; // 1h registration
@@ -57,13 +58,16 @@ export const signUp = async (req, res) => {
   let newUser;
   try {
     let hash;
+    let defaultAvatar = fs.readFileSync("src/assets/default.jpg");
+    defaultAvatar = new Uint8Array(defaultAvatar);
+
     const { email, username, password } = req.body;
     hash = await bcrypt.hash(password, saltRounds);
 
-    newUser = await User.create(email, username, hash);
+    newUser = await User.create(email, username, hash, defaultAvatar);
     const newRegistration = await Registration.create(newUser.id);
 
-    const link = "http://localhost:4000/registration/" + newRegistration.rid;
+    const link = backendBasename("/registration/") + newRegistration.rid;
 
     try {
       await sendMail({
@@ -75,7 +79,7 @@ export const signUp = async (req, res) => {
       // Triggered when email isn't valid, so we delete the created tables
       // without warning the user of this issue to prevent scammers to fetch
       // email validity if ever we would feedback this.
-      console.log(err);
+      console.error(err);
       await User.deleteById(newUser.id);
     }
 
@@ -88,7 +92,7 @@ export const signUp = async (req, res) => {
       } minutes`,
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     if (newUser) await User.deleteById(newUser.id);
 
     return res.status(401).json({
@@ -105,16 +109,16 @@ export const confirmRegistration = async (req, res) => {
     await Registration.deleteOutdated(date);
 
     if (!uuidv4Regex.test(req.params.token)) {
-      return res.redirect(301, "http://localhost:5173");
+      return res.redirect(301, FRONTENDORIGIN);
     }
 
     const user = await User.findByRegistrationToken(req.params.token);
 
-    console.log(user);
+    if (process.env.DEV) console.log(user);
 
-    if (!user) return res.redirect(301, "http://localhost:5173");
+    if (!user) return res.redirect(301, FRONTENDORIGIN);
 
-    if (user.registered) return res.redirect(301, "http://localhost:5173");
+    if (user.registered) return res.redirect(301, FRONTENDORIGIN);
 
     await Registration.deleteById(user.rid);
 
@@ -122,8 +126,8 @@ export const confirmRegistration = async (req, res) => {
 
     res.json({ niquel: "michel" });
   } catch (err) {
-    console.log(err);
-    res.redirect(301, "http://localhost:5173");
+    console.error(err);
+    res.redirect(301, FRONTENDORIGIN);
   }
 };
 
@@ -133,7 +137,7 @@ export const confirmPwdReset = async (req, res) => {
   const { email, username, id } = req.user;
   try {
     const newPwd = await ResetPassword.create(id);
-    const link = "http://localhost:4000/pwdreset/" + newPwd.id;
+    const link = backendBasename("/pwdreset/") + newPwd.id;
 
     await sendMail({
       to: email,
@@ -146,7 +150,7 @@ export const confirmPwdReset = async (req, res) => {
       msg: "Check your mail to reset your password",
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.json({ auth: false, msg: "faillllll" });
   }
 };
@@ -162,18 +166,20 @@ export const pwdReset = async (req, res) => {
 
     await User.updateById(req.user.id, { password: hash });
 
-    await Auth.deleteSessionByUserId(req.user.id);
-
     await sendMail({
       to: req.user.email,
       subject: "new password",
-      html: `<h2>Hi ${username}</h2><p>Your new password is: ${newpwd}</p>`,
+      html: `<h2>Hi ${req.user.username}</h2><p>Your new password is: ${newPwd}</p>`,
     });
 
-    res.json({ auth: true, msg: "pouet pouet" });
+    await Auth.deleteSessionByUserId(req.user.id);
+
+    await ResetPassword.deleteById(req.user.pwd_id);
+
+    res.json({ auth: true, msg: "Check your mail to get your new password" });
   } catch (err) {
-    console.log(err);
-    res.json({ auth: false, msg: "caca boudin" });
+    console.error(err);
+    res.json({ auth: false, msg: "An error occured, try again" });
   }
 };
 
@@ -190,7 +196,7 @@ export const mailUpdate = async (req, res) => {
     await User.updateById(req.session.id, { email: req.session.newEmail });
     return res.json({ auth: true, msg: "email has been updated !" });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ msg: "internal error" });
   }
 };

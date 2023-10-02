@@ -17,9 +17,16 @@ export default class extends AbstractView {
 
     pageContent.append(pagination);
 
-    const response = await fetch("http://localhost:4000/gallery/postnb", {
-      credentials: "include",
-    });
+    let response;
+
+    try {
+      response = await fetch("http://localhost:4000/gallery/postnb", {
+        credentials: "include",
+      });
+    } catch (err) {
+      if (import.meta.env.DEV) console.error(`Error at get postnb: ${err}`);
+      return;
+    }
 
     if (!response.ok) return;
 
@@ -61,11 +68,17 @@ export default class extends AbstractView {
   async displayHome(home) {
     home.innerHTML = "";
 
-    const posts = await postHttpRequest(
-      "http://localhost:4000/gallery",
-      { "Content-Type": "application/json" },
-      { page: this.pageIndex * this.itemPerPage + 1, limit: this.itemPerPage }
-    );
+    let posts;
+
+    try {
+      posts = await postHttpRequest(
+        "http://localhost:4000/gallery",
+        { "Content-Type": "application/json" },
+        { page: this.pageIndex * this.itemPerPage + 1, limit: this.itemPerPage }
+      );
+    } catch (err) {
+      return;
+    }
 
     posts.forEach((item) => {
       const post = createElement("div", ["post"]);

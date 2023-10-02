@@ -98,9 +98,16 @@ const rightNavBar = () => {
     logout.innerHTML = `Log&nbsp;out`;
     logout.addEventListener("click", async (e) => {
       e.preventDefault();
-      const response = await fetch("http://localhost:4000/logout", {
-        credentials: "include",
-      });
+      let response;
+
+      try {
+        response = await fetch("http://localhost:4000/logout", {
+          credentials: "include",
+        });
+      } catch (err) {
+        if (import.meta.env.DEV) console.error(`Error at logout: ${err}`);
+        return;
+      }
 
       if (response.status == 200) location.href = "/";
     });

@@ -1,9 +1,9 @@
-name: camagru
+name: camagru_dev
 
 services:
   frontend:
     image: node:18-buster-slim
-    container_name: frontend
+    container_name: frontend_dev
     ports:
       - 5173:5173
     working_dir: /app
@@ -16,16 +16,19 @@ services:
 
   backend:
     image: node:18-buster-slim
-    container_name: backend
+    container_name: backend_dev
     ports:
       - 4000:4000
     working_dir: /app
     depends_on:
-      - postgresql_db
+      postgresql_db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DEV=1
     secrets:
       - db-password
-      - db-name
-      - db-user
       - mailUser
       - mailPass
     volumes:
@@ -34,8 +37,8 @@ services:
     command: sh -c "npm install && npm run dev"
 
   adminer:
-    container_name: adminer
     image: adminer
+    container_name: adminer_dev
     ports:
       - 8080:8080
     restart: always
@@ -44,32 +47,32 @@ services:
 
   postgresql_db:
     image: postgres:15.3-alpine
-    container_name: postgresql
+    container_name: postgresql_dev
     expose:
       - 5432
     restart: always
     user: postgres
     secrets:
       - db-password
-      - db-name
-      - db-user
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER_FILE=/run/secrets/db-user
-      - POSTGRES_DB_FILE=/run/secrets/db-name
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     volumes:
+      - ./postgresql/:/docker-entrypoint-initdb.d/
       - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
 
 volumes:
   db-data:
 
 secrets:
   db-password:
-    file: secret/postgres-password.txt
-  db-name:
-    file: secret/postgres-db-name.txt
-  db-user:
-    file: secret/postgres-user.txt
+    file: not_so_secret/postgres-password.txt
   mailUser:
     file: secret/mailUser.txt
   mailPass:

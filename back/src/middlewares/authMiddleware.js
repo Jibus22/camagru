@@ -3,6 +3,7 @@ import * as User from "../models/userModel.js";
 import * as ResetPassword from "../models/resetPasswordModel.js";
 import * as MailUpdate from "../models/mailUpdateModel.js";
 import {
+  FRONTENDORIGIN,
   mailRegex,
   passwordRegex,
   usernameRegex,
@@ -56,7 +57,7 @@ const findDuplicates = async ({ email, username }) => {
       if (user?.email) return "This email is not available.";
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return "error";
   }
   return null;
@@ -141,20 +142,18 @@ export const pwdResetSanitize = async (req, res, next) => {
     await ResetPassword.deleteOutdated(date);
 
     if (!uuidv4Regex.test(req.params.token)) {
-      return res.redirect(301, "http://localhost:5173");
+      return res.redirect(301, FRONTENDORIGIN);
     }
 
     const user = await User.findByResetPasswordToken(req.params.token);
 
-    if (!user) return res.redirect(301, "http://localhost:5173");
-
-    await ResetPassword.deleteById(user.pwd_id);
+    if (!user) return res.redirect(301, FRONTENDORIGIN);
 
     req.user = user;
 
     next();
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.json({ coucou: "pwdResetSanitize err" });
   }
 };
@@ -173,12 +172,12 @@ export const mailUpdateSanitize = async (req, res, next) => {
     await MailUpdate.deleteOutdated(date);
 
     if (!uuidv4Regex.test(req.params.token)) {
-      return res.redirect(301, "http://localhost:5173");
+      return res.redirect(301, FRONTENDORIGIN);
     }
 
     const response = await MailUpdate.find(req.params.token, req.session.id);
 
-    if (!response) return res.redirect(301, "http://localhost:5173");
+    if (!response) return res.redirect(301, FRONTENDORIGIN);
 
     const { new_email } = response;
 
@@ -188,7 +187,7 @@ export const mailUpdateSanitize = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ coucou: "err" });
   }
 };

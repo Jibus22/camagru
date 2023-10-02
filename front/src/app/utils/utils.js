@@ -1,9 +1,15 @@
 export var me = {};
 
 export const getMe = async () => {
-  const response = await fetch("http://localhost:4000/me", {
-    credentials: "include",
-  });
+  let response;
+  try {
+    response = await fetch("http://localhost:4000/me", {
+      credentials: "include",
+    });
+  } catch (err) {
+    if (import.meta.env.DEV) console.error(`Error at getMe: ${err}`);
+    return;
+  }
 
   const body = await response.json();
 
@@ -68,7 +74,7 @@ export const postHttpRequest = async (fetchLink, headers, body) => {
     const content = await rawResponse.json();
     return content;
   } catch (err) {
-    console.error(`Error at fetch POST: ${err}`);
+    if (import.meta.env.DEV) console.error(`Error at fetch POST: ${err}`);
     throw err;
   }
 };

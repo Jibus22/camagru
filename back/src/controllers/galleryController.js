@@ -1,6 +1,9 @@
 import { sendMail } from "../mail/sendMail.js";
 import * as Post from "../models/postModel.js";
 import * as User from "../models/userModel.js";
+import mergeImages from "merge-images";
+import { Canvas, Image } from "canvas";
+import { removeFiles } from "../utils.js";
 
 export const getPosts = async (req, res) => {
   const { page, limit } = req.body;
@@ -8,8 +11,6 @@ export const getPosts = async (req, res) => {
   if (!page || !limit) return res.status(400).json({ oops: "oops" });
 
   const posts = await Post.findSome(page - 1, limit);
-
-  console.log(posts);
 
   return res.json(posts);
 };
@@ -40,7 +41,7 @@ export const likePost = async (req, res) => {
       await Post.like(req.session.id, id);
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false });
   }
 
@@ -54,7 +55,7 @@ export const getComments = async (req, res) => {
   try {
     comments = await Post.getComments(id);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json([]);
   }
 
@@ -67,7 +68,7 @@ export const getPostsNb = async (req, res) => {
   try {
     count = await Post.count();
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json([]);
   }
 
@@ -83,25 +84,26 @@ export const comment = async (req, res) => {
     await Post.comment(req.session.id, id, comment);
     const postAuthor = await User.findByPost(id);
     if (postAuthor.post_notif) {
-      await sendMail({
-        to: postAuthor.email,
-        subject: "Your post had been commented",
-        html: `<h2>Hi ${postAuthor.username}</h2>
+      try {
+        await sendMail({
+          to: postAuthor.email,
+          subject: "Your post had been commented",
+          html: `<h2>Hi ${postAuthor.username}</h2>
         <p>${req.session.username} commented one of your post:</p>
         <p>${comment}</p>
         `,
-      });
+        });
+      } catch (err) {
+        console.error("INVALID USER MAIL. " + err);
+      }
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ sent: false });
   }
 
   res.json({ sent: true });
 };
-
-import mergeImages from "merge-images";
-import { Canvas, Image } from "canvas";
 
 export const newPost = async (req, res) => {
   const baseImg = req.files.baseImg[0].filepath;
@@ -112,7 +114,8 @@ export const newPost = async (req, res) => {
     Image: Image,
   }).then((b64) => {
     const buffer = Buffer.from(b64.replace(/^[\w\d/;:]+,/, ""), "base64");
-    return res.json({ image: buffer });
+    res.json({ image: buffer });
+    removeFiles([baseImg, supImg]);
   });
 };
 
@@ -122,7 +125,7 @@ export const postPublish = async (req, res) => {
   try {
     await Post.create(req.session.id, photo);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 
@@ -134,7 +137,7 @@ export const getCreations = async (req, res) => {
   try {
     creations = await Post.getCreations(req.session.id);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 
@@ -144,11 +147,11 @@ export const getCreations = async (req, res) => {
 export const getPhotoCreation = async (req, res) => {
   try {
     const { photo } = await Post.getPhotoCreation(req.body.id);
-    console.log(photo);
+
     res.setHeader("Content-Type", "application/octet-stream");
     res.end(photo);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 };
@@ -158,7 +161,7 @@ export const deletePost = async (req, res) => {
     await Post.deleteOne(req.body.id, req.session.id);
     res.json({ ok: true });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 };

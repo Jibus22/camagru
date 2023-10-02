@@ -1,5 +1,10 @@
+import bcrypt from "bcrypt";
+import { sendMail } from "../mail/sendMail.js";
 import * as User from "../models/userModel.js";
 import * as MailUpdate from "../models/mailUpdateModel.js";
+import { backendBasename } from "../utils.js";
+
+const saltRounds = 10; // salting complexity
 
 export const me = async (req, res) => {
   if (req.session) {
@@ -54,7 +59,7 @@ export const editProfile = async (req, res) => {
     if (email) {
       const newMail = await MailUpdate.create(req.session.id, email);
 
-      const link = "http://localhost:4000/mailupdate/" + newMail.id;
+      const link = backendBasename("/mailupdate/") + newMail.id;
 
       try {
         await sendMail({
@@ -65,7 +70,7 @@ export const editProfile = async (req, res) => {
           }</h2><p>Please confirm your mail update by clicking on this link: <a href=${link} target='blank'>link</a></p>`,
         });
       } catch (err) {
-        console.log(err);
+        console.error(err);
         await MailUpdate.deleteById(newMail.id);
       }
 
@@ -88,7 +93,7 @@ export const editProfile = async (req, res) => {
 
     return res.json({ auth: true, msg: info });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({
       auth: info.length > 0 ? true : false,
       msg: "internal error." + info,
@@ -102,7 +107,7 @@ export const updateAvatar = async (req, res) => {
   try {
     await User.updateById(req.session.id, { photo });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ ok: false, msg: "internal error." });
   }
 

@@ -77,7 +77,10 @@ const db_tables = [
   },
 ];
 
-// Creates tables if they don't exist, within a transaction
+/**
+ * Creates tables if they don't exist, within a transaction. Useful when starting
+ * the project with a blank database, for development.
+ */
 export const migrate = async () => {
   const client = await db.getClient();
 
@@ -96,6 +99,7 @@ export const migrate = async () => {
     await client.query("COMMIT");
   } catch (e) {
     await client.query("ROLLBACK");
+    console.error("Migration error: " + e);
     throw e;
   } finally {
     client.release();

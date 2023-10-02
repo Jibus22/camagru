@@ -1,0 +1,76 @@
+name: camagru
+
+services:
+  frontend:
+    image: camagru-front-end
+    build: ./front
+    container_name: frontend
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - backend
+
+  backend:
+    image: node:18-buster-slim
+    container_name: backend
+    ports:
+      - 4000:4000
+    working_dir: /app
+    depends_on:
+      postgresql_db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - PROD=1
+    secrets:
+      - db-password
+      - mailUser
+      - mailPass
+    volumes:
+      - ./back/:/app
+      - /app/node_modules
+    command: sh -c "npm ci && npm run start"
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    ports:
+      - 8080:8080
+    restart: always
+    depends_on:
+      - postgresql_db
+
+  postgresql_db:
+    image: postgres:15.3-alpine
+    container_name: postgresql
+    expose:
+      - 5432
+    restart: always
+    user: postgres
+    secrets:
+      - db-password
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    volumes:
+      - ./postgresql/:/docker-entrypoint-initdb.d/
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:
+
+secrets:
+  db-password:
+    file: not_so_secret/postgres-password.txt
+  mailUser:
+    file: secret/mailUser.txt
+  mailPass:
+    file: secret/mailPass.txt
