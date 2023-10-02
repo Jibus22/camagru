@@ -2,17 +2,14 @@ name: camagru
 
 services:
   frontend:
-    image: node:18-buster-slim
+    image: camagru-front-end
+    build: ./front
     container_name: frontend
     ports:
-      - 5173:5173
-    working_dir: /app
+      - 80:80
+      - 443:443
     depends_on:
       - backend
-    volumes:
-      - ./front/:/app
-      - /app/node_modules # Excludes node_modules dir from the host
-    command: sh -c "npm install && npm run dev"
 
   backend:
     image: node:18-buster-slim
@@ -34,7 +31,7 @@ services:
     volumes:
       - ./back/:/app
       - /app/node_modules
-    command: sh -c "npm install && npm run dev"
+    command: sh -c "npm ci && npm run start"
 
   adminer:
     container_name: adminer
