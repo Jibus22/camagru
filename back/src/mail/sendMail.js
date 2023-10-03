@@ -18,8 +18,10 @@ try {
   }
 }
 
+const host = process.env.HOSTMAIL || "smtp.laposte.net";
+
 const laposteTransport = {
-  host: "smtp.laposte.net",
+  host: host,
   secure: true,
   port: 465,
   auth: {
