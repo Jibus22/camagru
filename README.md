@@ -188,7 +188,7 @@ either in environment variables that you can add into .env file:
 
 Your host mail must be set in `HOSTMAIL` variable (ex: smtp.laposte.net). Note that it must support SMTPS protocol (port 465), otherwise you still can change `back/src/mail/sendMail.js` file to change to SMTP port 587 and remove secure option:
 
-https://github.com/Jibus22/camagru/blob/b29305bf3a6d2fdb287d6e838d25efa65d3d3a5b/back/src/mail/sendMail.js#L21-L29
+https://github.com/Jibus22/camagru/blob/728316781fdd1276ebab79f822c11d61acc39f58/back/src/mail/sendMail.js#L23-L31
 
 <details>
 <summary>Development</summary>
