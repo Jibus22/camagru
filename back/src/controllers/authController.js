@@ -186,7 +186,9 @@ export const pwdReset = async (req, res) => {
 export const logout = async (req, res) => {
   if (!req.session) res.status(401).end();
 
-  await Auth.deleteSessionByUserId(req.session.id);
+  const { sid, id } = req.session;
+
+  await Auth.deleteSessionByUserId(id, sid);
 
   res.end();
 };
